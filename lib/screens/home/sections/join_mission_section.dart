@@ -58,13 +58,13 @@ class JoinMissionSection extends StatelessWidget {
                         _buildOpportunityCard(
                           icon: Icons.trending_up,
                           title: 'Strategic Investors',
-                          description: 'High-impact opportunity at the intersection of EV adoption and asset-light franchising.',
+                          description: 'High-impact opportunity at the intersection of EV adoption growth and asset-light franchising.',
                         ),
                         const SizedBox(height: 24),
                         _buildOpportunityCard(
                           icon: Icons.handshake,
-                          title: 'Channel Partners',
-                          description: 'Join India’s largest EV service ecosystem with standardized processes and OEM parts.',
+                          title: 'Franchisees',
+                          description: 'Empowering entrepreneurs to become part of a trusted national brand with training and OEM parts.',
                         ),
                       ],
                     )
@@ -74,15 +74,15 @@ class JoinMissionSection extends StatelessWidget {
                           child: _buildOpportunityCard(
                             icon: Icons.trending_up,
                             title: 'Strategic Investors',
-                            description: 'High-impact opportunity at the intersection of EV adoption growth and asset-light franchising.',
+                            description: 'A high-impact opportunity at the intersection of EV adoption growth and technology-enabled networks.',
                           ),
                         ),
                         const SizedBox(width: 32),
                         Expanded(
                           child: _buildOpportunityCard(
-                            icon: Icons.handshake,
-                            title: 'Channel Partners',
-                            description: 'Join India’s largest EV service ecosystem with standardized processes and OEM parts.',
+                            icon: Icons.storefront,
+                            title: 'Franchise Partners',
+                            description: 'Empowering local entrepreneurs and existing workshops to become part of a trusted national brand.',
                           ),
                         ),
                       ],

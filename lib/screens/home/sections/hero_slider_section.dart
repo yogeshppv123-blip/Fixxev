@@ -26,22 +26,22 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
 
   final List<Map<String, String>> _slides = [
     {
-      'image': 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // EV Charging/Service
-      'tagline': 'FIXXEV TECHNOLOGIES',
+      'image': 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
+      'tagline': 'LAUNCH ANNOUNCEMENT',
       'title': 'Driving India’s EV Future ⚡',
-      'subtitle': 'Building India’s largest, nationwide standardized EV after-sales service and spares network. Solving the biggest barriers to EV adoption.',
+      'subtitle': 'Fixx EV is solving the biggest barriers to electric vehicle adoption in India — reliable after-sales service and spares availability.',
       'buttonText': 'JOIN THE MISSION',
     },
     {
-      'image': 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Technician working
+      'image': 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
       'tagline': 'SERVICE ECOSYSTEM',
-      'title': '500+ Franchise Service Centres',
-      'subtitle': 'A pan-India network of skilled technicians, OEM-certified spares, and standardized processes to support every EV owner.',
+      'title': '500+ Authorized Service Centres',
+      'subtitle': 'We are building a nationwide, standardized EV after-sales network across key cities and towns in India.',
       'buttonText': 'FRANCHISE OPPORTUNITY',
     },
     {
-      'image': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Engineering/Tech
-      'tagline': 'BACKED BY TECHNOLOGY',
+      'image': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
+      'tagline': 'TECHNOLOGY BACKBONE',
       'title': 'Seamless Ownership Experience',
       'subtitle': 'Our mobile application connects EV owners to authorized service centres for bookings, diagnostics, and real-time support.',
       'buttonText': 'DOWNLOAD THE APP',

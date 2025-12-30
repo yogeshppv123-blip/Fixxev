@@ -15,7 +15,7 @@ class WhyChooseUsSection extends StatelessWidget {
       width: double.infinity,
       decoration: const BoxDecoration(
         image: DecorationImage(
-          image: NetworkImage('https://images.unsplash.com/photo-1542601906970-d1d9a0640fd4'), // Road/Nature theme
+          image: NetworkImage('https://images.unsplash.com/photo-1593941707882-a5bba14938c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80'), // Road/Nature theme
           fit: BoxFit.cover,
         ),
       ),

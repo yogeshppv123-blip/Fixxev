@@ -191,7 +191,7 @@ class _AboutUsSectionState extends State<AboutUsSection>
         ),
         const SizedBox(height: 12),
         _buildRichText(
-          'By creating a reliable service and spares ecosystem, Fixx EV directly accelerates **clean, green, and sustainable mobility** while generating scalable revenue opportunities.'
+          '**Why This Matters:** After-sales confidence is critical for mass EV adoption. By creating a reliable service and spares ecosystem, Fixx EV directly accelerates **clean, green, and sustainable mobility** while generating scalable revenue.'
         ),
         const SizedBox(height: 48),
         PrimaryButton(

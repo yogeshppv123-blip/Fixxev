@@ -88,7 +88,7 @@ class _WhatWeDoSectionState extends State<WhatWeDoSection>
                         children: [
                           _AnimatedExperienceCard(
                             title: '500+ SERVICE CENTRES',
-                            description: 'Establishing a nationwide, standardized network across key cities and towns.',
+                            description: 'A pan-India network of 500+ EV service centres across key cities and towns.',
                             icon: Icons.hub,
                             delay: 0,
                             startAnimation: _hasStartedAnimation,
@@ -96,8 +96,8 @@ class _WhatWeDoSectionState extends State<WhatWeDoSection>
                           ),
                           const SizedBox(height: 24),
                           _AnimatedExperienceCard(
-                            title: 'OEM-CERTIFIED SPARES',
-                            description: 'Standardized processes and genuine parts access for all EV owners.',
+                            title: 'CERTIFIED SPARES',
+                            description: 'Access to OEM-certified spares and standardized service processes nationwide.',
                             icon: Icons.verified,
                             delay: 100,
                             startAnimation: _hasStartedAnimation,
@@ -105,9 +105,9 @@ class _WhatWeDoSectionState extends State<WhatWeDoSection>
                           ),
                           const SizedBox(height: 24),
                           _AnimatedExperienceCard(
-                            title: 'DIGITAL SUPPORT',
-                            description: 'Direct customer acquisition through the Fixx EV mobile application ecosystem.',
-                            icon: Icons.app_shortcut,
+                            title: 'SKILLED TECHNICIANS',
+                            description: 'Expertly trained technicians supported by Fixx EV for centralized quality control.',
+                            icon: Icons.engineering,
                             delay: 200,
                             startAnimation: _hasStartedAnimation,
                             onTap: () => context.go('/ckd-dealership'),
@@ -119,7 +119,7 @@ class _WhatWeDoSectionState extends State<WhatWeDoSection>
                           Expanded(
                             child: _AnimatedExperienceCard(
                                 title: '500+ SERVICE CENTRES',
-                                description: 'Establishing a nationwide, standardized network across key cities and towns in India.',
+                                description: 'Building a pan-India network of 500+ EV service centres across key cities and towns.',
                                 icon: Icons.hub,
                                 delay: 0,
                                 startAnimation: _hasStartedAnimation,
@@ -129,8 +129,8 @@ class _WhatWeDoSectionState extends State<WhatWeDoSection>
                             const SizedBox(width: 24),
                             Expanded(
                               child: _AnimatedExperienceCard(
-                                title: 'OEM-CERTIFIED SPARES',
-                                description: 'Standardized service processes and OEM-approved parts access for all franchise partners.',
+                                title: 'CERTIFIED & STANDARDIZED',
+                                description: 'OEM-certified spares and standardized service processes backed by a centralized supply chain.',
                                 icon: Icons.verified,
                                 delay: 150,
                                 startAnimation: _hasStartedAnimation,
@@ -140,9 +140,9 @@ class _WhatWeDoSectionState extends State<WhatWeDoSection>
                             const SizedBox(width: 24),
                             Expanded(
                               child: _AnimatedExperienceCard(
-                                title: 'DIGITAL ECOSYSTEM',
-                                description: 'Leverage our digital tools for bookings, diagnostics, and direct customer acquisition.',
-                                icon: Icons.app_shortcut,
+                                title: 'EXPERT CARE',
+                                description: 'Skilled, trained technicians supported by Fixx EV for consistent quality and diagnostics.',
+                                icon: Icons.engineering,
                                 delay: 300,
                                 startAnimation: _hasStartedAnimation,
                                 onTap: () => context.go('/ckd-dealership'),
