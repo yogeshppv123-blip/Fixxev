@@ -54,7 +54,7 @@ class _AboutScreenState extends State<AboutScreen> {
                 // Premium SubPage Hero
                 const SubPageHero(
                   title: 'Who We Are',
-                  tagline: 'About FIXXEV',
+                  tagline: 'Driving the EV Revolution',
                   imageUrl: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&h=1440&q=80',
                 ),
                 
@@ -83,13 +83,13 @@ class _AboutScreenState extends State<AboutScreen> {
                                     _InfoCard(
                                       icon: Icons.rocket_launch,
                                       title: 'Our Mission',
-                                      description: 'To accelerate the global transition to sustainable energy by providing world-class engineering solutions for the electric vehicle ecosystem.',
+                                      description: 'To accelerate India’s EV adoption by making high-quality EV spare parts and professional servicing accessible across every city and town.',
                                     ),
                                     const SizedBox(height: 30),
                                     _InfoCard(
                                       icon: Icons.visibility,
                                       title: 'Our Vision',
-                                      description: 'To become the most trusted global partner for EV manufacturers and owners, setting new benchmarks in technical excellence and service reliability.',
+                                      description: 'To become the most trusted national partner for EV manufacturers and owners, ensuring zero downtime for every electric vehicle in India.',
                                     ),
                                   ],
                                 );
@@ -100,7 +100,7 @@ class _AboutScreenState extends State<AboutScreen> {
                                     child: _InfoCard(
                                       icon: Icons.rocket_launch,
                                       title: 'Our Mission',
-                                      description: 'To accelerate the global transition to sustainable energy by providing world-class engineering solutions for the electric vehicle ecosystem.',
+                                      description: 'To accelerate India’s EV adoption by making high-quality EV spare parts and professional servicing accessible across every city and town.',
                                     ),
                                   ),
                                   const SizedBox(width: 40),
@@ -108,7 +108,7 @@ class _AboutScreenState extends State<AboutScreen> {
                                     child: _InfoCard(
                                       icon: Icons.visibility,
                                       title: 'Our Vision',
-                                      description: 'To become the most trusted global partner for EV manufacturers and owners, setting new benchmarks in technical excellence and service reliability.',
+                                      description: 'To become the most trusted national partner for EV manufacturers and owners, ensuring zero downtime for every electric vehicle in India.',
                                     ),
                                   ),
                                 ],

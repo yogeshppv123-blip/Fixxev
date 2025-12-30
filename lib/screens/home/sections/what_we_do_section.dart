@@ -78,8 +78,8 @@ class _WhatWeDoSectionState extends State<WhatWeDoSection>
               children: [
                 // Section header with animation
                 const SectionHeader(
-                  label: '// WHY CHOOSE US',
-                  title: 'WE HAVE ALMOST 20 YEARS\nOF EXPERIENCE',
+                  label: '// FRANCHISE BENEFITS',
+                  title: 'WHY PARTNER WITH EVJAZZ\nMOBILITY SOLUTIONS',
                 ),
                 const SizedBox(height: 60),
                 // Experience cards with staggered animation
@@ -87,30 +87,30 @@ class _WhatWeDoSectionState extends State<WhatWeDoSection>
                     ? Column(
                         children: [
                           _AnimatedExperienceCard(
-                            title: 'PROFESSIONAL\nSTANDARD',
-                            description: 'Expert EV technicians with certified training and industry experience.',
-                            icon: Icons.engineering,
+                            title: 'NO FRANCHISE FEE',
+                            description: 'Low entry barrier. Invest only in setup & inventory.',
+                            icon: Icons.money_off,
                             delay: 0,
                             startAnimation: _hasStartedAnimation,
-                            onTap: () => context.go('/about'),
+                            onTap: () => context.go('/ckd-dealership'),
                           ),
                           const SizedBox(height: 24),
                           _AnimatedExperienceCard(
-                            title: 'BEST\nMATERIALS',
-                            description: 'Only genuine parts and premium materials for all repairs.',
-                            icon: Icons.verified,
+                            title: 'STRONG\nMARGINS',
+                            description: 'High profitability on spare parts & service revenue.',
+                            icon: Icons.trending_up,
                             delay: 100,
                             startAnimation: _hasStartedAnimation,
-                            onTap: () => context.go('/about'),
+                            onTap: () => context.go('/ckd-dealership'),
                           ),
                           const SizedBox(height: 24),
                           _AnimatedExperienceCard(
-                            title: 'LONG TERM\nWARRANTY',
-                            description: 'Comprehensive warranty coverage on all our services.',
-                            icon: Icons.security,
+                            title: 'EXCLUSIVE\nTERRITORY',
+                            description: 'Full rights to your designated operational area.',
+                            icon: Icons.map,
                             delay: 200,
                             startAnimation: _hasStartedAnimation,
-                            onTap: () => context.go('/about'),
+                            onTap: () => context.go('/ckd-dealership'),
                           ),
                         ],
                       )
@@ -118,34 +118,34 @@ class _WhatWeDoSectionState extends State<WhatWeDoSection>
                         children: [
                           Expanded(
                             child: _AnimatedExperienceCard(
-                                title: 'PROFESSIONAL\nSTANDARD',
-                                description: 'Expert EV technicians with certified training and industry experience.',
-                                icon: Icons.engineering,
+                                title: 'NO FRANCHISE FEE',
+                                description: 'Low entry barrier. Invest only in setup & inventory. No hidden charges.',
+                                icon: Icons.money_off,
                                 delay: 0,
                                 startAnimation: _hasStartedAnimation,
-                                onTap: () => context.go('/about'),
+                                onTap: () => context.go('/ckd-dealership'),
                               ),
                             ),
                             const SizedBox(width: 24),
                             Expanded(
                               child: _AnimatedExperienceCard(
-                                title: 'BEST\nMATERIALS',
-                                description: 'Only genuine parts and premium materials for all repairs.',
-                                icon: Icons.verified,
+                                title: 'STRONG\nMARGINS',
+                                description: 'High profitability on spare parts & service revenue with proven business model.',
+                                icon: Icons.trending_up,
                                 delay: 150,
                                 startAnimation: _hasStartedAnimation,
-                                onTap: () => context.go('/about'),
+                                onTap: () => context.go('/ckd-dealership'),
                               ),
                             ),
                             const SizedBox(width: 24),
                             Expanded(
                               child: _AnimatedExperienceCard(
-                                title: 'LONG TERM\nWARRANTY',
-                                description: 'Comprehensive warranty coverage on all our services.',
-                                icon: Icons.security,
+                                title: 'EXCLUSIVE\nTERRITORY',
+                                description: 'Full rights to your designated operational area with no internal competition.',
+                                icon: Icons.map,
                                 delay: 300,
                                 startAnimation: _hasStartedAnimation,
-                                onTap: () => context.go('/about'),
+                                onTap: () => context.go('/ckd-dealership'),
                               ),
                           ),
                         ],

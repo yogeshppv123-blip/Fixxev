@@ -80,11 +80,11 @@ class FooterWidget extends StatelessWidget {
           child: _FooterLinksColumn(
             title: 'OUR SERVICES',
             links: const [
-              {'label': 'EV Diagnostics', 'path': '/services'},
-              {'label': 'Battery Service', 'path': '/services'},
-              {'label': 'Motor Repair', 'path': '/services'},
-              {'label': 'Body Work', 'path': '/services'},
-              {'label': 'Insurance', 'path': '/services'},
+              {'label': 'Controllers & Chargers', 'path': '/services'},
+              {'label': 'Motors & Parts', 'path': '/services'},
+              {'label': 'Lithium Batteries', 'path': '/services'},
+              {'label': 'Sensors & Wiring', 'path': '/services'},
+              {'label': 'Fleet Maintenance', 'path': '/services'},
             ],
           ),
         ),
@@ -148,7 +148,7 @@ class FooterWidget extends StatelessWidget {
         const _AnimatedLogo(),
         const SizedBox(height: 20),
         Text(
-          AppConstants.appDescription,
+          'EVJAZZ Mobility Solutions is India’s fastest-growing EV spare parts and service store chain, ensuring reliable, affordable, and high-quality EV care.',
           style: AppTextStyles.footerText.copyWith(height: 1.7),
         ),
         const SizedBox(height: 24),
@@ -186,11 +186,11 @@ class FooterWidget extends StatelessWidget {
           color: AppColors.accentRed,
         ),
         const SizedBox(height: 20),
-        _AnimatedContactRow(icon: Icons.location_on, text: AppConstants.address),
+        _AnimatedContactRow(icon: Icons.location_on, text: 'Plot No 24, IDA Nacharam, Hyderabad, Telangana, India - 500076'),
         const SizedBox(height: 16),
-        _AnimatedContactRow(icon: Icons.phone, text: AppConstants.phoneNumber),
+        _AnimatedContactRow(icon: Icons.phone, text: '+91 9848 123 456\n+91 40 123 4567'),
         const SizedBox(height: 16),
-        _AnimatedContactRow(icon: Icons.email, text: AppConstants.email),
+        _AnimatedContactRow(icon: Icons.email, text: 'info@evjazz.in\nsupport@evjazz.in'),
       ],
     );
   }

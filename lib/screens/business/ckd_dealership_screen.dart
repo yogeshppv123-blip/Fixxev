@@ -188,7 +188,7 @@ class _DealershipHero extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         Text(
-          'Powering the Future of\nEV Infrastructure',
+          'Powering India’s\nElectric Future ⚡',
           style: AppTextStyles.heroTitle.copyWith(
             fontSize: isMobile ? 36 : 56,
             height: 1.1,
@@ -198,7 +198,7 @@ class _DealershipHero extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         Text(
-          'Deploy smart, modular CKD service centers in weeks, not months. Join India’s fastest-growing EV engineering network.',
+          'EVJAZZ Mobility Solutions is building a nationwide ecosystem for electric vehicle spare parts, servicing, and future-ready EV solutions.',
           style: AppTextStyles.bodyMedium.copyWith(
             color: Colors.white.withOpacity(0.8),
             fontSize: 18,
@@ -249,14 +249,14 @@ class _DealershipHero extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Text(
-                'Start Your Dealership',
+                'Become an EVJAZZ Partner',
                 style: AppTextStyles.cardTitle.copyWith(fontSize: 22, color: AppColors.primaryNavy),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Text(
-            'Request brochure & pricing details',
+            'Start your EV spare parts & service business today.',
             style: AppTextStyles.bodySmall.copyWith(color: AppColors.textGrey, fontSize: 13),
           ),
           const SizedBox(height: 24),
@@ -403,22 +403,34 @@ class _ContainerAdvantageSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const SectionHeader(
-          label: 'INNOVATION', 
-          title: 'Smarter Showrooms,\nBuilt for Performance', 
-          centered: false,
-          crossAxisAlignment: CrossAxisAlignment.start,
-        ),
-        const SizedBox(height: 24),
-        Text(
-          'Our CKD containers are fully engineered modules that arrive ready-to-deploy. No heavy construction, no long delays.',
-          style: AppTextStyles.bodyMedium.copyWith(fontSize: 16, color: AppColors.textDark.withOpacity(0.8)),
-        ),
-        const SizedBox(height: 32),
-        _CheckListItem(text: 'Pre-installed electrical & diagnostic infrastructure'),
-        _CheckListItem(text: 'Weatherproof engineering for extreme climates'),
-        _CheckListItem(text: 'Modular design allows future expansion'),
-        _CheckListItem(text: 'Premium branded interiors included'),
+          const SectionHeader(
+            label: 'GENUINE SPARES',
+            title: 'Complete Range of\nEV Spare Parts',
+            isLight: true,
+            centered: false,
+            crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'We stock and supply a wide range of EV components for smooth, reliable vehicle performance.',
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textLight.withOpacity(0.9),
+              fontSize: 18,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 32),
+          Wrap(
+            spacing: 16,
+            runSpacing: 16,
+            children: [
+              _CheckListItem(text: 'Controllers & Chargers'),
+              _CheckListItem(text: 'Motors & Motor Parts'),
+              _CheckListItem(text: 'Lithium Batteries'),
+              _CheckListItem(text: 'Sensors & Wiring Kits'),
+              _CheckListItem(text: 'Tyres, Lights & Body Parts'),
+            ],
+          ),
       ],
     );
   }
@@ -536,10 +548,20 @@ class _NetworkMapSection extends StatelessWidget {
         children: [
           const SectionHeader(title: 'Nationwide Network', label: 'EXPANSION', centered: true),
           const SizedBox(height: 60),
-          const SizedBox(
+          SizedBox(
             height: 500,
             width: 1000,
-            child: _GoogleMap(),
+            child: Stack(
+              children: [
+                const _GoogleMap(),
+                // Pulsing Dots Overlay
+                const _PulsingMapDot(top: 280, left: 360, label: 'Hyderabad (HQ)'),
+                const _PulsingMapDot(top: 300, left: 380, label: 'Bangalore'),
+                const _PulsingMapDot(top: 200, left: 350, label: 'Gurugram'),
+                const _PulsingMapDot(top: 220, left: 450, label: 'Kolkata'),
+                const _PulsingMapDot(top: 290, left: 400, label: 'Rajahmundry'),
+              ],
+            ),
           ),
         ],
       ),
@@ -647,16 +669,29 @@ class _ModelShowcaseSection extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
       child: Column(
         children: [
-          const SectionHeader(title: 'Our Container Models', label: 'VARIANTS', centered: true),
+          const SectionHeader(
+            title: 'Choose Your Franchise Model',
+            label: 'PARTNERSHIP MODELS',
+            centered: true,
+          ),
           const SizedBox(height: 60),
           Wrap(
             spacing: 30,
             runSpacing: 30,
             alignment: WrapAlignment.center,
             children: const [
-              _ModelCard(name: 'Quick-Service Bay', type: 'TYPE-A', image: 'https://images.unsplash.com/photo-1530124566582-a618bc2615dc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'), // Mechanic hands/Garage
-              _ModelCard(name: 'Diagnostic Hub', type: 'TYPE-B', image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'), // Data/Charts/Screen
-              _ModelCard(name: 'Full Workshop', type: 'TYPE-C', image: 'https://images.unsplash.com/photo-1581092921461-eab62e97a780?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'), // Industrial/Factory Floor
+              _ModelCard(
+                name: 'EV Spare Parts Micro-Outlet',
+                type: 'MODEL 1',
+                image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', // Replace with store image
+                features: ['Size: 200-300 sq. ft', 'Retail Focused', 'Low Investment', 'Ideal for High Footfall'],
+              ),
+              _ModelCard(
+                name: 'Parts + Service Center',
+                type: 'MODEL 2',
+                image: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', // Workshop image
+                features: ['Size: 500-800 sq. ft', 'Retail + Service', 'Diagnostic Bay', 'Higher ROI'],
+              ),
             ],
           ),
         ],
@@ -669,8 +704,14 @@ class _ModelCard extends StatelessWidget {
   final String name;
   final String type;
   final String image;
+  final List<String> features;
 
-  const _ModelCard({required this.name, required this.type, required this.image});
+  const _ModelCard({
+    required this.name, 
+    required this.type, 
+    required this.image,
+    this.features = const [],
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -695,14 +736,69 @@ class _ModelCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(name, style: AppTextStyles.cardTitle),
                 const SizedBox(height: 16),
+                ...features.map((feature) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.check_circle_outline, size: 16, color: AppColors.primaryNavy),
+                      const SizedBox(width: 8),
+                      Expanded(child: Text(feature, style: AppTextStyles.bodySmall.copyWith(fontSize: 13))),
+                    ],
+                  ),
+                )).toList(),
+                const SizedBox(height: 16),
                 PrimaryButton(
-                  text: 'VIEW SPECS',
+                  text: 'VIEW DETAILS',
                   onPressed: (){},
-                  
-                  // isSmall: true, // Removed as per requested fix
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 )
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PulsingMapDot extends StatelessWidget {
+  final double top;
+  final double left;
+  final String label;
+
+  const _PulsingMapDot({required this.top, required this.left, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: top,
+      left: left,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: AppColors.accentRed.withOpacity(0.3),
+              shape: BoxShape.circle,
+            ),
+            child: Container(
+              width: 12, height: 12,
+              decoration: const BoxDecoration(
+                color: AppColors.accentRed,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.9),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              label, 
+              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primaryNavy)
             ),
           ),
         ],

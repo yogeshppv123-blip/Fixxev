@@ -161,14 +161,14 @@ class _ContactScreenState extends State<ContactScreen> {
       children: [
         _ContactInfoItem(
           icon: Icons.location_on,
-          title: 'Visit Our Center',
-          detail: '123 EV Hub, Technical Park, Bangalore, India',
+          title: 'Visit Our HQ',
+          detail: 'Plot No 24, IDA Nacharam, Hyderabad, Telangana - 500076',
         ),
         const SizedBox(height: 40),
         _ContactInfoItem(
           icon: Icons.phone_in_talk,
           title: 'Direct Support',
-          detail: '+91 999 888 7777',
+          detail: '+91 9848 123 456',
         ),
         const SizedBox(height: 40),
         _ContactInfoItem(
@@ -180,7 +180,7 @@ class _ContactScreenState extends State<ContactScreen> {
         _ContactInfoItem(
           icon: Icons.email_outlined,
           title: 'Email Inquiry',
-          detail: 'engineering@fixxev.com',
+          detail: 'info@evjazz.in',
         ),
       ],
     );

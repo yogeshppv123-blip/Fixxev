@@ -52,9 +52,9 @@ class _ServicesPageState extends State<ServicesPage> {
               children: [
                 // Premium SubPage Hero
                 const SubPageHero(
-                  title: 'Our Services',
-                  tagline: 'Engineering Excellence',
-                  imageUrl: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&h=1440&q=80',
+                  title: 'Professional EV Services',
+                  tagline: 'Expert Care for Your EV',
+                  imageUrl: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&h=1440&q=80',
                 ),
                 
                 const ServicesSection(),
@@ -69,8 +69,8 @@ class _ServicesPageState extends State<ServicesPage> {
                       child: Column(
                         children: [
                           const SectionHeader(
-                            title: 'The Fixxev Edge',
-                            subtitle: 'Why our technical approach is different',
+                            title: 'Why Choose EVJAZZ Services',
+                            subtitle: 'Reliable, Affordable, and Professional',
                             centered: true,
                           ),
                           const SizedBox(height: 60),
@@ -80,19 +80,19 @@ class _ServicesPageState extends State<ServicesPage> {
                             alignment: WrapAlignment.center,
                             children: [
                               _BenefitItem(
-                                icon: Icons.analytics_outlined,
-                                title: 'OEM Data Access',
-                                description: 'We utilize proprietary manufacturer diagnostics tools that go beyond standard OBD readers.',
+                                icon: Icons.engineering,
+                                title: 'Expert Technicians',
+                                description: 'Our certified staff are trained to handle complex diagnostics and repairs for all EV types.',
                               ),
                               _BenefitItem(
-                                icon: Icons.high_quality,
-                                title: 'Clean-Room Service',
-                                description: 'Battery and motor repairs are performed in ISO-certified dust-free environments.',
+                                icon: Icons.verified,
+                                title: '100% Genuine Parts',
+                                description: 'We use only authentic, high-quality spare parts to ensure longevity and safety.',
                               ),
                               _BenefitItem(
-                                icon: Icons.history,
-                                title: 'Life-Cycle Support',
-                                description: 'Detailed health reports and predictive maintenance scheduling for every component.',
+                                icon: Icons.settings_accessibility,
+                                title: 'Standardized Process',
+                                description: 'Every vehicle undergoes a rigorous 40-point check and standardized service protocol.',
                               ),
                             ],
                           ),

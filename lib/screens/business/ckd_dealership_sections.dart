@@ -58,19 +58,19 @@ class _JoinCommunitySection extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const SectionHeader(
-          label: 'COMMUNITY',
-          title: 'Join the FIXXEV Community\nGet Your CKD Container!',
+          label: 'WHO WE ARE',
+          title: 'India’s Fastest Growing\nEV Service Chain',
           centered: false,
           crossAxisAlignment: CrossAxisAlignment.start,
         ),
         const SizedBox(height: 24),
         Text(
-          'FIXXEV is redefining EV retail with modular CKD container showrooms that are fast to deploy, cost-efficient, and built for scale.',
+          'EVJAZZ Mobility Solutions Private Limited is India’s fastest-growing EV spare parts and service store chain. We specialize in complete EV care—spare parts, diagnostics, repairs, and upcoming battery & retrofit solutions.',
           style: AppTextStyles.bodyMedium.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         Text(
-          'We’re inviting entrepreneurs to join our nationwide dealership network and build profitable EV businesses without traditional construction costs or long delays.',
+          'Our Mission: To accelerate India’s EV adoption by making high-quality EV spare parts and professional servicing accessible across every city and town.',
           style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
         ),
         const SizedBox(height: 32),
@@ -99,8 +99,8 @@ class _ScalableGrowthSection extends StatelessWidget {
           child: Column(
             children: [
               const SectionHeader(
-                title: 'It\'s Low-Risk, Scalable,\nand Future-Ready.',
-                label: 'GROWTH',
+                title: 'India’s EV Growth Story',
+                label: 'MARKET OPPORTUNITY',
                 centered: true,
               ),
               const SizedBox(height: 60),
@@ -112,20 +112,23 @@ class _ScalableGrowthSection extends StatelessWidget {
                     alignment: WrapAlignment.center,
                     children: const [
                        _GrowthCard(
-                        title: 'Affordable Infrastructure',
-                        icon: Icons.monetization_on_outlined,
+                        title: '20.8 Lakh Sales',
+                        icon: Icons.trending_up,
                         bgImage: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+                        desc: 'Total EV sales in 2024',
                       ),
                       _GrowthCard(
-                        title: 'Modular & Relocatable',
-                        icon: Icons.move_up_rounded,
+                        title: '1 Crore by 2030',
+                        icon: Icons.electric_car,
                         bgImage: 'https://images.unsplash.com/photo-1487887235947-a955ef187fcc?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
                         isDark: true,
+                        desc: 'Projected annual sales',
                       ),
                       _GrowthCard(
-                        title: 'Technology Integrated',
-                        icon: Icons.hub_outlined,
+                        title: 'Tier 2 & 3 Growth',
+                        icon: Icons.map,
                         bgImage: 'https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+                        desc: 'Future market drivers',
                       ),
                     ],
                   );
@@ -143,12 +146,14 @@ class _GrowthCard extends StatelessWidget {
   final String title;
   final IconData icon;
   final String bgImage;
+  final String desc;
   final bool isDark;
 
   const _GrowthCard({
     required this.title,
     required this.icon,
     required this.bgImage,
+    required this.desc,
     this.isDark = false,
   });
 
@@ -193,6 +198,11 @@ class _GrowthCard extends StatelessWidget {
             Text(
               title,
               style: AppTextStyles.cardTitle.copyWith(color: Colors.white, fontSize: 20),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              desc,
+              style: AppTextStyles.bodySmall.copyWith(color: Colors.white70, fontSize: 14),
             ),
           ],
         ),

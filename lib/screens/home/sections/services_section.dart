@@ -53,34 +53,34 @@ class _ServicesSectionState extends State<ServicesSection>
 
     final services = [
       {
-        'icon': Icons.settings_suggest,
-        'title': 'AIOT Diagnostics',
-        'description': 'Real-time system profiling with advanced AIOT-integrated diagnostic protocols.',
-      },
-      {
-        'icon': Icons.battery_charging_full,
-        'title': 'BMS Optimization',
-        'description': 'Precise cell balancing, thermal profiling and state-of-charge calibration.',
+        'icon': Icons.memory,
+        'title': 'Controllers & Chargers',
+        'description': 'High-performance controllers for smooth acceleration and intelligent chargers for fast energy replenishment.',
       },
       {
         'icon': Icons.electrical_services,
-        'title': 'Hardware Calibration',
-        'description': 'Calibration of high-voltage components and power electronics controllers.',
+        'title': 'Motors & Parts',
+        'description': 'Durable BLDC and PMSM motors designed for maximum torque and efficiency across all terrains.',
       },
       {
-        'icon': Icons.speed,
-        'title': 'Torque Management',
-        'description': 'Drive-unit optimization and precision motor-control firmware tuning.',
+        'icon': Icons.battery_charging_full,
+        'title': 'Lithium Batteries',
+        'description': 'Long-life lithium-ion battery packs with advanced BMS for safety and reliability.',
       },
       {
-        'icon': Icons.car_repair,
-        'title': 'Chassis Dynamics',
-        'description': 'Precision suspension tuning and structural integrity analysis for premium EVs.',
+        'icon': Icons.sensors,
+        'title': 'Sensors & Wiring',
+        'description': 'Precision throttle sensors, brake switches, and high-grade wiring harnesses for seamless connectivity.',
       },
       {
-        'icon': Icons.support_agent,
-        'title': 'Fleet Assistance',
-        'description': '24/7 technical field support and remote diagnostic assistance via cloud.',
+        'icon': Icons.tire_repair,
+        'title': 'Tyres & Body Parts',
+        'description': 'Rugged tyres for Indian roads and premium body panels for L3 and L5 vehicles.',
+      },
+      {
+        'icon': Icons.handyman,
+        'title': 'Consumables & Tools',
+        'description': 'Professional-grade service tools, lubricants, and essential consumables for EV workshops.',
       },
     ];
 
@@ -103,8 +103,8 @@ class _ServicesSectionState extends State<ServicesSection>
           child: Column(
             children: [
               const SectionHeader(
-                label: '// OUR SERVICES',
-                title: 'ADVANCED MULTI-BRAND\nEV SOLUTIONS',
+                label: '// GENUINE PARTS',
+                title: 'COMPLETE RANGE OF\nEV SPARES & TOOLS',
               ),
               const SizedBox(height: 60),
               // Services grid with staggered animations

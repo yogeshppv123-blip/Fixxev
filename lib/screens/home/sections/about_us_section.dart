@@ -175,15 +175,15 @@ class _AboutUsSectionState extends State<AboutUsSection>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SectionHeader(
-          label: '// ABOUT US',
-          title: "WE'RE COMMITTED TO\nMEET THE QUALITY",
+          label: 'WHO WE ARE',
+          title: "INDIA’S FASTEST GROWING\nEV SERVICE CHAIN",
           isLight: true,
           centered: false,
           crossAxisAlignment: CrossAxisAlignment.start,
         ),
         const SizedBox(height: 32),
         Text(
-          'FIXXEV is India\'s first technical EV ecosystem, dedicated to advancing motor efficiency and battery longevity through engineering precision.',
+          'EVJAZZ Mobility Solutions Private Limited is India’s fastest-growing EV spare parts and service store chain. We specialize in complete EV care.',
           style: AppTextStyles.bodyMedium.copyWith(
             color: AppColors.textGrey,
             fontSize: 16,
@@ -191,14 +191,14 @@ class _AboutUsSectionState extends State<AboutUsSection>
         ),
         const SizedBox(height: 20),
         Text(
-          'FIXXEV is India\'s first AIOT-powered EV service platform, designed to provide seamless maintenance, real-time diagnostics, and expert support for all EV owners.',
+          'Our mission is to accelerate India’s EV adoption by making high-quality EV spare parts and professional servicing accessible across every city and town.',
           style: AppTextStyles.bodyMedium.copyWith(
             color: AppColors.textGrey,
           ),
         ),
         const SizedBox(height: 12),
         Text(
-          'We bridge the gap between EV manufacturers, battery pack producers, and service providers, ensuring a hassle-free experience.',
+          'We provide a one-stop solution for spare parts, diagnostics, repairs, and upcoming battery & retrofit solutions.',
           style: AppTextStyles.bodyMedium.copyWith(
             color: AppColors.textGrey,
           ),
@@ -232,9 +232,9 @@ class _AboutUsSectionState extends State<AboutUsSection>
             const SizedBox(width: 16),
             Expanded(
               child: _AnimatedStatBox(
-                value: 22,
+                value: 1000,
                 suffix: '+',
-                label: 'Instruments',
+                label: 'Happy Clients',
                 delay: 500,
                 controller: _statsController,
               ),
@@ -246,9 +246,9 @@ class _AboutUsSectionState extends State<AboutUsSection>
           children: [
             Expanded(
               child: _AnimatedStatBox(
-                value: 50,
+                value: 20,
                 suffix: '+',
-                label: 'Years in market',
+                label: 'Cities Covered',
                 delay: 1000,
                 controller: _statsController,
               ),
@@ -256,9 +256,9 @@ class _AboutUsSectionState extends State<AboutUsSection>
             const SizedBox(width: 16),
             Expanded(
               child: _AnimatedStatBox(
-                value: 99,
+                value: 100,
                 suffix: '%',
-                label: 'Projects completed',
+                label: 'Service Quality',
                 delay: 1500,
                 controller: _statsController,
               ),

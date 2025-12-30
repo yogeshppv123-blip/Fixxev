@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/constants/app_constants.dart';
-import '../../../widgets/cards/cards.dart';
+import '../../../core/theme/app_text_styles.dart';
 
 /// Stats bar section with animated counters
 class StatsBarSection extends StatelessWidget {
@@ -10,49 +9,77 @@ class StatsBarSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 600;
+    final isMobile = screenWidth < 800;
+
+    const stats = [
+      {'value': '5000+', 'label': 'Happy Customers'},
+      {'value': '100%', 'label': 'Genuine Spares'},
+      {'value': '2W/L3/L5', 'label': 'Vehicle Support'},
+      {'value': 'PAN India', 'label': 'Service Network'},
+    ];
 
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
         horizontal: isMobile ? 20 : 60,
-        vertical: isMobile ? 40 : 50,
+        vertical: isMobile ? 40 : 60,
       ),
       decoration: const BoxDecoration(
-        color: AppColors.primaryGreen,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadowColor,
-            blurRadius: 20,
-            offset: Offset(0, 4),
-          ),
-        ],
+        color: AppColors.primaryNavy, // Darker theme like EVJAZZ stats
       ),
       child: isMobile
           ? Column(
-              children: AppConstants.stats.map((stat) {
+              children: stats.map((stat) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: StatCounterCard(
-                    value: stat['value'] as int,
-                    suffix: stat['suffix'] as String,
-                    label: stat['label'] as String,
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: _StatItem(
+                    value: stat['value']!,
+                    label: stat['label']!,
                   ),
                 );
               }).toList(),
             )
           : Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: AppConstants.stats.map((stat) {
-                return Expanded(
-                  child: StatCounterCard(
-                    value: stat['value'] as int,
-                    suffix: stat['suffix'] as String,
-                    label: stat['label'] as String,
-                  ),
+              children: stats.map((stat) {
+                return _StatItem(
+                  value: stat['value']!,
+                  label: stat['label']!,
                 );
               }).toList(),
             ),
+    );
+  }
+}
+
+class _StatItem extends StatelessWidget {
+  final String value;
+  final String label;
+
+  const _StatItem({required this.value, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: AppTextStyles.heroTitle.copyWith(
+            color: AppColors.accentRed,
+            fontSize: 40,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label.toUpperCase(),
+          style: AppTextStyles.bodySmall.copyWith(
+            color: Colors.white.withOpacity(0.8),
+            letterSpacing: 1.5,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 }

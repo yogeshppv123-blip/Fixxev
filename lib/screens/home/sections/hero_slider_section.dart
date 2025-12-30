@@ -26,25 +26,25 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
 
   final List<Map<String, String>> _slides = [
     {
-      'image': 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&h=1440&q=100',
-      'tagline': 'We have talented engineers & mechanics',
-      'title': 'EV MAINTENANCE\n& REPAIR SERVICE',
-      'subtitle': 'India\'s first AIOT-powered EV service platform for seamless maintenance, real-time diagnostics, and expert support.',
-      'buttonText': 'OUR SERVICES',
+      'image': 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // EV Charging/Service
+      'tagline': 'EVJAZZ MOBILITY',
+      'title': 'Powering India’s Electric Future ⚡',
+      'subtitle': 'India’s Largest EV Spare Parts & Service Store Chain. Reliable, affordable, and high-quality EV care under one roof.',
+      'buttonText': 'EXPLORE SERVICES',
     },
     {
-      'image': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&h=1440&q=100',
-      'tagline': 'Advanced Technology Solutions',
-      'title': 'SMART BATTERY\nDIAGNOSTICS',
-      'subtitle': 'Complete battery health monitoring, predictive maintenance, and real-time performance analytics for your EV.',
-      'buttonText': 'LEARN MORE',
+      'image': 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Technician working
+      'tagline': 'GENUINE SPARES',
+      'title': 'Complete Range of EV Components',
+      'subtitle': 'Controllers, Motors, Batteries, and Sensors for 2W, L3, and L5 Electric Vehicles.',
+      'buttonText': 'VIEW PRODUCTS',
     },
     {
-      'image': 'https://images.unsplash.com/photo-1560958089-b8a1929cea89?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&h=1440&q=100',
-      'tagline': '24/7 Emergency Support Available',
-      'title': 'ROADSIDE\nASSISTANCE',
-      'subtitle': 'Quick and reliable emergency support with mobile charging vans and expert technicians wherever you need us.',
-      'buttonText': 'CONTACT US',
+      'image': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Engineering/Tech
+      'tagline': 'FRANCHISE OPPORTUNITY',
+      'title': 'Join India’s EV\nRevolution Today',
+      'subtitle': 'Start your own EV spare parts & service center with our proven, high-ROI franchise model.',
+      'buttonText': 'BECOME A PARTNER',
     },
   ];
 
