@@ -114,6 +114,8 @@ class _AboutScreenState extends State<AboutScreen> {
             right: 0,
             child: CustomAppBar(
               isTransparent: false,
+              backgroundColor: AppColors.navDark,
+              useLightText: true,
               onMenuPressed: () {},
               onContactPressed: () {},
             ),

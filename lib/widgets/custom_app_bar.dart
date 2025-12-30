@@ -8,12 +8,16 @@ import 'package:go_router/go_router.dart';
 /// Custom App Bar with dark navy theme
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool isTransparent;
+  final Color? backgroundColor;
+  final bool useLightText;
   final VoidCallback? onMenuPressed;
   final VoidCallback? onContactPressed;
 
   const CustomAppBar({
     super.key,
     this.isTransparent = false,
+    this.backgroundColor,
+    this.useLightText = false,
     this.onMenuPressed,
     this.onContactPressed,
   });
@@ -32,10 +36,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         horizontal: isMobile ? 16 : 60,
       ),
       decoration: BoxDecoration(
-        color: isTransparent
+        color: backgroundColor ?? (isTransparent
             ? Colors.transparent
-            : AppColors.white,
-        boxShadow: isTransparent
+            : AppColors.white),
+        boxShadow: (isTransparent || backgroundColor != null)
             ? null
             : [
                 BoxShadow(
@@ -50,8 +54,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         children: [
           // Logo
           InkWell(
-            onTap: () => context.go('/'),
-            child: _buildLogo(isTransparent),
+             onTap: () => context.go('/'),
+            child: _buildLogo(isTransparent || useLightText),
           ),
           // Navigation or Menu
           if (isMobile)
@@ -59,12 +63,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               onPressed: onMenuPressed,
               icon: Icon(
                 Icons.menu,
-                color: isTransparent ? AppColors.textLight : AppColors.textDark,
+                color: (isTransparent || useLightText) ? AppColors.textLight : AppColors.textDark,
                 size: 28,
               ),
             )
           else
-            _buildNavigationLinks(context, isTransparent),
+            _buildNavigationLinks(context, isTransparent || useLightText),
           // CTA Button (desktop only)
           if (!isMobile)
             PrimaryButton(

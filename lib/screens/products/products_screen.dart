@@ -15,7 +15,10 @@ class ProductsScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
-      appBar: const CustomAppBar(),
+      appBar: const CustomAppBar(
+        backgroundColor: AppColors.navDark,
+        useLightText: true,
+      ),
       endDrawer: isMobile ? const MobileDrawer() : null,
       body: SingleChildScrollView(
         child: Column(

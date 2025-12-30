@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fixxev/core/theme/app_colors.dart';
 import 'package:fixxev/widgets/custom_app_bar.dart';
 import 'package:fixxev/widgets/footer_widget.dart';
 import 'sections/hero_slider_section.dart';
@@ -59,37 +60,44 @@ class _HomeScreenState extends State<HomeScreen> {
           // Main content
           SingleChildScrollView(
             controller: _scrollController,
-            child: const Column(
+            child: Column(
               children: [
                 // 1. Hero Carousel (High-res 4K)
-                HeroSliderSection(),
+                const HeroSliderSection(),
                 
                 // 1.5 Stats Bar (Directly under Hero like Reference)
-                StatsBarSection(),
+                const StatsBarSection(),
                 
                 // 2. Why Choose Us (Experience Cards with Staggered Animation)
-                WhatWeDoSection(),
+                const WhatWeDoSection(),
                 
                 // 2.5 Why FIXXEV (Features + Book Service Form)
-                WhyChooseUsSection(),
+                const WhyChooseUsSection(),
                 
                 // 3. About Us (Stats with Counter Animation)
-                AboutUsSection(),
+                const AboutUsSection(),
                 
-                // 4. Services Grid (Grid with Hover Color Shifts)
-                ServicesSection(),
+                // 4. Services Grid (Grid with Hover Color Shifts) - HIDE ON MOBILE
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    if (MediaQuery.of(context).size.width < 768) {
+                      return const SizedBox.shrink();
+                    }
+                    return const ServicesSection();
+                  },
+                ),
                 
                 // 5. Partners (Auto-scrolling logos)
-                PartnersCarouselSection(),
+                const PartnersCarouselSection(),
                 
                 // 6. Testimonials (Animated Feedback Cards)
-                TestimonialsSection(),
+                const TestimonialsSection(),
                 
                 // 7. Join the Mission (Opportunity Section)
-                JoinMissionSection(),
+                const JoinMissionSection(),
                 
                 // 8. Footer (Hover links)
-                FooterWidget(),
+                const FooterWidget(),
               ],
             ),
           ),
@@ -103,6 +111,8 @@ class _HomeScreenState extends State<HomeScreen> {
               duration: const Duration(milliseconds: 300),
               child: CustomAppBar(
                 isTransparent: !_isScrolled,
+                backgroundColor: _isScrolled ? AppColors.navDark : null,
+                useLightText: true,
                 onMenuPressed: () {
                   _scaffoldKey.currentState?.openDrawer();
                 },

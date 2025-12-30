@@ -11,6 +11,8 @@ class AppColors {
   static const Color white = Color(0xFFFFFFFF);
   static const Color backgroundLight = Color(0xFFF8F9FA);
   static const Color backgroundDark = Color(0xFF1B263B);
+  static const Color navDark = Color(0xFF303C49); // User specified dark navy
+
   
   // Text Colors
   static const Color textDark = Color(0xFF1B263B);

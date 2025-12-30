@@ -90,6 +90,8 @@ class _CKDealershipScreenState extends State<CKDealershipScreen> {
             right: 0,
             child: CustomAppBar(
               isTransparent: !_isScrolled,
+              backgroundColor: _isScrolled ? AppColors.navDark : null,
+              useLightText: true,
               onMenuPressed: () {},
               onContactPressed: () {},
             ),
