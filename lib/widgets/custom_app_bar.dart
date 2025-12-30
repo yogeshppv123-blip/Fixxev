@@ -79,38 +79,34 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   Widget _buildLogo(bool isLight) {
-    return Row(
-      children: [
-        // Logo icon
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: AppColors.accentRed,
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: const Center(
-            child: Text(
-              'F',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: AppColors.white,
+    return Container(
+      height: 55, // Increased size
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      constraints: const BoxConstraints(maxWidth: 180),
+      child: Image.network(
+        'logo.png', 
+        fit: BoxFit.contain,
+        // If !isLight (i.e. we are on a white background), we color the logo Navy to make it visible
+        // This assumes the source logo has transparency and white text/graphics.
+        color: !isLight ? AppColors.primaryNavy : null,
+        colorBlendMode: !isLight ? BlendMode.srcIn : null,
+        errorBuilder: (context, error, stackTrace) {
+           return Row(
+            children: [
+              Container(
+                width: 44, height: 44,
+                decoration: BoxDecoration(
+                  color: AppColors.accentRed,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Center(child: Text('F', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white))),
               ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Text(
-          'FIXXEV',
-          style: (isLight ? AppTextStyles.navLinkLight : AppTextStyles.navLink)
-              .copyWith(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1,
-          ),
-        ),
-      ],
+              const SizedBox(width: 10),
+              Text('FIXXEV', style: (isLight ? AppTextStyles.navLinkLight : AppTextStyles.navLink).copyWith(fontSize: 24, fontWeight: FontWeight.w700, letterSpacing: 1)),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -224,29 +220,11 @@ class MobileDrawer extends StatelessWidget {
                 child: Row(
                   children: [
                     Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: AppColors.accentRed,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          'F',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'FIXXEV',
-                      style: AppTextStyles.navLinkLight.copyWith(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
+                      height: 50,
+                      constraints: const BoxConstraints(maxWidth: 160),
+                      child: Image.network(
+                        'logo.png',
+                        fit: BoxFit.contain,
                       ),
                     ),
                   ],

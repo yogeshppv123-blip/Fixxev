@@ -367,27 +367,14 @@ class _ContainerAdvantageSection extends StatelessWidget {
     return Container(
       height: 400,
       decoration: BoxDecoration(
-        color: AppColors.backgroundLight,
+        color: Colors.black,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, 10)),
         ],
-        image: const DecorationImage(
-          image: NetworkImage('https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80'), // Professional corporate/tech office
-          fit: BoxFit.cover,
-        ),
       ),
-      child: Center(
-        child: Container(
-          width: 80, height: 80,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10)],
-          ),
-          child: const Icon(Icons.play_arrow, color: AppColors.accentRed, size: 40),
-        ),
-      ),
+      clipBehavior: Clip.antiAlias,
+      child: const _VideoPlayer(),
     );
   }
 
@@ -671,6 +658,37 @@ class _GoogleMap extends StatelessWidget {
     );
 
     return const HtmlElementView(viewType: 'google-maps-embed-fixx');
+  }
+}
+
+class _VideoPlayer extends StatelessWidget {
+  const _VideoPlayer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Register the video element view factory
+    // ignore: undefined_prefixed_name
+    ui_web.platformViewRegistry.registerViewFactory(
+      'local-video-embed-fixx',
+      (int viewId) {
+        final videoElement = html.VideoElement()
+          ..src = 'assets/dealership_video.mp4' // Local asset path
+          ..style.border = 'none'
+          ..style.height = '100%'
+          ..style.width = '100%'
+          ..style.objectFit = 'cover' // Ensure it fills the container
+          ..autoplay = true
+          ..loop = true
+          ..muted = true; // Required for autoplay
+        
+        // Ensure play is called (sometimes needed for strict browser policies)
+        videoElement.play();
+        
+        return videoElement;
+      }
+    );
+
+    return const HtmlElementView(viewType: 'local-video-embed-fixx');
   }
 }
 

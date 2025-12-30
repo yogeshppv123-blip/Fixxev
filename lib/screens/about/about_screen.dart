@@ -62,7 +62,7 @@ class _AboutScreenState extends State<AboutScreen> {
 
                 // 3. CORE VALUES (Text Left)
                 _AboutZigZagBlock(
-                  image: 'https://images.unsplash.com/photo-1617469767053-d3b508a0d84e?q=80&w=1200', // Car Mechanic Work
+                  image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80', // Team Collaboration
                   title: 'Our Core Values',
                   label: '// VALUES',
                   description: 'At **FIXXEV**, we are driven by integrity, excellence, and a deep commitment to the environment. Our values guide every diagnostic we run and every part we replace.',
