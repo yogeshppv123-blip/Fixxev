@@ -9,10 +9,10 @@ class AppConstants {
       'India\'s first tech-driven ecosystem for electric vehicles, providing seamless services, innovative solutions, and expert support for EV owners and operators.';
 
   // Contact Info
-  static const String phoneNumber = '+91 74004 44013';
-  static const String email = 'support@fixxev.com';
-  static const String website = 'www.fixxev.com';
-  static const String address = 'Mumbai, Maharashtra, India';
+  static const String phoneNumber = '+91 93110 81137';
+  static const String email = 'Sales@fixxev.in';
+  static const String website = 'www.fixxev.in';
+  static const String address = '704, 7th Floor, Palm Court, MG Road Sector 16, Gurugram 122001';
 
   // Social Media
   static const String instagramUrl = 'https://www.instagram.com/fixxev/';

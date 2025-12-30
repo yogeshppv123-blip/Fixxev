@@ -92,6 +92,8 @@ class _TeamScreenState extends State<TeamScreen> {
             right: 0,
             child: CustomAppBar(
               isTransparent: !_isScrolled,
+              backgroundColor: _isScrolled ? AppColors.navDark : null,
+              useLightText: true,
               onMenuPressed: () {},
               onContactPressed: () {},
             ),

@@ -134,7 +134,9 @@ class _ServicesPageState extends State<ServicesPage> {
             left: 0,
             right: 0,
             child: CustomAppBar(
-              isTransparent: false, // Solid white background with dark text
+              isTransparent: false,
+              backgroundColor: AppColors.navDark,
+              useLightText: true,
               onMenuPressed: () {},
               onContactPressed: () {},
             ),

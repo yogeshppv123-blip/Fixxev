@@ -115,20 +115,27 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   Widget _buildNavigationLinks(BuildContext context, bool isLight) {
+    final GoRouterState state = GoRouterState.of(context);
+    final String currentPath = state.uri.toString();
+
     final navItems = [
       {'label': 'HOME', 'path': '/'},
       {'label': 'ABOUT', 'path': '/about'},
+      {'label': 'SERVICES', 'path': '/services'},
       {'label': 'PRODUCTS', 'path': '/products'},
-      {'label': 'DEALERSHIP', 'path': '/ckd-dealership'},
+      {'label': 'CKD-CONTAINER', 'path': '/ckd-container'},
+      {'label': 'FRANCHISE', 'path': '/ckd-dealership'},
       {'label': 'BLOG', 'path': '/blog'},
       {'label': 'CONTACT', 'path': '/contact'},
     ];
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: navItems.map((item) {
+        final isActive = currentPath == item['path'];
         return _NavItem(
           label: item['label']!, 
           isLight: isLight,
+          isActive: isActive,
           onTap: () => context.go(item['path']!),
         );
       }).toList(),
@@ -139,9 +146,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 class _NavItem extends StatefulWidget {
   final String label;
   final bool isLight;
+  final bool isActive;
   final VoidCallback onTap;
 
-  const _NavItem({required this.label, required this.isLight, required this.onTap});
+  const _NavItem({required this.label, required this.isLight, required this.isActive, required this.onTap});
 
   @override
   State<_NavItem> createState() => _NavItemState();
@@ -170,8 +178,8 @@ class _NavItemState extends State<_NavItem> {
                         : AppTextStyles.navLink)
                     .copyWith(
                   fontSize: 13,
-                  fontWeight: _isHovered ? FontWeight.w700 : FontWeight.w500,
-                  color: _isHovered 
+                  fontWeight: (_isHovered || widget.isActive) ? FontWeight.w700 : FontWeight.w500,
+                  color: (_isHovered || widget.isActive)
                       ? AppColors.accentRed 
                       : (widget.isLight ? AppColors.textLight : AppColors.textDark),
                   letterSpacing: 0.5,
@@ -182,7 +190,7 @@ class _NavItemState extends State<_NavItem> {
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 height: 2,
-                width: _isHovered ? 20 : 0,
+                width: (_isHovered || widget.isActive) ? 20 : 0,
                 decoration: BoxDecoration(
                   color: AppColors.accentRed,
                   borderRadius: BorderRadius.circular(2),
@@ -205,8 +213,10 @@ class MobileDrawer extends StatelessWidget {
     final navItems = [
       {'label': 'HOME', 'path': '/'},
       {'label': 'ABOUT', 'path': '/about'},
+      {'label': 'SERVICES', 'path': '/services'},
       {'label': 'PRODUCTS', 'path': '/products'},
-      {'label': 'DEALERSHIP', 'path': '/ckd-dealership'},
+      {'label': 'CKD-CONTAINER', 'path': '/ckd-container'},
+      {'label': 'FRANCHISE', 'path': '/ckd-dealership'},
       {'label': 'BLOG', 'path': '/blog'},
       {'label': 'CONTACT', 'path': '/contact'},
     ];

@@ -7,6 +7,7 @@ import '../../core/theme/app_text_styles.dart';
 import '../../widgets/buttons/primary_button.dart';
 import '../../widgets/subpage_hero.dart';
 import '../../widgets/section_header.dart';
+import '../../core/constants/app_constants.dart';
 
 class ContactScreen extends StatefulWidget {
   const ContactScreen({super.key});
@@ -193,13 +194,13 @@ class _ContactScreenState extends State<ContactScreen> {
         _ContactInfoItem(
           icon: Icons.location_on,
           title: 'Visit Our HQ',
-          detail: 'Plot No 24, IDA Nacharam, Hyderabad, Telangana - 500076',
+          detail: AppConstants.address,
         ),
         const SizedBox(height: 40),
         _ContactInfoItem(
           icon: Icons.phone_in_talk,
           title: 'Direct Support',
-          detail: '+91 9848 123 456',
+          detail: AppConstants.phoneNumber,
         ),
         const SizedBox(height: 40),
         _ContactInfoItem(
@@ -211,7 +212,7 @@ class _ContactScreenState extends State<ContactScreen> {
         _ContactInfoItem(
           icon: Icons.email_outlined,
           title: 'Email Inquiry',
-          detail: 'info@evjazz.in',
+          detail: AppConstants.email,
         ),
         const SizedBox(height: 40),
         const Divider(),
