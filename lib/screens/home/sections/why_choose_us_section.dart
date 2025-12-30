@@ -1,28 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
-import '../../../core/constants/app_constants.dart';
-import '../../../widgets/cards/cards.dart';
 import '../../../widgets/buttons/primary_button.dart';
 
-/// Why Choose Us section with features list and contact form
 class WhyChooseUsSection extends StatelessWidget {
   const WhyChooseUsSection({super.key});
-
-  IconData _getIconData(String iconName) {
-    switch (iconName) {
-      case 'lightbulb':
-        return Icons.lightbulb;
-      case 'speed':
-        return Icons.speed;
-      case 'verified':
-        return Icons.verified;
-      case 'eco':
-        return Icons.eco;
-      default:
-        return Icons.star;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,212 +13,182 @@ class WhyChooseUsSection extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primaryGreen,
-            AppColors.primaryGreen.withOpacity(0.9),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: NetworkImage('https://images.unsplash.com/photo-1542601906970-d1d9a0640fd4'), // Road/Nature theme
+          fit: BoxFit.cover,
         ),
       ),
-      child: Stack(
-        children: [
-          // Decorative elements
-          Positioned(
-            right: -100,
-            top: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.textLight.withOpacity(0.05),
-              ),
-            ),
-          ),
-          Positioned(
-            left: -50,
-            bottom: -50,
-            child: Container(
-              width: 200,
-              height: 200,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.accentGold.withOpacity(0.1),
-              ),
-            ),
-          ),
-          // Content
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: isMobile ? 20 : 60,
-              vertical: 80,
-            ),
+      child: Container(
+        color: Colors.black.withOpacity(0.6), // Dark overlay
+        padding: EdgeInsets.symmetric(
+          horizontal: isMobile ? 24 : 80,
+          vertical: 100,
+        ),
+        child: Center(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 1200),
             child: isMobile
-                ? _buildMobileLayout()
-                : _buildDesktopLayout(),
+                ? Column(
+                    children: [
+                      _buildFeaturesList(true),
+                      const SizedBox(height: 60),
+                      _buildContactForm(),
+                    ],
+                  )
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 6,
+                        child: _buildFeaturesList(false),
+                      ),
+                      const SizedBox(width: 80),
+                      Expanded(
+                        flex: 4,
+                        child: _buildContactForm(),
+                      ),
+                    ],
+                  ),
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildDesktopLayout() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Left side - Features
-        Expanded(
-          flex: 5,
-          child: _buildFeaturesList(),
-        ),
-        const SizedBox(width: 60),
-        // Right side - Contact Form
-        Expanded(
-          flex: 4,
-          child: _buildContactForm(),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMobileLayout() {
-    return Column(
-      children: [
-        _buildFeaturesList(),
-        const SizedBox(height: 60),
-        _buildContactForm(),
-      ],
-    );
-  }
-
-  Widget _buildFeaturesList() {
+  Widget _buildFeaturesList(bool isMobile) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Why Choose',
+          'Why Choose Us',
           style: AppTextStyles.sectionTitleLight.copyWith(
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-        Text(
-          'FIXXEV?',
-          style: AppTextStyles.sectionTitleLight.copyWith(
-            fontSize: 44,
+            fontSize: isMobile ? 32 : 44,
             fontWeight: FontWeight.w700,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
+        Container(width: 60, height: 4, color: AppColors.accentRed),
+        const SizedBox(height: 32),
         Text(
-          'FIXXEV stands out as a pioneer in delivering seamless, tech-driven solutions for all your EV needs.',
+          'At FIXXEV, we provide an ecosystem that ensures your electric vehicle remains in peak condition through skilled engineering and genuine support.',
           style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textLight.withOpacity(0.9),
+            color: Colors.white.withOpacity(0.9),
+            height: 1.6,
           ),
         ),
+        const SizedBox(height: 48),
+        _buildFeatureItem(
+          icon: Icons.shield_outlined,
+          title: 'Commitment To Sustainability',
+          description: 'Expanding high-quality EV support to accelerate green mobility.',
+        ),
         const SizedBox(height: 32),
-        // Features list
-        ...AppConstants.whyChooseUs.map((item) {
-          return FeatureCard(
-            icon: _getIconData(item['icon']!),
-            title: item['title']!,
-            description: item['description']!,
-          );
-        }),
+        _buildFeatureItem(
+          icon: Icons.biotech_outlined,
+          title: 'Advanced Diagnostics',
+          description: 'Using next-gen tools to ensure precise and efficient repairs.',
+        ),
+        const SizedBox(height: 32),
+        _buildFeatureItem(
+          icon: Icons.handyman_outlined,
+          title: 'Skilled Technician Support',
+          description: 'Professionally trained experts dedicated to EV longevity.',
+        ),
+        const SizedBox(height: 32),
+        _buildFeatureItem(
+          icon: Icons.layers_outlined,
+          title: 'Quality Controlled Spares',
+          description: 'OEM-certified components for reliable and safe performance.',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFeatureItem({
+    required IconData icon,
+    required String title,
+    required String description,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppColors.accentRed.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: AppColors.accentRed, size: 28),
+        ),
+        const SizedBox(width: 20),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: AppTextStyles.cardTitle.copyWith(color: Colors.white, fontSize: 18),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                description,
+                style: AppTextStyles.bodySmall.copyWith(color: Colors.white.withOpacity(0.7)),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
 
   Widget _buildContactForm() {
     return Container(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.all(40),
       decoration: BoxDecoration(
-        color: AppColors.lightMint,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadowColor,
-            blurRadius: 30,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        color: const Color(0xFFF1F8E9), // Light green tint like reference
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Book Your Service',
-            style: AppTextStyles.sectionTitle.copyWith(fontSize: 24),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Get in touch with our experts',
-            style: AppTextStyles.bodySmall,
+            style: AppTextStyles.sectionTitle.copyWith(fontSize: 24, color: AppColors.primaryNavy),
           ),
           const SizedBox(height: 32),
-          // Form fields
-          _buildTextField(
-            hint: 'Your Name',
-            icon: Icons.person_outline,
-          ),
+          _buildField('Name'),
           const SizedBox(height: 16),
-          _buildTextField(
-            hint: 'Email Address',
-            icon: Icons.email_outlined,
-          ),
+          _buildField('Email'),
           const SizedBox(height: 16),
-          _buildTextField(
-            hint: 'Phone Number',
-            icon: Icons.phone_outlined,
-          ),
+          _buildField('Contact Number'),
           const SizedBox(height: 16),
-          _buildTextField(
-            hint: 'Your Message',
-            icon: Icons.message_outlined,
-            maxLines: 4,
-          ),
-          const SizedBox(height: 24),
+          _buildField('Your Message', maxLines: 4),
+          const SizedBox(height: 32),
           PrimaryButton(
-            text: 'Submit Request',
-            icon: Icons.send,
-            width: double.infinity,
+            text: 'SEND REQUEST',
             onPressed: () {},
+            width: double.infinity,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTextField({
-    required String hint,
-    required IconData icon,
-    int maxLines = 1,
-  }) {
-    return TextFormField(
+  Widget _buildField(String hint, {int maxLines = 1}) {
+    return TextField(
       maxLines: maxLines,
       decoration: InputDecoration(
         hintText: hint,
-        prefixIcon: maxLines == 1
-            ? Icon(icon, color: AppColors.primaryGreen)
-            : null,
-        alignLabelWithHint: true,
         filled: true,
-        fillColor: AppColors.white,
+        fillColor: Colors.white,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide.none,
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primaryGreen, width: 2),
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
     );
   }
 }
+

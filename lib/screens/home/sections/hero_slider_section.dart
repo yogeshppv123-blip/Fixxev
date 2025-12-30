@@ -27,24 +27,24 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
   final List<Map<String, String>> _slides = [
     {
       'image': 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // EV Charging/Service
-      'tagline': 'EVJAZZ MOBILITY',
-      'title': 'Powering India’s Electric Future ⚡',
-      'subtitle': 'India’s Largest EV Spare Parts & Service Store Chain. Reliable, affordable, and high-quality EV care under one roof.',
-      'buttonText': 'EXPLORE SERVICES',
+      'tagline': 'FIXXEV TECHNOLOGIES',
+      'title': 'Driving India’s EV Future ⚡',
+      'subtitle': 'Building India’s largest, nationwide standardized EV after-sales service and spares network. Solving the biggest barriers to EV adoption.',
+      'buttonText': 'JOIN THE MISSION',
     },
     {
       'image': 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Technician working
-      'tagline': 'GENUINE SPARES',
-      'title': 'Complete Range of EV Components',
-      'subtitle': 'Controllers, Motors, Batteries, and Sensors for 2W, L3, and L5 Electric Vehicles.',
-      'buttonText': 'VIEW PRODUCTS',
+      'tagline': 'SERVICE ECOSYSTEM',
+      'title': '500+ Franchise Service Centres',
+      'subtitle': 'A pan-India network of skilled technicians, OEM-certified spares, and standardized processes to support every EV owner.',
+      'buttonText': 'FRANCHISE OPPORTUNITY',
     },
     {
       'image': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80', // Engineering/Tech
-      'tagline': 'FRANCHISE OPPORTUNITY',
-      'title': 'Join India’s EV\nRevolution Today',
-      'subtitle': 'Start your own EV spare parts & service center with our proven, high-ROI franchise model.',
-      'buttonText': 'BECOME A PARTNER',
+      'tagline': 'BACKED BY TECHNOLOGY',
+      'title': 'Seamless Ownership Experience',
+      'subtitle': 'Our mobile application connects EV owners to authorized service centres for bookings, diagnostics, and real-time support.',
+      'buttonText': 'DOWNLOAD THE APP',
     },
   ];
 

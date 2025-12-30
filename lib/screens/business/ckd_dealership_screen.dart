@@ -198,7 +198,7 @@ class _DealershipHero extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         Text(
-          'EVJAZZ Mobility Solutions is building a nationwide ecosystem for electric vehicle spare parts, servicing, and future-ready EV solutions.',
+          'FIXXEV Mobility Solutions is building a nationwide ecosystem for electric vehicle spare parts, servicing, and future-ready EV solutions.',
           style: AppTextStyles.bodyMedium.copyWith(
             color: Colors.white.withOpacity(0.8),
             fontSize: 18,
@@ -249,7 +249,7 @@ class _DealershipHero extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Text(
-                'Become an EVJAZZ Partner',
+                'Become an FIXXEV Partner',
                 style: AppTextStyles.cardTitle.copyWith(fontSize: 22, color: AppColors.primaryNavy),
               ),
             ],

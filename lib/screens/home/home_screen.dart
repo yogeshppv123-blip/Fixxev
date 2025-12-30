@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:fixxev/widgets/custom_app_bar.dart';
 import 'package:fixxev/widgets/footer_widget.dart';
 import 'sections/hero_slider_section.dart';
+import 'sections/stats_bar_section.dart';
 import 'sections/what_we_do_section.dart';
+import 'sections/why_choose_us_section.dart';
 import 'sections/about_us_section.dart';
 import 'sections/services_section.dart';
 import 'sections/testimonials_section.dart';
 import 'sections/partners_carousel_section.dart';
+import 'sections/join_mission_section.dart';
 
 import 'package:fixxev/widgets/floating_connect_buttons.dart';
 
@@ -61,8 +64,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 // 1. Hero Carousel (High-res 4K)
                 HeroSliderSection(),
                 
+                // 1.5 Stats Bar (Directly under Hero like Reference)
+                StatsBarSection(),
+                
                 // 2. Why Choose Us (Experience Cards with Staggered Animation)
                 WhatWeDoSection(),
+                
+                // 2.5 Why FIXXEV (Features + Book Service Form)
+                WhyChooseUsSection(),
                 
                 // 3. About Us (Stats with Counter Animation)
                 AboutUsSection(),
@@ -76,7 +85,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 // 6. Testimonials (Animated Feedback Cards)
                 TestimonialsSection(),
                 
-                // 7. Footer (Hover links)
+                // 7. Join the Mission (Opportunity Section)
+                JoinMissionSection(),
+                
+                // 8. Footer (Hover links)
                 FooterWidget(),
               ],
             ),

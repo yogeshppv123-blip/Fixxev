@@ -175,33 +175,23 @@ class _AboutUsSectionState extends State<AboutUsSection>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SectionHeader(
-          label: 'WHO WE ARE',
-          title: "INDIA’S FASTEST GROWING\nEV SERVICE CHAIN",
+          label: 'ANNOUNCING MISSION 500',
+          title: "SOLVING INDIA’S EV\nAFTER-SALES GAP",
           isLight: true,
           centered: false,
           crossAxisAlignment: CrossAxisAlignment.start,
         ),
         const SizedBox(height: 32),
-        Text(
-          'EVJAZZ Mobility Solutions Private Limited is India’s fastest-growing EV spare parts and service store chain. We specialize in complete EV care.',
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textGrey,
-            fontSize: 16,
-          ),
+        _buildRichText(
+          '**Fixx EV Technologies Pvt. Ltd.** is on a mission to solve one of the biggest barriers to electric vehicle adoption in India — **reliable after-sales service and spares availability**.'
         ),
-        const SizedBox(height: 20),
-        Text(
-          'Our mission is to accelerate India’s EV adoption by making high-quality EV spare parts and professional servicing accessible across every city and town.',
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textGrey,
-          ),
+        const SizedBox(height: 24),
+        _buildRichText(
+          'We are building a nationwide, standardized EV after-sales network by appointing **500 Fixx EV Authorized Franchise Service Centres** across key cities and towns in India.'
         ),
         const SizedBox(height: 12),
-        Text(
-          'We provide a one-stop solution for spare parts, diagnostics, repairs, and upcoming battery & retrofit solutions.',
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textGrey,
-          ),
+        _buildRichText(
+          'By creating a reliable service and spares ecosystem, Fixx EV directly accelerates **clean, green, and sustainable mobility** while generating scalable revenue opportunities.'
         ),
         const SizedBox(height: 48),
         PrimaryButton(
@@ -209,8 +199,6 @@ class _AboutUsSectionState extends State<AboutUsSection>
           onPressed: () => context.go('/about'),
           icon: Icons.arrow_forward,
         ),
-        const SizedBox(height: 60),
-        _buildStatsGrid(),
       ],
     );
   }
@@ -222,9 +210,9 @@ class _AboutUsSectionState extends State<AboutUsSection>
           children: [
             Expanded(
               child: _AnimatedStatBox(
-                value: 8,
-                suffix: 'K+',
-                label: 'Happy Clients',
+                value: 500,
+                suffix: '+',
+                label: 'Service Centres',
                 delay: 0,
                 controller: _statsController,
               ),
@@ -232,9 +220,9 @@ class _AboutUsSectionState extends State<AboutUsSection>
             const SizedBox(width: 16),
             Expanded(
               child: _AnimatedStatBox(
-                value: 1000,
+                value: 20,
                 suffix: '+',
-                label: 'Happy Clients',
+                label: 'Years Experience',
                 delay: 500,
                 controller: _statsController,
               ),
@@ -246,9 +234,9 @@ class _AboutUsSectionState extends State<AboutUsSection>
           children: [
             Expanded(
               child: _AnimatedStatBox(
-                value: 20,
+                value: 200,
                 suffix: '+',
-                label: 'Cities Covered',
+                label: 'Planned Cities',
                 delay: 1000,
                 controller: _statsController,
               ),
@@ -258,7 +246,7 @@ class _AboutUsSectionState extends State<AboutUsSection>
               child: _AnimatedStatBox(
                 value: 100,
                 suffix: '%',
-                label: 'Service Quality',
+                label: 'Quality Control',
                 delay: 1500,
                 controller: _statsController,
               ),
@@ -285,86 +273,100 @@ class _AnimatedImageSectionState extends State<_AnimatedImageSection> {
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeOut,
-        height: 450,
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeOutQuart,
+        height: 500,
         transform: Matrix4.identity()
-          ..scale(_isHovered ? 1.02 : 1.0),
+          ..translate(0.0, _isHovered ? -10.0 : 0.0),
         decoration: BoxDecoration(
           color: AppColors.primaryDark,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: _isHovered 
-                ? AppColors.accentRed 
-                : AppColors.accentRed.withAlpha(100),
-            width: _isHovered ? 3 : 2,
+          borderRadius: BorderRadius.circular(24),
+          image: const DecorationImage(
+            image: NetworkImage('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'),
+            fit: BoxFit.cover,
+            opacity: 0.7,
           ),
           boxShadow: [
             BoxShadow(
               color: _isHovered 
-                  ? AppColors.accentRed.withAlpha(40) 
+                  ? AppColors.accentRed.withAlpha(50) 
                   : Colors.black.withAlpha(30),
-              blurRadius: _isHovered ? 40 : 20,
-              offset: Offset(0, _isHovered ? 20 : 10),
+              blurRadius: _isHovered ? 50 : 30,
+              offset: Offset(0, _isHovered ? 25 : 15),
             ),
           ],
         ),
-        child: Stack(
-          children: [
-            Center(
-              child: AnimatedScale(
-                scale: _isHovered ? 1.1 : 1.0,
-                duration: const Duration(milliseconds: 400),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 400),
-                      child: Icon(
-                        Icons.electric_car,
-                        size: 120,
-                        color: _isHovered 
-                            ? AppColors.accentRed 
-                            : AppColors.textLight.withAlpha(50),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    AnimatedDefaultTextStyle(
-                      duration: const Duration(milliseconds: 400),
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: _isHovered 
-                            ? AppColors.textLight 
-                            : AppColors.textLight.withAlpha(100),
-                      ),
-                      child: const Text('EV Service Expert'),
-                    ),
-                  ],
-                ),
-              ),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.transparent,
+                AppColors.primaryNavy.withAlpha(200),
+              ],
             ),
-            // Animated red corner accent
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 400),
-                width: _isHovered ? 100 : 80,
-                height: _isHovered ? 100 : 80,
+          ),
+          padding: const EdgeInsets.all(40),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: AppColors.accentRed,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(_isHovered ? 100 : 80),
-                    bottomRight: const Radius.circular(16),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  'ENGINEERING HUB',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 10,
                   ),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              Text(
+                'Next-Gen EV\nService Infrastructure',
+                style: AppTextStyles.cardTitle.copyWith(
+                  color: Colors.white,
+                  fontSize: 28,
+                  height: 1.2,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
+
+  Widget _buildRichText(String text) {
+    List<TextSpan> spans = [];
+    final parts = text.split('**');
+    for (int i = 0; i < parts.length; i++) {
+      if (partHighlight(i)) {
+        spans.add(TextSpan(
+          text: parts[i],
+          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ));
+      } else {
+        spans.add(TextSpan(text: parts[i]));
+      }
+    }
+    return RichText(
+      text: TextSpan(
+        style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6, fontSize: 16),
+        children: spans,
+      ),
+    );
+  }
+
+  bool partHighlight(int index) => index % 2 == 1;
 
 /// Animated stat box with counter animation and hover effect
 class _AnimatedStatBox extends StatefulWidget {

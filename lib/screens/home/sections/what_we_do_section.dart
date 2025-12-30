@@ -78,8 +78,8 @@ class _WhatWeDoSectionState extends State<WhatWeDoSection>
               children: [
                 // Section header with animation
                 const SectionHeader(
-                  label: '// FRANCHISE BENEFITS',
-                  title: 'WHY PARTNER WITH EVJAZZ\nMOBILITY SOLUTIONS',
+                  label: '// FRANCHISE-LED GROWTH',
+                  title: 'BUILDING INDIA’S LARGEST\nEV SERVICE NETWORK',
                 ),
                 const SizedBox(height: 60),
                 // Experience cards with staggered animation
@@ -87,27 +87,27 @@ class _WhatWeDoSectionState extends State<WhatWeDoSection>
                     ? Column(
                         children: [
                           _AnimatedExperienceCard(
-                            title: 'NO FRANCHISE FEE',
-                            description: 'Low entry barrier. Invest only in setup & inventory.',
-                            icon: Icons.money_off,
+                            title: '500+ SERVICE CENTRES',
+                            description: 'Establishing a nationwide, standardized network across key cities and towns.',
+                            icon: Icons.hub,
                             delay: 0,
                             startAnimation: _hasStartedAnimation,
                             onTap: () => context.go('/ckd-dealership'),
                           ),
                           const SizedBox(height: 24),
                           _AnimatedExperienceCard(
-                            title: 'STRONG\nMARGINS',
-                            description: 'High profitability on spare parts & service revenue.',
-                            icon: Icons.trending_up,
+                            title: 'OEM-CERTIFIED SPARES',
+                            description: 'Standardized processes and genuine parts access for all EV owners.',
+                            icon: Icons.verified,
                             delay: 100,
                             startAnimation: _hasStartedAnimation,
                             onTap: () => context.go('/ckd-dealership'),
                           ),
                           const SizedBox(height: 24),
                           _AnimatedExperienceCard(
-                            title: 'EXCLUSIVE\nTERRITORY',
-                            description: 'Full rights to your designated operational area.',
-                            icon: Icons.map,
+                            title: 'DIGITAL SUPPORT',
+                            description: 'Direct customer acquisition through the Fixx EV mobile application ecosystem.',
+                            icon: Icons.app_shortcut,
                             delay: 200,
                             startAnimation: _hasStartedAnimation,
                             onTap: () => context.go('/ckd-dealership'),
@@ -118,9 +118,9 @@ class _WhatWeDoSectionState extends State<WhatWeDoSection>
                         children: [
                           Expanded(
                             child: _AnimatedExperienceCard(
-                                title: 'NO FRANCHISE FEE',
-                                description: 'Low entry barrier. Invest only in setup & inventory. No hidden charges.',
-                                icon: Icons.money_off,
+                                title: '500+ SERVICE CENTRES',
+                                description: 'Establishing a nationwide, standardized network across key cities and towns in India.',
+                                icon: Icons.hub,
                                 delay: 0,
                                 startAnimation: _hasStartedAnimation,
                                 onTap: () => context.go('/ckd-dealership'),
@@ -129,9 +129,9 @@ class _WhatWeDoSectionState extends State<WhatWeDoSection>
                             const SizedBox(width: 24),
                             Expanded(
                               child: _AnimatedExperienceCard(
-                                title: 'STRONG\nMARGINS',
-                                description: 'High profitability on spare parts & service revenue with proven business model.',
-                                icon: Icons.trending_up,
+                                title: 'OEM-CERTIFIED SPARES',
+                                description: 'Standardized service processes and OEM-approved parts access for all franchise partners.',
+                                icon: Icons.verified,
                                 delay: 150,
                                 startAnimation: _hasStartedAnimation,
                                 onTap: () => context.go('/ckd-dealership'),
@@ -140,14 +140,14 @@ class _WhatWeDoSectionState extends State<WhatWeDoSection>
                             const SizedBox(width: 24),
                             Expanded(
                               child: _AnimatedExperienceCard(
-                                title: 'EXCLUSIVE\nTERRITORY',
-                                description: 'Full rights to your designated operational area with no internal competition.',
-                                icon: Icons.map,
+                                title: 'DIGITAL ECOSYSTEM',
+                                description: 'Leverage our digital tools for bookings, diagnostics, and direct customer acquisition.',
+                                icon: Icons.app_shortcut,
                                 delay: 300,
                                 startAnimation: _hasStartedAnimation,
                                 onTap: () => context.go('/ckd-dealership'),
                               ),
-                          ),
+                            ),
                         ],
                       ),
               ],

@@ -54,7 +54,7 @@ class FooterWidget extends StatelessWidget {
       children: [
         // Company Info
         Expanded(
-          flex: 3,
+          flex: 4,
           child: _buildCompanyInfo(),
         ),
         const SizedBox(width: 60),
@@ -62,37 +62,21 @@ class FooterWidget extends StatelessWidget {
         Expanded(
           flex: 2,
           child: _FooterLinksColumn(
-            title: 'QUICK LINKS',
+            title: 'EXPLORE',
             links: const [
-              {'label': 'Home', 'path': '/'},
-              {'label': 'About Us', 'path': '/about'},
-              {'label': 'Services', 'path': '/services'},
-              {'label': 'CKD Dealership', 'path': '/ckd-dealership'},
-              {'label': 'Team', 'path': '/team'},
-              {'label': 'Contact', 'path': '/contact'},
+              {'label': 'About FIXXEV', 'path': '/about'},
+              {'label': 'Our Services', 'path': '/services'},
+              {'label': 'Dealership', 'path': '/ckd-dealership'},
+              {'label': 'Team Experts', 'path': '/team'},
+              {'label': 'Get in Touch', 'path': '/contact'},
             ],
           ),
         ),
-        const SizedBox(width: 40),
-        // Services
+        const SizedBox(width: 60),
+        // Giant Icons Contact Area (Matching Reference Image)
         Expanded(
-          flex: 2,
-          child: _FooterLinksColumn(
-            title: 'OUR SERVICES',
-            links: const [
-              {'label': 'Controllers & Chargers', 'path': '/services'},
-              {'label': 'Motors & Parts', 'path': '/services'},
-              {'label': 'Lithium Batteries', 'path': '/services'},
-              {'label': 'Sensors & Wiring', 'path': '/services'},
-              {'label': 'Fleet Maintenance', 'path': '/services'},
-            ],
-          ),
-        ),
-        const SizedBox(width: 40),
-        // Contact Info
-        Expanded(
-          flex: 2,
-          child: _buildContactInfo(),
+          flex: 5,
+          child: _buildGiantContactIcons(),
         ),
       ],
     );
@@ -103,39 +87,19 @@ class FooterWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildCompanyInfo(),
-        const SizedBox(height: 40),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: _FooterLinksColumn(
-                title: 'QUICK LINKS',
-                links: const [
-                  {'label': 'Home', 'path': '/'},
-                  {'label': 'About Us', 'path': '/about'},
-                  {'label': 'Services', 'path': '/services'},
-                  {'label': 'CKD Dealership', 'path': '/ckd-dealership'},
-                  {'label': 'Team', 'path': '/team'},
-                  {'label': 'Contact', 'path': '/contact'},
-                ],
-              ),
-            ),
-            Expanded(
-              child: _FooterLinksColumn(
-                title: 'OUR SERVICES',
-                links: const [
-                  {'label': 'EV Diagnostics', 'path': '/services'},
-                  {'label': 'Battery Service', 'path': '/services'},
-                  {'label': 'Motor Repair', 'path': '/services'},
-                  {'label': 'Body Work', 'path': '/services'},
-                  {'label': 'Insurance', 'path': '/services'},
-                ],
-              ),
-            ),
+        const SizedBox(height: 60),
+        _FooterLinksColumn(
+          title: 'QUICK LINKS',
+          links: const [
+            {'label': 'Home', 'path': '/'},
+            {'label': 'About Us', 'path': '/about'},
+            {'label': 'Services', 'path': '/services'},
+            {'label': 'Dealership', 'path': '/ckd-dealership'},
+            {'label': 'Contact', 'path': '/contact'},
           ],
         ),
-        const SizedBox(height: 40),
-        _buildContactInfo(),
+        const SizedBox(height: 60),
+        _buildGiantContactIcons(),
       ],
     );
   }
@@ -146,12 +110,12 @@ class FooterWidget extends StatelessWidget {
       children: [
         // Animated Logo
         const _AnimatedLogo(),
-        const SizedBox(height: 20),
+        const SizedBox(height: 32),
         Text(
-          'EVJAZZ Mobility Solutions is India’s fastest-growing EV spare parts and service store chain, ensuring reliable, affordable, and high-quality EV care.',
-          style: AppTextStyles.footerText.copyWith(height: 1.7),
+          '**Fixx EV Technologies Pvt. Ltd.** is building India’s largest, nationwide standardized EV after-sales service and spares network. Solving the biggest barriers to EV adoption.',
+          style: AppTextStyles.footerText.copyWith(height: 1.8),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 32),
         _buildSocialLinks(),
       ],
     );
@@ -171,26 +135,47 @@ class FooterWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildContactInfo() {
+  Widget _buildGiantContactIcons() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        _GiantIconRow(icon: Icons.phone_in_talk, text: AppConstants.phoneNumber),
+        const SizedBox(height: 32),
+        _GiantIconRow(icon: Icons.alternate_email, text: AppConstants.email),
+        _GiantIconRow(icon: Icons.location_on_outlined, text: AppConstants.address),
+      ],
+    );
+  }
+}
+
+class _GiantIconRow extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  const _GiantIconRow({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Text(
-          'CONTACT US',
-          style: AppTextStyles.sectionTitleLight.copyWith(fontSize: 16),
+          text,
+          style: AppTextStyles.footerText.copyWith(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(width: 24),
         Container(
-          width: 30,
-          height: 3,
-          color: AppColors.accentRed,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppColors.accentRed.withAlpha(40),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.accentRed.withAlpha(100), width: 1),
+          ),
+          child: Icon(icon, color: AppColors.accentRed, size: 48),
         ),
-        const SizedBox(height: 20),
-        _AnimatedContactRow(icon: Icons.location_on, text: 'Plot No 24, IDA Nacharam, Hyderabad, Telangana, India - 500076'),
-        const SizedBox(height: 16),
-        _AnimatedContactRow(icon: Icons.phone, text: '+91 9848 123 456\n+91 40 123 4567'),
-        const SizedBox(height: 16),
-        _AnimatedContactRow(icon: Icons.email, text: 'info@evjazz.in\nsupport@evjazz.in'),
       ],
     );
   }

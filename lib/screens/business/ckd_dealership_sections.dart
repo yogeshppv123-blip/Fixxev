@@ -65,7 +65,7 @@ class _JoinCommunitySection extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         Text(
-          'EVJAZZ Mobility Solutions Private Limited is India’s fastest-growing EV spare parts and service store chain. We specialize in complete EV care—spare parts, diagnostics, repairs, and upcoming battery & retrofit solutions.',
+          'FIXXEV Mobility Solutions Private Limited is India’s fastest-growing EV spare parts and service store chain. We specialize in complete EV care—spare parts, diagnostics, repairs, and upcoming battery & retrofit solutions.',
           style: AppTextStyles.bodyMedium.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),

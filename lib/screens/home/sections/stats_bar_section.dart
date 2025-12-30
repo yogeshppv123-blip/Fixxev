@@ -12,10 +12,10 @@ class StatsBarSection extends StatelessWidget {
     final isMobile = screenWidth < 800;
 
     const stats = [
-      {'value': '5000+', 'label': 'Happy Customers'},
-      {'value': '100%', 'label': 'Genuine Spares'},
-      {'value': '2W/L3/L5', 'label': 'Vehicle Support'},
-      {'value': 'PAN India', 'label': 'Service Network'},
+      {'value': '5,000+', 'label': 'Total Satisfied Clients'},
+      {'value': '500+', 'label': 'Authorized Centres'},
+      {'value': '90%', 'label': 'Positive Response Rate'},
+      {'value': '100%', 'label': 'Commitment To Sustainability'},
     ];
 
     return Container(
@@ -25,7 +25,7 @@ class StatsBarSection extends StatelessWidget {
         vertical: isMobile ? 40 : 60,
       ),
       decoration: const BoxDecoration(
-        color: AppColors.primaryNavy, // Darker theme like EVJAZZ stats
+        color: AppColors.primaryNavy, // Darker theme like FIXXEV stats
       ),
       child: isMobile
           ? Column(
