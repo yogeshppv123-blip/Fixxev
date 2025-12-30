@@ -116,21 +116,31 @@ class _DealershipHero extends StatelessWidget {
       constraints: BoxConstraints(minHeight: size.height * 0.9),
       decoration: const BoxDecoration(
         color: AppColors.primaryNavy,
-        image: DecorationImage(
-          image: NetworkImage('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&q=80'), // Tech/Engineering background
-          fit: BoxFit.cover,
-          opacity: 0.15, // Slightly darker for better text contrast
-        ), 
       ),
       child: Stack(
         children: [
-          // Technical Grid Overlay
+          // Background Image with Overlay
           Positioned.fill(
             child: Opacity(
-              opacity: 0.05,
+              opacity: 0.4,
               child: Image.network(
-                'https://t3.ftcdn.net/jpg/02/09/53/11/360_F_209531103_vK0N9zKq5Q0q5Q0q5Q0q5Q0q5Q0q5Q0q.jpg', // Placeholder pattern since transparenttextures is failing
-                repeat: ImageRepeat.repeat,
+                'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&q=80',
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.primaryNavy.withAlpha(220),
+                    AppColors.primaryNavy.withAlpha(150),
+                    Colors.transparent,
+                  ],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
               ),
             ),
           ),
@@ -138,8 +148,8 @@ class _DealershipHero extends StatelessWidget {
           // Content
           Padding(
             padding: EdgeInsets.only(
-              top: 120, 
-              bottom: 80, 
+              top: 140, 
+              bottom: 100, 
               left: isMobile ? 24 : 80, 
               right: isMobile ? 24 : 80
             ),
@@ -155,8 +165,8 @@ class _DealershipHero extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(child: _buildHeroText(isMobile)),
-                    const SizedBox(width: 60),
-                    SizedBox(width: 450, child: _buildHeroForm(isMobile)),
+                    const SizedBox(width: 80),
+                    SizedBox(width: 480, child: _buildHeroForm(isMobile)),
                   ],
                 ),
           ),
@@ -170,35 +180,19 @@ class _DealershipHero extends StatelessWidget {
       crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: AppColors.accentRed.withOpacity(0.1),
-            border: Border.all(color: AppColors.accentRed.withOpacity(0.5)),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Text(
-            'FRANCHISE OPPORTUNITY',
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.accentRed,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 2,
-            ),
-          ),
-        ),
-        const SizedBox(height: 24),
         Text(
-          'Powering India’s\nElectric Future ⚡',
+          'Powering the Future of EV\nInfrastructure with Smart,\nRapid Deployment Solutions.',
           style: AppTextStyles.heroTitle.copyWith(
-            fontSize: isMobile ? 36 : 56,
-            height: 1.1,
+            fontSize: isMobile ? 32 : 48,
+            height: 1.2,
             color: Colors.white,
+            fontWeight: FontWeight.w800,
           ),
           textAlign: isMobile ? TextAlign.center : TextAlign.left,
         ),
         const SizedBox(height: 24),
         Text(
-          'FIXXEV Mobility Solutions is building a nationwide ecosystem for electric vehicle spare parts, servicing, and future-ready EV solutions.',
+          'Reimagine EV infrastructure with our modular CKD container model built for performance, speed, and scalability.',
           style: AppTextStyles.bodyMedium.copyWith(
             color: Colors.white.withOpacity(0.8),
             fontSize: 18,
@@ -206,30 +200,21 @@ class _DealershipHero extends StatelessWidget {
           ),
           textAlign: isMobile ? TextAlign.center : TextAlign.left,
         ),
-        const SizedBox(height: 40),
-        Row(
-          mainAxisAlignment: isMobile ? MainAxisAlignment.center : MainAxisAlignment.start,
-          children: [
-            _HeroStat(navLabel: 'setup time', value: '4 WEEKS'),
-            Container(height: 40, width: 1, color: Colors.white24, margin: const EdgeInsets.symmetric(horizontal: 24)),
-            _HeroStat(navLabel: 'cost savings', value: '40%'),
-          ],
-        ),
       ],
     );
   }
 
   Widget _buildHeroForm(bool isMobile) {
     return Container(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.all(40),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.95), // Glass-morphism feel
+        color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 30,
-            offset: const Offset(0, 15),
+            color: AppColors.primaryNavy.withOpacity(0.1),
+            blurRadius: 40,
+            offset: const Offset(0, 20),
           ),
         ],
       ),
@@ -238,42 +223,50 @@ class _DealershipHero extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryNavy.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(Icons.business, color: AppColors.primaryNavy),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Become an FIXXEV Partner',
-                style: AppTextStyles.cardTitle.copyWith(fontSize: 22, color: AppColors.primaryNavy),
-              ),
+              Text('Name', style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.bold)),
+              Text('Phone', style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 8),
-          Text(
-            'Start your EV spare parts & service business today.',
-            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textGrey, fontSize: 13),
+          Row(
+            children: [
+              Expanded(child: _SimpleField(hint: 'Your Name', icon: null)),
+              const SizedBox(width: 12),
+              Expanded(child: _SimpleField(hint: 'Select', icon: Icons.keyboard_arrow_down)),
+            ],
           ),
-          const SizedBox(height: 24),
-          _SimpleField(hint: 'Full Name', icon: Icons.person_outline),
-          const SizedBox(height: 12), // Tighter spacing
-          _SimpleField(hint: 'Phone Number', icon: Icons.phone_outlined),
-          const SizedBox(height: 12),
-          _SimpleField(hint: 'Email Address', icon: Icons.email_outlined),
-          const SizedBox(height: 12),
-          _SimpleField(hint: 'City / Location', icon: Icons.location_on_outlined),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
+          Text('Email', style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          const _SimpleField(hint: 'Your Email', icon: null),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(child: Text('State', style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.bold))),
+              const SizedBox(width: 12),
+              Expanded(child: Text('City', style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.bold))),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(child: _SimpleField(hint: 'Select State', icon: Icons.keyboard_arrow_down)),
+              const SizedBox(width: 12),
+              Expanded(child: _SimpleField(hint: 'Select City', icon: Icons.keyboard_arrow_down)),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Text('Phone', style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          const _SimpleField(hint: '9880198801', icon: null),
+          const SizedBox(height: 32),
           PrimaryButton(
-            text: 'DOWNLOAD BROCHURE',
+            text: 'ENQUIRE NOW',
             onPressed: () {},
             width: double.infinity,
-            icon: Icons.download_rounded,
-            padding: const EdgeInsets.symmetric(vertical: 18), // Taller button
+            backgroundColor: AppColors.primaryNavy,
           ),
         ],
       ),
@@ -307,9 +300,9 @@ class _HeroStat extends StatelessWidget {
 
 class _SimpleField extends StatelessWidget {
   final String hint;
-  final IconData icon;
+  final IconData? icon;
 
-  const _SimpleField({required this.hint, required this.icon});
+  const _SimpleField({required this.hint, this.icon});
 
   @override
   Widget build(BuildContext context) {
@@ -319,14 +312,14 @@ class _SimpleField extends StatelessWidget {
         hintText: hint,
         filled: true,
         fillColor: Colors.grey.shade50,
-        prefixIcon: Icon(icon, color: AppColors.textGrey, size: 20),
+        suffixIcon: icon != null ? Icon(icon, color: AppColors.textGrey, size: 20) : null,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(4),
+          borderSide: BorderSide(color: Colors.grey.shade300),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.grey.shade200),
+          borderRadius: BorderRadius.circular(4),
+          borderSide: BorderSide(color: Colors.grey.shade300),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
@@ -403,42 +396,55 @@ class _ContainerAdvantageSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-          const SectionHeader(
-            label: 'GENUINE SPARES',
-            title: 'Complete Range of\nEV Spare Parts',
-            isLight: true,
-            centered: false,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          RichText(
+            text: TextSpan(
+              style: AppTextStyles.sectionTitle.copyWith(fontSize: 36, height: 1.2),
+              children: [
+                const TextSpan(text: 'CKD Containers '),
+                TextSpan(
+                  text: 'Smarter\nShowrooms, Built for\nPerformance.',
+                  style: TextStyle(color: AppColors.primaryNavy),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 24),
           Text(
-            'We stock and supply a wide range of EV components for smooth, reliable vehicle performance.',
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textLight.withOpacity(0.9),
-              fontSize: 18,
-              height: 1.5,
-            ),
+            'Our CKD containers are designed for speed and efficiency, providing a complete showroom experience in a compact, modular format.',
+            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
           ),
           const SizedBox(height: 32),
-          Wrap(
-            spacing: 16,
-            runSpacing: 16,
-            children: [
-              _CheckListItem(text: 'Controllers & Chargers'),
-              _CheckListItem(text: 'Motors & Motor Parts'),
-              _CheckListItem(text: 'Lithium Batteries'),
-              _CheckListItem(text: 'Sensors & Wiring Kits'),
-              _CheckListItem(text: 'Tyres, Lights & Body Parts'),
-            ],
-          ),
+          _FeaturePoint(text: 'Rapid deployment in under 4 weeks'),
+          _FeaturePoint(text: 'High visibility and modern showroom design'),
+          _FeaturePoint(text: 'Secure and durable construction'),
+          _FeaturePoint(text: 'Easily relocatable and modular architecture'),
       ],
+    );
+  }
+}
+
+class _FeaturePoint extends StatelessWidget {
+  final String text;
+  const _FeaturePoint({super.key, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          const Icon(Icons.check_circle, color: AppColors.accentRed, size: 20),
+          const SizedBox(width: 12),
+          Expanded(child: Text(text, style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.bold))),
+        ],
+      ),
     );
   }
 }
 
 class _CheckListItem extends StatelessWidget {
   final String text;
-  const _CheckListItem({required this.text});
+  const _CheckListItem({super.key, required this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -475,7 +481,12 @@ class _WhyPartnerSection extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 1200),
           child: Column(
             children: [
-              const SectionHeader(title: 'Why Partner With FIXXEV?', label: 'ADVANTAGES', centered: true, isLight: true),
+              const SectionHeader(
+                title: 'Why Choose Fixx EV as Your Partner?',
+                label: 'PARTNERSHIP BENEFITS',
+                centered: true,
+                isLight: true,
+              ),
               const SizedBox(height: 80),
               LayoutBuilder(
                 builder: (context, constraints) {
@@ -485,10 +496,30 @@ class _WhyPartnerSection extends StatelessWidget {
                     runSpacing: 40,
                     alignment: WrapAlignment.center,
                     children: [
-                      _BenefitCard(icon: Icons.trending_up, title: 'High ROI', desc: 'Lower capex means faster break-even point.', isMobile: isMobile),
-                      _BenefitCard(icon: Icons.speed, title: 'Speed to Market', desc: 'Launch in 4 weeks vs 6 months for traditional.', isMobile: isMobile),
-                      _BenefitCard(icon: Icons.headset_mic, title: 'Expert Support', desc: '24/7 technical assistance from HQ engineers.', isMobile: isMobile),
-                      _BenefitCard(icon: Icons.build, title: 'OEM Parts', desc: 'Direct supply chain access for authentic spares.', isMobile: isMobile),
+                      _BenefitCard(
+                        icon: Icons.engineering,
+                        title: 'Technical Support',
+                        desc: 'Access to professionally trained technicians and experts.',
+                        isMobile: isMobile,
+                      ),
+                      _BenefitCard(
+                        icon: Icons.trending_up,
+                        title: 'High ROI',
+                        desc: 'Efficient business model with rapid break-even potential.',
+                        isMobile: isMobile,
+                      ),
+                      _BenefitCard(
+                        icon: Icons.local_shipping,
+                        title: 'Supply Chain',
+                        desc: 'Reliable access to OEM-certified spares and logistics.',
+                        isMobile: isMobile,
+                      ),
+                      _BenefitCard(
+                        icon: Icons.campaign,
+                        title: 'Marketing Support',
+                        desc: 'Growth through our centralized digital marketing tools.',
+                        isMobile: isMobile,
+                      ),
                     ],
                   );
                 },
@@ -541,28 +572,81 @@ class _NetworkMapSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isMobile = size.width < 900;
+
     return Container(
       color: AppColors.backgroundLight,
       padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
-      child: Column(
-        children: [
-          const SectionHeader(title: 'Nationwide Network', label: 'EXPANSION', centered: true),
-          const SizedBox(height: 60),
-          SizedBox(
-            height: 500,
-            width: 1000,
-            child: Stack(
-              children: [
-                const _GoogleMap(),
-                // Pulsing Dots Overlay
-                const _PulsingMapDot(top: 280, left: 360, label: 'Hyderabad (HQ)'),
-                const _PulsingMapDot(top: 300, left: 380, label: 'Bangalore'),
-                const _PulsingMapDot(top: 200, left: 350, label: 'Gurugram'),
-                const _PulsingMapDot(top: 220, left: 450, label: 'Kolkata'),
-                const _PulsingMapDot(top: 290, left: 400, label: 'Rajahmundry'),
-              ],
-            ),
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: isMobile
+              ? Column(
+                  children: [
+                    const SizedBox(height: 400, child: _GoogleMap()),
+                    const SizedBox(height: 40),
+                    _buildContent(isMobile),
+                  ],
+                )
+              : Row(
+                  children: [
+                    const Expanded(child: SizedBox(height: 500, child: _GoogleMap())),
+                    const SizedBox(width: 80),
+                    Expanded(child: _buildContent(isMobile)),
+                  ],
+                ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent(bool isMobile) {
+    return Column(
+      crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+            style: AppTextStyles.sectionTitle.copyWith(fontSize: 36, height: 1.2),
+            children: [
+              const TextSpan(text: 'We are reaching every\n'),
+              TextSpan(
+                text: 'corner of India',
+                style: const TextStyle(color: AppColors.primaryNavy),
+              ),
+            ],
           ),
+        ),
+        const SizedBox(height: 24),
+        Text(
+          'Our mission is to make EV servicing accessible to everyone. We are rapidly expanding our network to ensure that no matter where you are, a Fixx EV authorized service centre is nearby.',
+          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
+          textAlign: isMobile ? TextAlign.center : TextAlign.left,
+        ),
+        const SizedBox(height: 32),
+        const _CheckPoint(text: 'Pan-India network of 500+ centres'),
+        const _CheckPoint(text: 'Standardized service processes'),
+        const _CheckPoint(text: 'Skilled technician support'),
+        const _CheckPoint(text: 'OEM-approved spares access'),
+      ],
+    );
+  }
+}
+
+class _CheckPoint extends StatelessWidget {
+  final String text;
+  const _CheckPoint({super.key, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.check_circle, color: AppColors.primaryNavy, size: 20),
+          const SizedBox(width: 12),
+          Text(text, style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -570,14 +654,14 @@ class _NetworkMapSection extends StatelessWidget {
 }
 
 class _GoogleMap extends StatelessWidget {
-  const _GoogleMap();
+  const _GoogleMap({super.key});
 
   @override
   Widget build(BuildContext context) {
     // Register the iframe view factory
     // ignore: undefined_prefixed_name
     ui_web.platformViewRegistry.registerViewFactory(
-      'google-maps-embed',
+      'google-maps-embed-fixx',
       (int viewId) => html.IFrameElement()
         ..src = 'https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d12082197.308827797!2d78.91756949306756!3d23.687872306691254!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1767074470784!5m2!1sen!2sin'
         ..style.border = 'none'
@@ -586,43 +670,50 @@ class _GoogleMap extends StatelessWidget {
         ..allowFullscreen = true,
     );
 
-    return const HtmlElementView(viewType: 'google-maps-embed');
+    return const HtmlElementView(viewType: 'google-maps-embed-fixx');
   }
 }
 
-
 // 5. Deployment Process
 class _DeploymentProcessSection extends StatelessWidget {
-  const _DeploymentProcessSection();
+  const _DeploymentProcessSection({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: AppColors.primaryNavy,
       padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
       child: Column(
         children: [
-          const SectionHeader(title: '4 Steps to Launch', label: 'ROADMAP', centered: true),
+          const SectionHeader(
+            title: 'Process of Dealership',
+            label: 'ROADMAP',
+            centered: true,
+            isLight: true,
+          ),
           const SizedBox(height: 80),
           LayoutBuilder(
             builder: (context, constraints) {
-              if (constraints.maxWidth < 800) {
-                 return Column(
+              final isMobile = constraints.maxWidth < 800;
+              if (isMobile) {
+                return Column(
                   children: const [
-                    _ProcessStep(number: '01', title: 'Application', desc: 'Submit inquiry & site details'),
-                    _ProcessStep(number: '02', title: 'Site Survey', desc: 'Remote & physical feasibility check'),
-                    _ProcessStep(number: '03', title: 'Installation', desc: 'Container delivery & interior fit-out'),
-                    _ProcessStep(number: '04', title: 'Grand Opening', desc: 'Marketing launch & operations start'),
+                    _StepItem(number: '01', title: 'Submit Inquiry', desc: 'Fill the form to start your journey'),
+                    SizedBox(height: 40),
+                    _StepItem(number: '02', title: 'Site Selection', desc: 'Our experts help in finding the best spot'),
+                    SizedBox(height: 40),
+                    _StepItem(number: '03', title: 'Grand Launch', desc: 'Deployment and marketing support'),
                   ],
-                 );
+                );
               }
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: const [
-                  _ProcessStep(number: '01', title: 'Application', desc: 'Submit inquiry & site details'),
-                  _ProcessStep(number: '02', title: 'Site Survey', desc: 'Remote & physical feasibility check'),
-                  _ProcessStep(number: '03', title: 'Installation', desc: 'Container delivery & interior fit-out'),
-                  _ProcessStep(number: '04', title: 'Grand Opening', desc: 'Marketing launch & operations start'),
+                children: [
+                    const Expanded(child: _StepItem(number: '01', title: 'Submit Inquiry', desc: 'Fill the form to start your journey')),
+                    const Icon(Icons.arrow_forward, color: Colors.white24, size: 40),
+                    const Expanded(child: _StepItem(number: '02', title: 'Site Selection', desc: 'Our experts help in finding the best spot')),
+                    const Icon(Icons.arrow_forward, color: Colors.white24, size: 40),
+                    const Expanded(child: _StepItem(number: '03', title: 'Grand Launch', desc: 'Deployment and marketing support')),
                 ],
               );
             },
@@ -633,12 +724,41 @@ class _DeploymentProcessSection extends StatelessWidget {
   }
 }
 
+class _StepItem extends StatelessWidget {
+  final String number;
+  final String title;
+  final String desc;
+
+  const _StepItem({
+    required this.number,
+    required this.title,
+    required this.desc,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(number, style: AppTextStyles.heroTitle.copyWith(fontSize: 48, color: Colors.white12)),
+        const SizedBox(height: 16),
+        Text(title, style: AppTextStyles.cardTitle.copyWith(color: Colors.white, fontSize: 20)),
+        const SizedBox(height: 8),
+        Text(desc, style: AppTextStyles.bodySmall.copyWith(color: Colors.white70), textAlign: TextAlign.center),
+      ],
+    );
+  }
+}
+
 class _ProcessStep extends StatelessWidget {
   final String number;
   final String title;
   final String desc;
 
-  const _ProcessStep({required this.number, required this.title, required this.desc});
+  const _ProcessStep({
+    required this.number,
+    required this.title,
+    required this.desc,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -679,7 +799,7 @@ class _ModelShowcaseSection extends StatelessWidget {
             spacing: 30,
             runSpacing: 30,
             alignment: WrapAlignment.center,
-            children: const [
+            children: [
               _ModelCard(
                 name: 'EV Spare Parts Micro-Outlet',
                 type: 'MODEL 1',
@@ -707,8 +827,8 @@ class _ModelCard extends StatelessWidget {
   final List<String> features;
 
   const _ModelCard({
-    required this.name, 
-    required this.type, 
+    required this.name,
+    required this.type,
     required this.image,
     this.features = const [],
   });
@@ -766,7 +886,11 @@ class _PulsingMapDot extends StatelessWidget {
   final double left;
   final String label;
 
-  const _PulsingMapDot({required this.top, required this.left, required this.label});
+  const _PulsingMapDot({
+    required this.top,
+    required this.left,
+    required this.label,
+  });
 
   @override
   Widget build(BuildContext context) {

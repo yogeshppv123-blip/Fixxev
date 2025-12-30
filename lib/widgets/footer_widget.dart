@@ -65,8 +65,9 @@ class FooterWidget extends StatelessWidget {
             title: 'EXPLORE',
             links: const [
               {'label': 'About FIXXEV', 'path': '/about'},
-              {'label': 'Our Services', 'path': '/services'},
+              {'label': 'Products', 'path': '/products'},
               {'label': 'Dealership', 'path': '/ckd-dealership'},
+              {'label': 'Blog', 'path': '/blog'},
               {'label': 'Team Experts', 'path': '/team'},
               {'label': 'Get in Touch', 'path': '/contact'},
             ],
@@ -93,8 +94,10 @@ class FooterWidget extends StatelessWidget {
           links: const [
             {'label': 'Home', 'path': '/'},
             {'label': 'About Us', 'path': '/about'},
-            {'label': 'Services', 'path': '/services'},
+            {'label': 'Products', 'path': '/products'},
             {'label': 'Dealership', 'path': '/ckd-dealership'},
+            {'label': 'Blog', 'path': '/blog'},
+            {'label': 'Team', 'path': '/team'},
             {'label': 'Contact', 'path': '/contact'},
           ],
         ),

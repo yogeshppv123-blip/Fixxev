@@ -11,6 +11,8 @@ class PrimaryButton extends StatefulWidget {
   final double? width;
   final EdgeInsets? padding;
 
+  final Color? backgroundColor;
+
   const PrimaryButton({
     super.key,
     required this.text,
@@ -19,6 +21,7 @@ class PrimaryButton extends StatefulWidget {
     this.isLoading = false,
     this.width,
     this.padding,
+    this.backgroundColor,
   });
 
   @override
@@ -63,11 +66,12 @@ class _PrimaryButtonState extends State<PrimaryButton>
               duration: const Duration(milliseconds: 200),
               width: widget.width,
               decoration: BoxDecoration(
-                gradient: AppColors.redGradient,
+                gradient: widget.backgroundColor == null ? AppColors.redGradient : null,
+                color: widget.backgroundColor,
                 borderRadius: BorderRadius.circular(6),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.accentRed.withAlpha(_isHovered ? 80 : 50),
+                    color: (widget.backgroundColor ?? AppColors.accentRed).withAlpha(_isHovered ? 80 : 50),
                     blurRadius: _isHovered ? 20 : 10,
                     offset: Offset(0, _isHovered ? 8 : 4),
                   ),

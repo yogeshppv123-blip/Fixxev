@@ -57,25 +57,31 @@ class _JoinCommunitySection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const SectionHeader(
-          label: 'WHO WE ARE',
-          title: 'India’s Fastest Growing\nEV Service Chain',
-          centered: false,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        RichText(
+          text: TextSpan(
+            style: AppTextStyles.sectionTitle.copyWith(fontSize: 40, height: 1.2),
+            children: [
+              const TextSpan(text: 'Join the Fixx EV\nCommunity '),
+              TextSpan(
+                text: 'Get Your CKD\nContainer!',
+                style: TextStyle(color: AppColors.primaryNavy),
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: 24),
         Text(
-          'FIXXEV Mobility Solutions Private Limited is India’s fastest-growing EV spare parts and service store chain. We specialize in complete EV care—spare parts, diagnostics, repairs, and upcoming battery & retrofit solutions.',
-          style: AppTextStyles.bodyMedium.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
+          'Join our growing network of entrepreneurs. Our modular CKD container model is designed for rapid deployment, allowing you to start your EV service business in record time.',
+          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
         ),
         const SizedBox(height: 16),
         Text(
-          'Our Mission: To accelerate India’s EV adoption by making high-quality EV spare parts and professional servicing accessible across every city and town.',
+          'Our containers are built to last, providing a professional and efficient workspace for your technicians and an inviting showroom for your customers.',
           style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
         ),
         const SizedBox(height: 32),
         PrimaryButton(
-          text: 'APPLY FOR FRANCHISE',
+          text: 'LEARN MORE',
           onPressed: () {},
           icon: Icons.arrow_forward_rounded,
         ),
@@ -90,53 +96,124 @@ class _ScalableGrowthSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isMobile = size.width < 900;
+
     return Container(
-      color: AppColors.backgroundLight,
+      color: Colors.white,
       padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 1200),
           child: Column(
             children: [
-              const SectionHeader(
-                title: 'India’s EV Growth Story',
-                label: 'MARKET OPPORTUNITY',
-                centered: true,
+              RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  style: AppTextStyles.sectionTitle.copyWith(fontSize: 36, height: 1.2),
+                  children: [
+                    const TextSpan(text: "It's low-risk, scalable, "),
+                    TextSpan(
+                      text: 'and\nfuture-ready.',
+                      style: TextStyle(color: AppColors.primaryNavy),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 60),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  return Wrap(
-                    spacing: 30,
-                    runSpacing: 30,
-                    alignment: WrapAlignment.center,
-                    children: const [
-                       _GrowthCard(
-                        title: '20.8 Lakh Sales',
-                        icon: Icons.trending_up,
-                        bgImage: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-                        desc: 'Total EV sales in 2024',
-                      ),
-                      _GrowthCard(
-                        title: '1 Crore by 2030',
-                        icon: Icons.electric_car,
-                        bgImage: 'https://images.unsplash.com/photo-1487887235947-a955ef187fcc?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-                        isDark: true,
-                        desc: 'Projected annual sales',
-                      ),
-                      _GrowthCard(
-                        title: 'Tier 2 & 3 Growth',
-                        icon: Icons.map,
-                        bgImage: 'https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-                        desc: 'Future market drivers',
-                      ),
-                    ],
-                  );
-                },
-              ),
+              isMobile
+                  ? Column(
+                      children: [
+                        _buildImage(),
+                        const SizedBox(height: 40),
+                        _buildCards(),
+                      ],
+                    )
+                  : Row(
+                      children: [
+                        Expanded(child: _buildImage()),
+                        const SizedBox(width: 60),
+                        Expanded(child: _buildCards()),
+                      ],
+                    ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildImage() {
+    return Container(
+      height: 400,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        image: const DecorationImage(
+          image: NetworkImage('https://images.unsplash.com/photo-1531482615713-2afd69097998?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'),
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCards() {
+    return Column(
+      children: [
+        _GrowthInfoCard(
+          title: 'Lower Risk, Better Results',
+          description: 'Our model minimizes initial overhead while maximizing operational efficiency.',
+          color: AppColors.primaryNavy,
+        ),
+        const SizedBox(height: 16),
+        _GrowthInfoCard(
+          title: 'High-Impact, Asset-light',
+          description: 'Focus on growth without the burden of excessive physical assets.',
+          color: Colors.black,
+        ),
+        const SizedBox(height: 16),
+        _GrowthInfoCard(
+          title: 'Technically Advanced Tools',
+          description: 'Benefit from state-of-the-art diagnostics and management software.',
+          color: AppColors.primaryNavy,
+        ),
+      ],
+    );
+  }
+}
+
+class _GrowthInfoCard extends StatelessWidget {
+  final String title;
+  final String description;
+  final Color color;
+
+  const _GrowthInfoCard({
+    required this.title,
+    required this.description,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: AppTextStyles.cardTitle.copyWith(color: Colors.white, fontSize: 18),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            description,
+            style: AppTextStyles.bodySmall.copyWith(color: Colors.white70),
+          ),
+        ],
       ),
     );
   }

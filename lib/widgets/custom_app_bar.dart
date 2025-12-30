@@ -118,9 +118,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     final navItems = [
       {'label': 'HOME', 'path': '/'},
       {'label': 'ABOUT', 'path': '/about'},
-      {'label': 'SERVICES', 'path': '/services'},
+      {'label': 'PRODUCTS', 'path': '/products'},
       {'label': 'DEALERSHIP', 'path': '/ckd-dealership'},
-      {'label': 'TEAM', 'path': '/team'},
+      {'label': 'BLOG', 'path': '/blog'},
       {'label': 'CONTACT', 'path': '/contact'},
     ];
     return Row(
@@ -205,9 +205,9 @@ class MobileDrawer extends StatelessWidget {
     final navItems = [
       {'label': 'HOME', 'path': '/'},
       {'label': 'ABOUT', 'path': '/about'},
-      {'label': 'SERVICES', 'path': '/services'},
+      {'label': 'PRODUCTS', 'path': '/products'},
       {'label': 'DEALERSHIP', 'path': '/ckd-dealership'},
-      {'label': 'TEAM', 'path': '/team'},
+      {'label': 'BLOG', 'path': '/blog'},
       {'label': 'CONTACT', 'path': '/contact'},
     ];
 
