@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'core/theme/app_theme.dart';
-import 'screens/home/home_screen.dart';
-
-import 'core/router/app_router.dart';
+import 'package:fixxev/core/router/app_router.dart';
+import 'package:fixxev/core/theme/app_theme.dart';
+import 'package:fixxev/core/config/url_strategy.dart'; // Import URL strategy
 
 void main() {
+  // Configure URL strategy to verify removal of hash (#)
+  configureUrlStrategy();
+  
   WidgetsFlutterBinding.ensureInitialized();
   
   // Set system UI overlay style

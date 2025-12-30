@@ -56,9 +56,11 @@ class _AboutUsSectionState extends State<AboutUsSection>
   void _onVisibilityChanged(VisibilityInfo visibilityInfo) {
     final visible = visibilityInfo.visibleFraction > 0.3;
     if (visible && !_isVisible) {
-      setState(() {
-        _isVisible = true;
-      });
+      if (mounted) {
+        setState(() {
+          _isVisible = true;
+        });
+      }
       _statsController.forward(from: 0.0);
     } else if (visibilityInfo.visibleFraction < 0.1) {
       if (_isVisible) {

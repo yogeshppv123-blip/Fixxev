@@ -5,6 +5,7 @@ import '../../screens/about/about_screen.dart';
 import '../../screens/services/services_page.dart';
 import '../../screens/team/team_screen.dart';
 import '../../screens/contact/contact_screen.dart';
+import '../../screens/business/ckd_dealership_screen.dart';
 
 class AppRouter {
   static final router = GoRouter(
@@ -29,6 +30,10 @@ class AppRouter {
       GoRoute(
         path: '/contact',
         builder: (context, state) => const ContactScreen(),
+      ),
+      GoRoute(
+        path: '/ckd-dealership',
+        builder: (context, state) => const CKDealershipScreen(),
       ),
     ],
   );

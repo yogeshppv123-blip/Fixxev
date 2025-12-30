@@ -119,6 +119,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       {'label': 'HOME', 'path': '/'},
       {'label': 'ABOUT', 'path': '/about'},
       {'label': 'SERVICES', 'path': '/services'},
+      {'label': 'DEALERSHIP', 'path': '/ckd-dealership'},
       {'label': 'TEAM', 'path': '/team'},
       {'label': 'CONTACT', 'path': '/contact'},
     ];
@@ -205,6 +206,7 @@ class MobileDrawer extends StatelessWidget {
       {'label': 'HOME', 'path': '/'},
       {'label': 'ABOUT', 'path': '/about'},
       {'label': 'SERVICES', 'path': '/services'},
+      {'label': 'DEALERSHIP', 'path': '/ckd-dealership'},
       {'label': 'TEAM', 'path': '/team'},
       {'label': 'CONTACT', 'path': '/contact'},
     ];
