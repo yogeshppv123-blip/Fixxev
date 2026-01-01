@@ -77,22 +77,25 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   // Logo
+                  // Logo
                   Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: AppColors.accentRed,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'F',
-                        style: TextStyle(
-                          fontSize: 40,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
+                    width: 100, // Increased size for login screen
+                    height: 100,
+                    child: Image.network(
+                      'logo.png',
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                         return Container(
+                           width: 80, height: 80,
+                           decoration: BoxDecoration(
+                             color: AppColors.accentTeal,
+                             borderRadius: BorderRadius.circular(16),
+                           ),
+                           child: const Center(
+                             child: Text('F', style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.white)),
+                           ),
+                         );
+                      },
                     ),
                   ),
                   const SizedBox(height: 24),

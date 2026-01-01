@@ -1,14 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:fixxev_admin/core/theme/app_colors.dart';
 import 'package:fixxev_admin/core/theme/app_text_styles.dart';
+import 'package:fixxev_admin/core/services/api_service.dart';
 
-class AdminSidebar extends StatelessWidget {
+class AdminSidebar extends StatefulWidget {
   final String currentRoute;
 
   const AdminSidebar({super.key, required this.currentRoute});
 
   @override
+  State<AdminSidebar> createState() => _AdminSidebarState();
+}
+
+class _AdminSidebarState extends State<AdminSidebar> {
+  final ApiService _apiService = ApiService();
+  String _leadsCount = '...';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLeadsCount();
+  }
+
+  Future<void> _loadLeadsCount() async {
+    try {
+      final leads = await _apiService.getLeads();
+      if (mounted) {
+        setState(() {
+          _leadsCount = leads.length.toString();
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _leadsCount = '0';
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final currentRoute = widget.currentRoute;
     return Container(
       width: 260,
       color: AppColors.sidebarDark,
@@ -16,42 +49,25 @@ class AdminSidebar extends StatelessWidget {
         children: [
           // Logo
           Container(
-            padding: const EdgeInsets.all(24),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: AppColors.accentRed,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'F',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+            alignment: Alignment.centerLeft,
+            child: Image.network(
+              'logo.png',
+              height: 40, // Adjusted height for sidebar
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) {
+                return Row(
                   children: [
-                    Text(
-                      'FIXXEV',
-                      style: AppTextStyles.heading3.copyWith(letterSpacing: 1),
+                    Container(
+                      width: 40, height: 40,
+                      decoration: BoxDecoration(color: AppColors.accentTeal, borderRadius: BorderRadius.circular(8)),
+                      child: const Center(child: Text('F', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24))),
                     ),
-                    Text(
-                      'Admin Panel',
-                      style: AppTextStyles.bodySmall,
-                    ),
+                    const SizedBox(width: 12),
+                    const Text('FIXXEV', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 1)),
                   ],
-                ),
-              ],
+                );
+              },
             ),
           ),
 
@@ -78,7 +94,7 @@ class AdminSidebar extends StatelessWidget {
                       label: 'Leads & Inquiries',
                       route: '/leads',
                       isActive: currentRoute == '/leads',
-                      badge: '8',
+                      badge: _leadsCount,
                     ),
                   ],
                 ),
@@ -106,6 +122,41 @@ class AdminSidebar extends StatelessWidget {
                       label: 'Products',
                       route: '/products',
                       isActive: currentRoute.startsWith('/products'),
+                    ),
+                    _SidebarItem(
+                      icon: Icons.build_outlined, // Services Icon
+                      activeIcon: Icons.build,
+                      label: 'Services',
+                      route: '/services',
+                      isActive: currentRoute.startsWith('/services'),
+                    ),
+                    _SidebarItem(
+                      icon: Icons.people_outline, // Team Icon
+                      activeIcon: Icons.people,
+                      label: 'Team',
+                      route: '/team',
+                      isActive: currentRoute.startsWith('/team'),
+                    ),
+                    _SidebarItem(
+                      icon: Icons.info_outlined,
+                      activeIcon: Icons.info,
+                      label: 'About Page',
+                      route: '/about',
+                      isActive: currentRoute.startsWith('/about'),
+                    ),
+                    _SidebarItem(
+                      icon: Icons.handshake_outlined,
+                      activeIcon: Icons.handshake,
+                      label: 'Franchise',
+                      route: '/franchise',
+                      isActive: currentRoute.startsWith('/franchise'),
+                    ),
+                    _SidebarItem(
+                      icon: Icons.store_outlined,
+                      activeIcon: Icons.store,
+                      label: 'CKD Container',
+                      route: '/ckd-content',
+                      isActive: currentRoute.startsWith('/ckd-content'),
                     ),
                     _SidebarItem(
                       icon: Icons.photo_library_outlined,
@@ -227,7 +278,9 @@ class _SidebarItemState extends State<_SidebarItem> {
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: () => Navigator.pushReplacementNamed(context, widget.route),
+            onTap: () {
+              Navigator.pushReplacementNamed(context, widget.route);
+            },
             borderRadius: BorderRadius.circular(10),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),

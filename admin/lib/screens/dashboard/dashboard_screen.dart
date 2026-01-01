@@ -4,8 +4,30 @@ import 'package:fixxev_admin/core/theme/app_text_styles.dart';
 import 'package:fixxev_admin/widgets/sidebar.dart';
 import 'package:fixxev_admin/widgets/stat_card.dart';
 
-class DashboardScreen extends StatelessWidget {
+import 'package:fixxev_admin/core/services/api_service.dart';
+
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  final ApiService _apiService = ApiService();
+  late Future<dynamic> _statsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshStats();
+  }
+
+  void _refreshStats() {
+    setState(() {
+      _statsFuture = _apiService.getDashboardStats();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,126 +35,160 @@ class DashboardScreen extends StatelessWidget {
       backgroundColor: AppColors.backgroundDark,
       body: Row(
         children: [
-          // Sidebar
           const AdminSidebar(currentRoute: '/dashboard'),
-          
-          // Main content
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: FutureBuilder<dynamic>(
+                future: _statsFuture,
+                builder: (context, snapshot) {
+                  final stats = snapshot.data ?? {
+                    'servicesCount': 0,
+                    'productsCount': 0,
+                    'teamCount': 0,
+                    'blogsCount': 0,
+                  };
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      // Header
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Dashboard', style: AppTextStyles.heading1),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Welcome back, Admin',
-                            style: AppTextStyles.bodyMedium,
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Dashboard', style: AppTextStyles.heading1),
+                              const SizedBox(height: 4),
+                              Text('Welcome back, Admin', style: AppTextStyles.bodyMedium),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.refresh, color: Colors.white),
+                                onPressed: _refreshStats,
+                                tooltip: 'Refresh Stats',
+                              ),
+                              const SizedBox(width: 16),
+                              _buildUserMenu(),
+                            ],
                           ),
                         ],
                       ),
-                      // User menu
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: AppColors.cardDark,
-                          borderRadius: BorderRadius.circular(12),
+                      const SizedBox(height: 40),
+
+                      if (snapshot.hasError)
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          margin: const EdgeInsets.only(bottom: 24),
+                          decoration: BoxDecoration(
+                            color: AppColors.error.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppColors.error.withOpacity(0.3)),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.error_outline, color: AppColors.error),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'Error loading stats: ${snapshot.error}',
+                                  style: TextStyle(color: AppColors.error),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 18,
-                              backgroundColor: AppColors.accentRed,
-                              child: const Text('A', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+
+                      // Stats row
+                      Row(
+                        children: [
+                          Expanded(
+                            child: StatCard(
+                              title: 'Total Services',
+                              value: stats['servicesCount'].toString(),
+                              icon: Icons.settings_suggest_outlined,
+                              color: AppColors.info,
+                              trend: 'Live',
+                              trendUp: true,
                             ),
-                            const SizedBox(width: 12),
-                            Text('Admin', style: AppTextStyles.bodyLarge),
-                            const SizedBox(width: 8),
-                            const Icon(Icons.keyboard_arrow_down, color: AppColors.textMuted),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(width: 24),
+                          Expanded(
+                            child: StatCard(
+                              title: 'Blog Posts',
+                              value: stats['blogsCount'].toString(),
+                              icon: Icons.article_outlined,
+                              color: AppColors.success,
+                              trend: 'Live',
+                              trendUp: true,
+                            ),
+                          ),
+                          const SizedBox(width: 24),
+                          Expanded(
+                            child: StatCard(
+                              title: 'Products',
+                              value: stats['productsCount'].toString(),
+                              icon: Icons.inventory_2_outlined,
+                              color: AppColors.warning,
+                              trend: 'Live',
+                              trendUp: null,
+                            ),
+                          ),
+                          const SizedBox(width: 24),
+                          Expanded(
+                            child: StatCard(
+                              title: 'Team Members',
+                              value: stats['teamCount'].toString(),
+                              icon: Icons.people_outline,
+                              color: AppColors.accentRed,
+                              trend: 'Live',
+                              trendUp: true,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 40),
+                      
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(flex: 2, child: _buildRecentLeads()),
+                          const SizedBox(width: 24),
+                          Expanded(child: _buildQuickActions(context)),
+                        ],
                       ),
                     ],
-                  ),
-                  const SizedBox(height: 40),
-
-                  // Stats row
-                  Row(
-                    children: [
-                      Expanded(
-                        child: StatCard(
-                          title: 'Total Leads',
-                          value: '127',
-                          icon: Icons.people_outline,
-                          color: AppColors.info,
-                          trend: '+12%',
-                          trendUp: true,
-                        ),
-                      ),
-                      const SizedBox(width: 24),
-                      Expanded(
-                        child: StatCard(
-                          title: 'Blog Posts',
-                          value: '24',
-                          icon: Icons.article_outlined,
-                          color: AppColors.success,
-                          trend: '+3',
-                          trendUp: true,
-                        ),
-                      ),
-                      const SizedBox(width: 24),
-                      Expanded(
-                        child: StatCard(
-                          title: 'Products',
-                          value: '12',
-                          icon: Icons.inventory_2_outlined,
-                          color: AppColors.warning,
-                          trend: '0',
-                          trendUp: null,
-                        ),
-                      ),
-                      const SizedBox(width: 24),
-                      Expanded(
-                        child: StatCard(
-                          title: 'Pending',
-                          value: '8',
-                          icon: Icons.pending_actions,
-                          color: AppColors.accentRed,
-                          trend: '-2',
-                          trendUp: false,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 40),
-
-                  // Recent leads section
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Recent Leads
-                      Expanded(
-                        flex: 2,
-                        child: _buildRecentLeads(),
-                      ),
-                      const SizedBox(width: 24),
-                      // Quick Actions
-                      Expanded(
-                        child: _buildQuickActions(context),
-                      ),
-                    ],
-                  ),
-                ],
+                  );
+                }
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUserMenu() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.cardDark,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 18,
+            backgroundColor: AppColors.accentRed,
+            child: const Text('A', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+          const SizedBox(width: 12),
+          Text('Admin', style: AppTextStyles.bodyLarge),
+          const SizedBox(width: 8),
+          const Icon(Icons.keyboard_arrow_down, color: AppColors.textMuted),
         ],
       ),
     );

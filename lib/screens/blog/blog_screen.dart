@@ -5,8 +5,26 @@ import 'package:fixxev/widgets/custom_app_bar.dart';
 import 'package:fixxev/widgets/footer_widget.dart';
 import 'package:fixxev/widgets/buttons/primary_button.dart';
 
-class BlogScreen extends StatelessWidget {
+import 'package:fixxev/core/services/api_service.dart';
+
+class BlogScreen extends StatefulWidget {
   const BlogScreen({super.key});
+
+  @override
+  State<BlogScreen> createState() => _BlogScreenState();
+}
+
+class _BlogScreenState extends State<BlogScreen> {
+  final ApiService _apiService = ApiService();
+  late Future<List<dynamic>> _blogsFuture;
+  late Future<Map<String, dynamic>> _pageContentFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _blogsFuture = _apiService.getBlogs();
+    _pageContentFuture = _apiService.getPageContent('blog');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,21 +38,36 @@ class BlogScreen extends StatelessWidget {
         useLightText: true,
       ),
       endDrawer: isMobile ? const MobileDrawer() : null,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildBlogHero(context, isMobile),
-            const SizedBox(height: 80),
-            _buildBlogGrid(context, isMobile),
-            const SizedBox(height: 100),
-            const FooterWidget(),
-          ],
-        ),
+      body: FutureBuilder<List<dynamic>>(
+        future: Future.wait([_blogsFuture, _pageContentFuture]),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          final blogPosts = snapshot.data![0] as List<dynamic>;
+          final content = snapshot.data![1] as Map<String, dynamic>;
+
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                _buildBlogHero(context, isMobile, content),
+                const SizedBox(height: 80),
+                _buildBlogGrid(context, isMobile, blogPosts),
+                const SizedBox(height: 100),
+                const FooterWidget(),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildBlogHero(BuildContext context, bool isMobile) {
+  Widget _buildBlogHero(BuildContext context, bool isMobile, Map<String, dynamic> content) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
@@ -47,7 +80,7 @@ class BlogScreen extends StatelessWidget {
         children: [
           const SizedBox(height: 40),
           Text(
-            'Insights & News',
+            content['title'] ?? 'Insights & News',
             style: AppTextStyles.heroTitle.copyWith(
               fontSize: isMobile ? 40 : 64,
               color: AppColors.primaryNavy,
@@ -64,7 +97,7 @@ class BlogScreen extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           Text(
-            'Stay updated with the latest in EV infrastructure, company milestones, and the future of Indian mobility.',
+            content['subtitle'] ?? 'Stay updated with the latest in EV infrastructure, company milestones, and the future of Indian mobility.',
             style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textMuted),
           ),
         ],
@@ -72,57 +105,16 @@ class BlogScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBlogGrid(BuildContext context, bool isMobile) {
-    final blogPosts = [
-      {
-        'title': 'The Future of EV After-Sales in India',
-        'date': 'Oct 24, 2024',
-        'category': 'INDUSTRY',
-        'image': 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        'excerpt': 'Why a standardized service network is the key to unlocking mass EV adoption in the Indian market.',
-      },
-      {
-        'title': 'Fixx EV Launches 50th Service Center',
-        'date': 'Nov 12, 2024',
-        'category': 'NEWS',
-        'image': 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        'excerpt': 'Milestone achievement as we expand our footprint across North India cities.',
-      },
-      {
-        'title': 'How Modular Showrooms are Changing Retail',
-        'date': 'Dec 05, 2024',
-        'category': 'TECHNOLOGY',
-        'image': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        'excerpt': 'Exploring the advantages of rapid deployment CKD containers for new franchisees.',
-      },
-      {
-        'title': 'Battery Diagnostics: The Core of EV Health',
-        'date': 'Dec 20, 2024',
-        'category': 'TECH TIPS',
-        'image': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        'excerpt': 'Understanding the importance of real-time battery monitoring for long-term vehicle performance.',
-      },
-      {
-        'title': 'Why Choose a Certified EV Service Partner?',
-        'date': 'Jan 10, 2025',
-        'category': 'GUIDE',
-        'image': 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        'excerpt': 'Comparing OEM-grade service versus local workshops for electric two-wheelers.',
-      },
-      {
-        'title': 'Sustainability in EV Logistics',
-        'date': 'Jan 28, 2025',
-        'category': 'IMPACT',
-        'image': 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        'excerpt': 'Reducing the carbon footprint of the spare parts supply chain using smart storage solutions.',
-      },
-    ];
+  Widget _buildBlogGrid(BuildContext context, bool isMobile, List<dynamic> blogPosts) {
+    if (blogPosts.isEmpty) {
+      return const Center(child: Text('No blog posts found.'));
+    }
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: isMobile ? 24 : 80),
       child: isMobile 
         ? Column(
-            children: blogPosts.map((post) => _buildBlogCard(post)).toList(),
+            children: blogPosts.map((post) => _buildBlogCard(_mapToMap(post))).toList(),
           )
         : GridView.builder(
             shrinkWrap: true,
@@ -135,10 +127,20 @@ class BlogScreen extends StatelessWidget {
             ),
             itemCount: blogPosts.length,
             itemBuilder: (context, index) {
-              return _buildBlogCard(blogPosts[index]);
+              return _buildBlogCard(_mapToMap(blogPosts[index]));
             },
           ),
     );
+  }
+
+  Map<String, String> _mapToMap(dynamic post) {
+    return {
+      'title': post['title']?.toString() ?? '',
+      'date': post['date']?.toString() ?? '',
+      'category': post['category']?.toString() ?? '',
+      'image': post['image']?.toString() ?? '',
+      'excerpt': post['excerpt']?.toString() ?? '',
+    };
   }
 
   Widget _buildBlogCard(Map<String, String> post) {
@@ -161,7 +163,15 @@ class BlogScreen extends StatelessWidget {
               ],
             ),
             clipBehavior: Clip.antiAlias,
-            child: Image.network(post['image']!, fit: BoxFit.cover),
+            child: Image.network(
+              post['image']!, 
+              fit: BoxFit.cover,
+              filterQuality: FilterQuality.high,
+              errorBuilder: (context, error, stackTrace) => Container(
+                color: AppColors.backgroundLight,
+                child: const Icon(Icons.article_outlined, size: 48, color: AppColors.textMuted),
+              ),
+            ),
           ),
           const SizedBox(height: 24),
           Row(

@@ -9,6 +9,8 @@ import '../../widgets/subpage_hero.dart';
 import '../../widgets/section_header.dart';
 import '../../widgets/buttons/primary_button.dart';
 
+import 'package:fixxev/core/services/api_service.dart';
+
 class ServicesPage extends StatefulWidget {
   const ServicesPage({super.key});
 
@@ -18,12 +20,15 @@ class ServicesPage extends StatefulWidget {
 
 class _ServicesPageState extends State<ServicesPage> {
   final ScrollController _scrollController = ScrollController();
+  final ApiService _apiService = ApiService();
+  late Future<List<dynamic>> _servicesFuture;
   bool _isScrolled = false;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    _servicesFuture = _apiService.getServices();
   }
 
   void _onScroll() {
@@ -47,86 +52,61 @@ class _ServicesPageState extends State<ServicesPage> {
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
-          SingleChildScrollView(
-            controller: _scrollController,
-            child: Column(
-              children: [
-                // 1. LIGHT HERO (Matching Reference Style)
-                _ServiceHeroLight(
-                  title: 'Advanced Multi-Brand\nEV Solutions',
-                  tagline: 'SERVICE EXCELLENCE',
-                  imageUrl: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7',
+          FutureBuilder<List<dynamic>>(
+            future: _servicesFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              }
+
+              final allServices = snapshot.data ?? [];
+              final services = allServices.where((s) => s['status'] == 'Active').toList();
+
+              return SingleChildScrollView(
+                controller: _scrollController,
+                child: Column(
+                  children: [
+                    // 1. LIGHT HERO
+                    _ServiceHeroLight(
+                      title: 'Advanced Multi-Brand\nEV Solutions',
+                      tagline: 'SERVICE EXCELLENCE',
+                      imageUrl: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7',
+                    ),
+
+                    if (services.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.all(100),
+                        child: Text('No services available at the moment.'),
+                      )
+                    else
+                      ...List.generate(services.length, (index) {
+                        final service = services[index];
+                        return _ZigZagServiceBlock(
+                          image: (service['image'] != null && service['image'].toString().isNotEmpty) 
+                              ? service['image'] 
+                              : _getServiceImage(index),
+                          title: service['title'] ?? '',
+                          label: '// ${service['category']?.toUpperCase() ?? 'SERVICE'}',
+                          description: service['description'] ?? '',
+                          items: const ['Professional Service', 'Certified Experts', 'Quality Parts'], // Placeholder features if not in DB
+                          isReversed: index % 2 != 0,
+                        );
+                      }),
+
+                    // 8. WHY CHOOSE FIXXEV
+                    _WhyChooseServiceSection(),
+
+                    // 9. CTA SECTION
+                    _ServiceCTASection(),
+
+                    const FooterWidget(),
+                  ],
                 ),
-
-                // 2. PRECISION AFTER-SALES
-                _ZigZagServiceBlock(
-                  image: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d',
-                  title: 'Precision After-Sales Service & Preventive Maintenance',
-                  label: '// AFTER-SALES',
-                  description: 'Comprehensive servicing for multi-brand EVs including **periodic maintenance checks**, standardized repair protocols, and specialized lubrication services for motor hubs.',
-                  items: ['40-Point Periodic Checkup', 'Motor Hub & Bearing Care', 'Fluid & Cooling Management'],
-                  isReversed: false,
-                ),
-
-                // 3. OEM WARRANTY MANAGEMENT
-                _ZigZagServiceBlock(
-                  image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158',
-                  title: 'OEM Warranty Management & Dealer Assistance',
-                  label: '// WARRANTY SUPPORT',
-                  description: 'We act as the bridge between EV owners and manufacturers. Our team handles **warranty audits**, documentation assistance, and ensures **seamless claim processing**.',
-                  items: ['Warranty Compliance Audit', 'OEM Claim Assistance', 'Digital Service Records'],
-                  isReversed: true,
-                ),
-
-                // 4. INTELLIGENT FLEET MANAGEMENT
-                _ZigZagServiceBlock(
-                  image: 'https://images.unsplash.com/photo-1497366216548-37526070297c',
-                  title: 'Intelligent Fleet Management & Corporate EV Solutions',
-                  label: '// FLEET SOLUTIONS',
-                  description: 'Customized solutions for delivery fleets and corporate transporters. We provide **real-time health monitoring** and priority service lanes to minimize fleet downtime.',
-                  items: ['Predictive Health Monitoring', 'Priority Service Lanes', 'Fleet Analytics Dashboard'],
-                  isReversed: false,
-                ),
-
-                // 5. EV REFURBISHMENT
-                _ZigZagServiceBlock(
-                  image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7',
-                  title: 'EV Refurbishment & Performance Upgrades',
-                  label: '// REFURBISHMENT',
-                  description: 'Restoring old EVs to prime condition. We specialize in **battery upgrades**, motor re-tuning, and aesthetic restoration for a second life on the road.',
-                  items: ['Chassis & Body Restoration', 'Electronics Re-wiring', 'Performance Re-tuning'],
-                  isReversed: true,
-                ),
-
-                // 6. HIGH-TECH DIAGNOSTICS
-                _ZigZagServiceBlock(
-                  image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158',
-                  title: 'High-Tech EV Diagnostics & Software Solutions',
-                  label: '// DIAGNOSTICS',
-                  description: 'Advanced scanning for all EV brands. Our proprietary tools provide **CAN Bus analysis** and BMS firmware updates to solve complex electronic glitches.',
-                  items: ['CAN Bus Glitch Search', 'BMS Firmware Updates', 'Real-time Data Logging'],
-                  isReversed: false,
-                ),
-
-                // 7. BATTERY REPAIRS
-                _ZigZagServiceBlock(
-                  image: 'https://images.unsplash.com/photo-1497366216548-37526070297c',
-                  title: 'Advanced Battery Repairs, Replacement & Recycling',
-                  label: '// ENERGY CARE',
-                  description: 'Specialized lithium battery care. We perform **individual cell balancing** and thermal management system repairs to extend battery life by up to 30%.',
-                  items: ['Cell Replacement & Balancing', 'Thermal Management Repair', 'Green Recycling Program'],
-                  isReversed: true,
-                ),
-
-                // 8. WHY CHOOSE FIXXEV (Dark Navy Block)
-                _WhyChooseServiceSection(),
-
-                // 9. CTA SECTION
-                _ServiceCTASection(),
-
-                const FooterWidget(),
-              ],
-            ),
+              );
+            },
           ),
           
           Positioned(
@@ -146,6 +126,18 @@ class _ServicesPageState extends State<ServicesPage> {
         ],
       ),
     );
+  }
+
+  String _getServiceImage(int index) {
+    final images = [
+      'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d',
+      'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158',
+      'https://images.unsplash.com/photo-1497366216548-37526070297c',
+      'https://images.unsplash.com/photo-1593941707882-a5bba14938c7',
+      'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158',
+      'https://images.unsplash.com/photo-1497366216548-37526070297c',
+    ];
+    return images[index % images.length];
   }
 }
 

@@ -7,7 +7,8 @@ import 'package:go_router/go_router.dart';
 
 /// "Why Choose Us" section with hover effects and animations triggered when in view
 class WhatWeDoSection extends StatefulWidget {
-  const WhatWeDoSection({super.key});
+  final Map<String, dynamic> content;
+  const WhatWeDoSection({super.key, required this.content});
 
   @override
   State<WhatWeDoSection> createState() => _WhatWeDoSectionState();
@@ -77,9 +78,9 @@ class _WhatWeDoSectionState extends State<WhatWeDoSection>
             child: Column(
               children: [
                 // Section header with animation
-                const SectionHeader(
-                  label: '// FRANCHISE-LED GROWTH',
-                  title: 'BUILDING INDIA’S LARGEST\nEV SERVICE NETWORK',
+                SectionHeader(
+                  label: widget.content['whatWeDoLabel'] ?? '// FRANCHISE-LED GROWTH',
+                  title: widget.content['whatWeDoTitle'] ?? 'BUILDING INDIA’S LARGEST\nEV SERVICE NETWORK',
                 ),
                 const SizedBox(height: 60),
                 // Experience cards with staggered animation
@@ -244,7 +245,7 @@ class _AnimatedExperienceCardState extends State<_AnimatedExperienceCard>
                 boxShadow: [
                   BoxShadow(
                     color: _isHovered
-                        ? AppColors.accentRed.withAlpha(40)
+                        ? AppColors.accentBlue.withAlpha(40)
                         : Colors.black.withAlpha(15),
                     blurRadius: _isHovered ? 40 : 25,
                     offset: Offset(0, _isHovered ? 20 : 10),
@@ -260,7 +261,7 @@ class _AnimatedExperienceCardState extends State<_AnimatedExperienceCard>
                     height: 200,
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: _isHovered ? AppColors.accentRed : AppColors.primaryNavy,
+                      color: _isHovered ? AppColors.accentBlue : AppColors.primaryNavy,
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                     ),
                     child: Stack(
@@ -286,7 +287,7 @@ class _AnimatedExperienceCardState extends State<_AnimatedExperienceCard>
                             width: _isHovered ? 80 : 60,
                             height: _isHovered ? 80 : 60,
                             decoration: BoxDecoration(
-                              color: _isHovered ? AppColors.white : AppColors.accentRed,
+                              color: _isHovered ? AppColors.white : AppColors.accentBlue,
                               borderRadius: BorderRadius.only(
                                 topRight: const Radius.circular(12),
                                 bottomLeft: Radius.circular(_isHovered ? 80 : 60),
@@ -347,7 +348,7 @@ class _HoverLink extends StatelessWidget {
         AnimatedDefaultTextStyle(
           duration: const Duration(milliseconds: 200),
           style: AppTextStyles.linkText.copyWith(
-            color: isHovered ? AppColors.primaryNavy : AppColors.accentRed,
+            color: isHovered ? AppColors.primaryNavy : AppColors.accentBlue,
           ),
           child: Text(text),
         ),
@@ -357,7 +358,7 @@ class _HoverLink extends StatelessWidget {
           transform: Matrix4.identity()..translate(isHovered ? 6.0 : 0.0, 0.0),
           child: Icon(
             Icons.arrow_forward,
-            color: isHovered ? AppColors.primaryNavy : AppColors.accentRed,
+            color: isHovered ? AppColors.primaryNavy : AppColors.accentBlue,
             size: 16,
           ),
         ),

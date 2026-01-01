@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  // Primary Brand Colors - Matching FIXX EV Logo (Blue + Teal)
+  // Primary Brand Colors - Exactly matching images (Sky Blue + Mint Green)
   static const Color primaryNavy = Color(0xFF0D1B2A); // Dark Navy
-  static const Color accentBlue = Color(0xFF2196F3); // Blue from logo
-  static const Color accentTeal = Color(0xFF00BFA5); // Teal/Green from logo
+  static const Color accentBlue = Color(0xFF4D8BFD); // Primary Blue
+  static const Color accentTeal = Color(0xFF5ED3B8); // Mint Green from image
   
-  // Primary accent (use for buttons, links, CTAs)
-  static const Color accentRed = accentTeal; // Legacy alias - now teal
-  static const Color primary = accentBlue; // Blue for primary actions
-  static const Color secondary = accentTeal; // Teal for secondary/highlights
+  // Primary brand accents
+  static const Color accentRed = accentTeal; // Changed back to Green for specific accents
+  static const Color primary = accentBlue;   
+  static const Color secondary = accentTeal; 
   
   // Backgrounds
   static const Color white = Color(0xFFFFFFFF);
@@ -27,32 +27,32 @@ class AppColors {
   
   // Decorative
   static const Color shadowColor = Color(0x1F000000);
-  static const Color lightMint = Color(0xFFE0F2F1); // Light teal background
+  static const Color lightMint = Color(0xFFE0F2F1); 
 
   // Additional colors
   static const Color primaryDark = Color(0xFF0D1B2A);
   
-  // Gradients - Blue to Teal
+  // Gradients - Standardized (Solid)
   static const LinearGradient redGradient = LinearGradient(
-    colors: [Color(0xFF2196F3), Color(0xFF00BFA5)], // Blue to Teal
+    colors: [accentBlue, accentBlue], // Primary Buttons remain Blue
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
   
   static const LinearGradient brandGradient = LinearGradient(
-    colors: [Color(0xFF2196F3), Color(0xFF00BFA5)], // Blue to Teal
+    colors: [accentBlue, accentBlue], // Brand highlights remain Blue
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
   
   static const LinearGradient tealGradient = LinearGradient(
-    colors: [Color(0xFF00BFA5), Color(0xFF26A69A)],
+    colors: [accentTeal, accentTeal], // Green accents
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
   
   static const LinearGradient blueGradient = LinearGradient(
-    colors: [Color(0xFF2196F3), Color(0xFF1976D2)],
+    colors: [accentBlue, accentBlue],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );

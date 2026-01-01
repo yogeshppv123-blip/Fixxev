@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fixxev/core/theme/app_colors.dart';
+import 'package:fixxev/core/constants/app_constants.dart';
+import 'dart:html' as html;
 
 class FloatingConnectButtons extends StatefulWidget {
   final ScrollController scrollController;
@@ -44,6 +46,12 @@ class _FloatingConnectButtonsState extends State<FloatingConnectButtons> {
     );
   }
 
+  void _openWhatsApp() {
+    final phoneNumber = AppConstants.phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
+    final whatsappUrl = 'https://wa.me/$phoneNumber';
+    html.window.open(whatsappUrl, '_blank');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Positioned(
@@ -60,6 +68,7 @@ class _FloatingConnectButtonsState extends State<FloatingConnectButtons> {
               opacity: _showBackToTop ? 1.0 : 0.0,
               duration: const Duration(milliseconds: 300),
               child: FloatingActionButton.small(
+                heroTag: 'scrollTop',
                 onPressed: _scrollToTop,
                 backgroundColor: AppColors.primaryNavy,
                 child: const Icon(Icons.keyboard_arrow_up, color: Colors.white),
@@ -67,13 +76,37 @@ class _FloatingConnectButtonsState extends State<FloatingConnectButtons> {
             ),
           ),
           const SizedBox(height: 12),
-          // WhatsApp / Connect Button
-          FloatingActionButton(
-            onPressed: () {
-              // Action for connect
-            },
-            backgroundColor: const Color(0xFF25D366), // WhatsApp Green
-            child: const Icon(Icons.chat_bubble_outline, color: Colors.white),
+          // WhatsApp Button with Local Asset
+          GestureDetector(
+            onTap: _openWhatsApp,
+            child: Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF25D366).withOpacity(0.4),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: Image.asset(
+                  'assets/images/whatsapp_icon.jpg',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    // Fallback to green container with phone icon
+                    return Container(
+                      color: const Color(0xFF25D366),
+                      child: const Icon(Icons.phone, color: Colors.white, size: 28),
+                    );
+                  },
+                ),
+              ),
+            ),
           ),
         ],
       ),

@@ -16,6 +16,27 @@ class AppTextStyles {
     letterSpacing: -1,
   );
 
+  static TextStyle heading1 = GoogleFonts.poppins(
+    fontSize: 42,
+    fontWeight: FontWeight.w700,
+    color: AppColors.textDark,
+    height: 1.2,
+  );
+
+  static TextStyle heading2 = GoogleFonts.poppins(
+    fontSize: 32,
+    fontWeight: FontWeight.w700,
+    color: AppColors.textDark,
+    height: 1.3,
+  );
+
+  static TextStyle heading3 = GoogleFonts.poppins(
+    fontSize: 24,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textDark,
+    height: 1.3,
+  );
+
   static TextStyle heroSubtitle = GoogleFonts.poppins(
     fontSize: 16,
     fontWeight: FontWeight.w400,
@@ -34,7 +55,7 @@ class AppTextStyles {
   static TextStyle sectionTitle = GoogleFonts.poppins(
     fontSize: 36,
     fontWeight: FontWeight.w700,
-    color: AppColors.textDark,
+    color: AppColors.accentBlue, // Blue headings as per user request
     height: 1.2,
   );
 
@@ -48,7 +69,7 @@ class AppTextStyles {
   static TextStyle sectionLabel = GoogleFonts.poppins(
     fontSize: 14,
     fontWeight: FontWeight.w600,
-    color: AppColors.accentRed,
+    color: AppColors.primary, // Changed to Sky Blue for consistency
     letterSpacing: 2,
   );
 

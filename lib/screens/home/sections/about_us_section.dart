@@ -8,7 +8,8 @@ import 'package:go_router/go_router.dart';
 
 /// About Us section with animations triggered when in view and hover effects
 class AboutUsSection extends StatefulWidget {
-  const AboutUsSection({super.key});
+  final Map<String, dynamic> content;
+  const AboutUsSection({super.key, required this.content});
 
   @override
   State<AboutUsSection> createState() => _AboutUsSectionState();
@@ -174,25 +175,24 @@ class _AboutUsSectionState extends State<AboutUsSection>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionHeader(
-          label: 'ANNOUNCING MISSION 500',
-          title: "SOLVING INDIA’S EV\nAFTER-SALES GAP",
+        SectionHeader(
+          label: widget.content['aboutLabel'] ?? 'ANNOUNCING MISSION 500',
+          title: widget.content['aboutTitle'] ?? "SOLVING INDIA’S EV\nAFTER-SALES GAP",
           isLight: true,
           centered: false,
           crossAxisAlignment: CrossAxisAlignment.start,
         ),
         const SizedBox(height: 32),
         _buildRichText(
-          '**Fixx EV Technologies Pvt. Ltd.** is on a mission to solve one of the biggest barriers to electric vehicle adoption in India — **reliable after-sales service and spares availability**.'
+          widget.content['aboutDesc1'] ?? '**Fixx EV Technologies Pvt. Ltd.** is on a mission to solve one of the biggest barriers to electric vehicle adoption in India — **reliable after-sales service and spares availability**.'
         ),
         const SizedBox(height: 24),
         _buildRichText(
-          'We are building a nationwide, standardized EV after-sales network by appointing **500 Fixx EV Authorized Franchise Service Centres** across key cities and towns in India.'
+          widget.content['aboutDesc2'] ?? 'We are building a nationwide, standardized EV after-sales network by appointing **500 Fixx EV Authorized Franchise Service Centres** across key cities and towns in India.'
         ),
         const SizedBox(height: 12),
-        _buildRichText(
-          '**Why This Matters:** After-sales confidence is critical for mass EV adoption. By creating a reliable service and spares ecosystem, Fixx EV directly accelerates **clean, green, and sustainable mobility** while generating scalable revenue.'
-        ),
+        if (widget.content['aboutDesc3'] != null)
+          _buildRichText(widget.content['aboutDesc3']!),
         const SizedBox(height: 48),
         PrimaryButton(
           text: 'READ MORE',

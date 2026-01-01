@@ -5,7 +5,8 @@ import 'package:visibility_detector/visibility_detector.dart';
 
 /// Stats bar section with animated counters
 class StatsBarSection extends StatefulWidget {
-  const StatsBarSection({super.key});
+  final Map<String, dynamic> content;
+  const StatsBarSection({super.key, required this.content});
 
   @override
   State<StatsBarSection> createState() => _StatsBarSectionState();
@@ -19,16 +20,29 @@ class _StatsBarSectionState extends State<StatsBarSection> {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 800;
 
-    const stats = [
-      {'value': '5,000+', 'label': 'Total Satisfied Clients'},
-      {'value': '500+', 'label': 'Authorized Centres'},
-      {'value': '90%', 'label': 'Positive Response Rate'},
-      {'value': '100%', 'label': 'Commitment To Sustainability'},
+    final stats = [
+      {
+        'value': widget.content['stat1Value'] ?? '5,000+', 
+        'label': widget.content['stat1Label'] ?? 'Total Satisfied Clients'
+      },
+      {
+        'value': widget.content['stat2Value'] ?? '500+', 
+        'label': widget.content['stat2Label'] ?? 'Authorized Centres'
+      },
+      {
+        'value': widget.content['stat3Value'] ?? '90%', 
+        'label': widget.content['stat3Label'] ?? 'Positive Response Rate'
+      },
+      {
+        'value': widget.content['stat4Value'] ?? '100%', 
+        'label': widget.content['stat4Label'] ?? 'Commitment To Sustainability'
+      },
     ];
 
     return VisibilityDetector(
       key: const Key('stats_bar_visibility'),
       onVisibilityChanged: (info) {
+        if (!mounted) return;
         if (info.visibleFraction > 0.2 && !_isVisible) {
           setState(() {
             _isVisible = true;
@@ -114,9 +128,11 @@ class _StatItemState extends State<_StatItem> with SingleTickerProviderStateMixi
     _animation = Tween<double>(begin: 0, end: _targetValue.toDouble()).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOutExpo),
     )..addListener(() {
-        setState(() {
-          _currentValue = _animation.value.toInt();
-        });
+        if (mounted) {
+          setState(() {
+            _currentValue = _animation.value.toInt();
+          });
+        }
       });
   }
 

@@ -3,7 +3,8 @@ import 'package:fixxev/core/theme/app_colors.dart';
 
 /// Partners carousel section with auto-play scrolling
 class PartnersCarouselSection extends StatefulWidget {
-  const PartnersCarouselSection({super.key});
+  final Map<String, dynamic> content;
+  const PartnersCarouselSection({super.key, required this.content});
 
   @override
   State<PartnersCarouselSection> createState() => _PartnersCarouselSectionState();
@@ -69,7 +70,7 @@ class _PartnersCarouselSectionState extends State<PartnersCarouselSection> {
       child: Column(
         children: [
           Text(
-            'OUR TRUSTED PARTNERS',
+            widget.content['partnersTitle'] ?? 'OUR TRUSTED PARTNERS',
             style: TextStyle(
               fontSize: 14, // Slightly larger
               letterSpacing: 3.0, // More spacing for premium feel

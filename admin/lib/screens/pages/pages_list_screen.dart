@@ -18,10 +18,17 @@ class PagesListScreen extends StatelessWidget {
       },
       {
         'name': 'About Page',
-        'description': 'Company info, values, team',
+        'description': 'Company info, mission, values, CSR',
         'icon': Icons.info_outline,
         'route': '/pages/about',
         'lastEdited': '1 week ago',
+      },
+      {
+        'name': 'Services Page',
+        'description': 'Service offerings and details',
+        'icon': Icons.build_outlined,
+        'route': '/pages/services',
+        'lastEdited': 'Updated',
       },
       {
         'name': 'Products Page',
@@ -45,11 +52,18 @@ class PagesListScreen extends StatelessWidget {
         'lastEdited': '1 week ago',
       },
       {
-        'name': 'Dealership Page',
-        'description': 'CKD dealership info, video',
+        'name': 'Franchise Page',
+        'description': 'Spare Parts & Service Center Dealer',
+        'icon': Icons.handshake_outlined,
+        'route': '/pages/franchise',
+        'lastEdited': 'Updated',
+      },
+      {
+        'name': 'CKD Container',
+        'description': 'Container showroom features',
         'icon': Icons.store_outlined,
-        'route': '/pages/dealership',
-        'lastEdited': '4 days ago',
+        'route': '/pages/ckd-container',
+        'lastEdited': '2 days ago',
       },
     ];
 

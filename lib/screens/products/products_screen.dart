@@ -4,9 +4,28 @@ import 'package:fixxev/core/theme/app_text_styles.dart';
 import 'package:fixxev/widgets/custom_app_bar.dart';
 import 'package:fixxev/widgets/footer_widget.dart';
 import 'package:fixxev/widgets/buttons/primary_button.dart';
+import 'package:go_router/go_router.dart';
 
-class ProductsScreen extends StatelessWidget {
+import 'package:fixxev/core/services/api_service.dart';
+
+class ProductsScreen extends StatefulWidget {
   const ProductsScreen({super.key});
+
+  @override
+  State<ProductsScreen> createState() => _ProductsScreenState();
+}
+
+class _ProductsScreenState extends State<ProductsScreen> {
+  final ApiService _apiService = ApiService();
+  late Future<List<dynamic>> _productsFuture;
+  late Future<Map<String, dynamic>> _pageContentFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _productsFuture = _apiService.getProducts();
+    _pageContentFuture = _apiService.getPageContent('products');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,21 +39,36 @@ class ProductsScreen extends StatelessWidget {
         useLightText: true,
       ),
       endDrawer: isMobile ? const MobileDrawer() : null,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildProductsHero(context, isMobile),
-            const SizedBox(height: 80),
-            _buildProductList(context, isMobile),
-            const SizedBox(height: 100),
-            const FooterWidget(),
-          ],
-        ),
+      body: FutureBuilder<List<dynamic>>(
+        future: Future.wait([_productsFuture, _pageContentFuture]),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          final products = snapshot.data![0] as List<dynamic>;
+          final content = snapshot.data![1] as Map<String, dynamic>;
+
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                _buildProductsHero(context, isMobile, content),
+                const SizedBox(height: 80),
+                _buildProductList(context, isMobile, products),
+                const SizedBox(height: 100),
+                const FooterWidget(),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildProductsHero(BuildContext context, bool isMobile) {
+  Widget _buildProductsHero(BuildContext context, bool isMobile, Map<String, dynamic> content) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
@@ -53,7 +87,7 @@ class ProductsScreen extends StatelessWidget {
         children: [
           const SizedBox(height: 40),
           Text(
-            'Cutting-Edge EV Solutions',
+            content['title'] ?? 'Cutting-Edge EV Solutions',
             style: AppTextStyles.heroTitle.copyWith(
               fontSize: isMobile ? 36 : 56,
               color: Colors.white,
@@ -64,7 +98,7 @@ class ProductsScreen extends StatelessWidget {
           SizedBox(
             width: 800,
             child: Text(
-              'From smart diagnostic tools to modular showroom containers, we provide the infrastructure needed for the next generation of electric mobility.',
+              content['subtitle'] ?? 'From smart diagnostic tools to modular showroom containers, we provide the infrastructure needed for the next generation of electric mobility.',
               style: AppTextStyles.heroSubtitle.copyWith(
                 fontSize: 18,
                 color: Colors.white.withOpacity(0.8),
@@ -77,42 +111,10 @@ class ProductsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProductList(BuildContext context, bool isMobile) {
-    final products = [
-      {
-        'title': 'Modular CKD Showroom',
-        'subtitle': 'Rapid Deployment Retail Units',
-        'image': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-        'features': [
-          'Deployed in under 4 weeks',
-          'Eco-friendly construction',
-          'Easily relocatable',
-          'Solar ready integration'
-        ],
-      },
-      {
-        'title': 'Smart Diagnostic Kit',
-        'subtitle': 'Universal EV Health Monitoring',
-        'image': 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-        'features': [
-          'Real-time battery diagnostics',
-          'Cloud-sync reporting',
-          'Portable rugged design',
-          'Ota software updates'
-        ],
-      },
-      {
-        'title': 'EV Spare Parts Hub',
-        'subtitle': 'Certified Genuine Components',
-        'image': 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-        'features': [
-          'OEM certified spares',
-          'Nationwide availability',
-          'RFID tracking',
-          'Bulk supply options'
-        ],
-      },
-    ];
+  Widget _buildProductList(BuildContext context, bool isMobile, List<dynamic> products) {
+    if (products.isEmpty) {
+      return const Center(child: Text('No products available at the moment.'));
+    }
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: isMobile ? 24 : 80),
@@ -121,14 +123,40 @@ class ProductsScreen extends StatelessWidget {
           final index = products.indexOf(product);
           final isEven = index % 2 == 0;
 
+          // Map backend fields to UI expected fields
+          final uiProduct = {
+            'title': product['name'] ?? '',
+            'subtitle': (product['subtitle'] != null && product['subtitle'].toString().isNotEmpty) 
+                ? product['subtitle'] 
+                : '${product['category'] ?? ''} - ${product['price'] ?? ''}',
+            'image': (product['image'] != null && product['image'].toString().isNotEmpty) 
+                ? product['image'] 
+                : _getProductImage(index),
+            'features': [
+              'Status: ${product['status'] ?? ''}',
+              'Stock: ${product['stock'] ?? ''}',
+              'Direct OEM Quality',
+              'Nationwide Support'
+            ],
+          };
+
           if (isMobile) {
-            return _buildProductCardMobile(product);
+            return _buildProductCardMobile(uiProduct);
           }
 
-          return _buildProductCardDesktop(product, isEven);
+          return _buildProductCardDesktop(uiProduct, isEven);
         }).toList(),
       ),
     );
+  }
+
+  String _getProductImage(int index) {
+    final images = [
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
+      'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d',
+      'https://images.unsplash.com/photo-1581092160562-40aa08e78837',
+    ];
+    return images[index % images.length];
   }
 
   Widget _buildProductCardDesktop(Map<String, dynamic> product, bool isEven) {
@@ -179,7 +207,15 @@ class ProductsScreen extends StatelessWidget {
         ],
       ),
       clipBehavior: Clip.antiAlias,
-      child: Image.network(imageUrl, fit: BoxFit.cover),
+      child: Image.network(
+        imageUrl, 
+        fit: BoxFit.cover,
+        filterQuality: FilterQuality.high,
+        errorBuilder: (context, error, stackTrace) => Container(
+          color: AppColors.backgroundLight,
+          child: const Icon(Icons.shopping_bag_outlined, size: 64, color: AppColors.textMuted),
+        ),
+      ),
     );
   }
 
@@ -231,7 +267,7 @@ class ProductsScreen extends StatelessWidget {
         const SizedBox(height: 40),
         PrimaryButton(
           text: 'INQUIRE NOW',
-          onPressed: () {},
+          onPressed: () => context.go('/contact'),
           icon: Icons.arrow_forward,
         ),
       ],

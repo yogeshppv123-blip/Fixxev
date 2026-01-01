@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fixxev_admin/core/theme/app_colors.dart';
 import 'package:fixxev_admin/core/theme/app_text_styles.dart';
 import 'package:fixxev_admin/widgets/sidebar.dart';
+import 'package:fixxev_admin/core/services/api_service.dart';
 
 class LeadsScreen extends StatefulWidget {
   const LeadsScreen({super.key});
@@ -11,65 +12,52 @@ class LeadsScreen extends StatefulWidget {
 }
 
 class _LeadsScreenState extends State<LeadsScreen> {
+  final ApiService _apiService = ApiService();
+  bool _isLoading = true;
+  List<dynamic> _leads = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLeads();
+  }
+
+  Future<void> _loadLeads() async {
+    setState(() => _isLoading = true);
+    try {
+      final leads = await _apiService.getLeads();
+      setState(() {
+        _leads = leads;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() => _isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading leads: $e')),
+        );
+      }
+    }
+  }
+
+  // Removed mock data
   String _selectedFilter = 'All';
   final List<String> _filters = ['All', 'Contact', 'Franchise', 'Quote', 'Dealership'];
 
-  // Mock data - will be replaced with Firestore
-  final List<Map<String, dynamic>> _leads = [
-    {
-      'id': '1',
-      'name': 'Rahul Sharma',
-      'email': 'rahul@example.com',
-      'phone': '+91 98765 43210',
-      'type': 'Franchise',
-      'message': 'Interested in franchise opportunity in Mumbai',
-      'date': DateTime.now().subtract(const Duration(hours: 2)),
-      'status': 'new',
-    },
-    {
-      'id': '2',
-      'name': 'Priya Patel',
-      'email': 'priya.p@example.com',
-      'phone': '+91 87654 32109',
-      'type': 'Contact',
-      'message': 'Need information about EV service for my fleet',
-      'date': DateTime.now().subtract(const Duration(hours: 5)),
-      'status': 'new',
-    },
-    {
-      'id': '3',
-      'name': 'Amit Kumar',
-      'email': 'amit.k@example.com',
-      'phone': '+91 76543 21098',
-      'type': 'Quote',
-      'message': 'Quote for battery replacement - Ather 450X',
-      'date': DateTime.now().subtract(const Duration(days: 1)),
-      'status': 'pending',
-    },
-    {
-      'id': '4',
-      'name': 'Sneha Reddy',
-      'email': 'sneha.r@example.com',
-      'phone': '+91 65432 10987',
-      'type': 'Franchise',
-      'message': 'Want to start EV service center in Hyderabad',
-      'date': DateTime.now().subtract(const Duration(days: 2)),
-      'status': 'contacted',
-    },
-    {
-      'id': '5',
-      'name': 'Vijay Singh',
-      'email': 'vijay.s@example.com',
-      'phone': '+91 54321 09876',
-      'type': 'Dealership',
-      'message': 'Interested in CKD dealership',
-      'date': DateTime.now().subtract(const Duration(days: 3)),
-      'status': 'closed',
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: AppColors.backgroundDark,
+        body: Row(
+          children: [
+            const AdminSidebar(currentRoute: '/leads'),
+            const Expanded(child: Center(child: CircularProgressIndicator())),
+          ],
+        ),
+      );
+    }
+
     final filteredLeads = _selectedFilter == 'All'
         ? _leads
         : _leads.where((l) => l['type'] == _selectedFilter).toList();
@@ -187,7 +175,7 @@ class _LeadsScreenState extends State<LeadsScreen> {
     );
   }
 
-  Widget _buildLeadRow(Map<String, dynamic> lead) {
+  Widget _buildLeadRow(dynamic lead) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
       decoration: BoxDecoration(
@@ -201,10 +189,10 @@ class _LeadsScreenState extends State<LeadsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(lead['name'], style: AppTextStyles.bodyLarge),
+                Text(lead['name'] ?? '', style: AppTextStyles.bodyLarge),
                 const SizedBox(height: 4),
-                Text(lead['email'], style: AppTextStyles.bodySmall),
-                Text(lead['phone'], style: AppTextStyles.bodySmall),
+                Text(lead['email'] ?? '', style: AppTextStyles.bodySmall),
+                Text(lead['phone'] ?? '', style: AppTextStyles.bodySmall),
               ],
             ),
           ),
@@ -217,7 +205,7 @@ class _LeadsScreenState extends State<LeadsScreen> {
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                lead['type'],
+                lead['type'] ?? 'Contact',
                 style: AppTextStyles.bodySmall.copyWith(
                   color: _getTypeColor(lead['type']),
                   fontWeight: FontWeight.w600,
@@ -230,7 +218,7 @@ class _LeadsScreenState extends State<LeadsScreen> {
           Expanded(
             flex: 2,
             child: Text(
-              lead['message'],
+              lead['message'] ?? '',
               style: AppTextStyles.bodyMedium,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -238,7 +226,10 @@ class _LeadsScreenState extends State<LeadsScreen> {
           ),
           // Date
           Expanded(
-            child: Text(_formatDate(lead['date']), style: AppTextStyles.bodyMedium),
+            child: Text(
+              _formatDate(lead['createdAt'] != null ? DateTime.parse(lead['createdAt']) : DateTime.now()), 
+              style: AppTextStyles.bodyMedium
+            ),
           ),
           // Status
           Expanded(child: _buildStatusDropdown(lead)),
@@ -256,7 +247,7 @@ class _LeadsScreenState extends State<LeadsScreen> {
                 IconButton(
                   icon: const Icon(Icons.delete_outline, size: 20),
                   color: AppColors.error,
-                  onPressed: () => _deleteLead(lead['id']),
+                  onPressed: () => _deleteLead(lead['_id']),
                 ),
               ],
             ),
@@ -276,12 +267,12 @@ class _LeadsScreenState extends State<LeadsScreen> {
     }
   }
 
-  Widget _buildStatusDropdown(Map<String, dynamic> lead) {
-    final statuses = ['new', 'pending', 'contacted', 'closed'];
+  Widget _buildStatusDropdown(dynamic lead) {
+    final statuses = ['NEW', 'PENDING', 'CONTACTED', 'CLOSED'];
     
     return DropdownButtonHideUnderline(
       child: DropdownButton<String>(
-        value: lead['status'],
+        value: lead['status']?.toUpperCase() ?? 'NEW',
         dropdownColor: AppColors.cardDark,
         borderRadius: BorderRadius.circular(8),
         items: statuses.map((status) {
@@ -290,10 +281,19 @@ class _LeadsScreenState extends State<LeadsScreen> {
             child: _buildStatusBadge(status),
           );
         }).toList(),
-        onChanged: (value) {
-          setState(() {
-            lead['status'] = value;
-          });
+        onChanged: (value) async {
+          if (value != null) {
+            try {
+              await _apiService.updateLeadStatus(lead['_id'], value);
+              _loadLeads();
+            } catch (e) {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Error updating status: $e')),
+                );
+              }
+            }
+          }
         },
       ),
     );
@@ -302,10 +302,10 @@ class _LeadsScreenState extends State<LeadsScreen> {
   Widget _buildStatusBadge(String status) {
     Color color;
     switch (status) {
-      case 'new': color = AppColors.success; break;
-      case 'pending': color = AppColors.warning; break;
-      case 'contacted': color = AppColors.info; break;
-      case 'closed': color = AppColors.textMuted; break;
+      case 'NEW': color = AppColors.success; break;
+      case 'PENDING': color = AppColors.warning; break;
+      case 'CONTACTED': color = AppColors.info; break;
+      case 'CLOSED': color = AppColors.textMuted; break;
       default: color = AppColors.textMuted;
     }
 
@@ -356,7 +356,22 @@ class _LeadsScreenState extends State<LeadsScreen> {
             const SizedBox(height: 16),
             Text('Message:', style: AppTextStyles.label),
             const SizedBox(height: 8),
-            Text(lead['message'], style: AppTextStyles.bodyMedium),
+            Text(lead['message'] ?? '', style: AppTextStyles.bodyMedium),
+            if (lead['details'] != null && (lead['details'] as Map).isNotEmpty) ...[
+              const SizedBox(height: 24),
+              Text('Additional Information:', style: AppTextStyles.label),
+              const SizedBox(height: 8),
+              ...(lead['details'] as Map<String, dynamic>).entries.map((e) => Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(width: 140, child: Text('${e.key}:', style: AppTextStyles.label.copyWith(fontSize: 12))),
+                    Expanded(child: Text('${e.value}', style: AppTextStyles.bodyMedium)),
+                  ],
+                ),
+              )).toList(),
+            ],
           ],
         ),
         actions: [
@@ -394,11 +409,20 @@ class _LeadsScreenState extends State<LeadsScreen> {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
-              setState(() {
-                _leads.removeWhere((l) => l['id'] == id);
-              });
-              Navigator.pop(context);
+            onPressed: () async {
+              try {
+                await _apiService.deleteLead(id);
+                if (mounted) {
+                  Navigator.pop(context);
+                  _loadLeads();
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error deleting lead: $e')),
+                  );
+                }
+              }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
             child: const Text('Delete'),

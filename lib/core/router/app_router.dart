@@ -10,10 +10,35 @@ import '../../screens/business/ckd_container_screen.dart';
 import '../../screens/products/products_screen.dart';
 import '../../screens/blog/blog_screen.dart';
 
+import '../../screens/maintenance/maintenance_screen.dart';
+import '../../core/services/api_service.dart';
+
 class AppRouter {
+  static final _apiService = ApiService();
+
   static final router = GoRouter(
     initialLocation: '/',
+    redirect: (context, state) async {
+      try {
+        final settings = await _apiService.getSettings();
+        final isMaintenance = settings['maintenanceMode'] ?? false;
+        
+        if (isMaintenance && state.uri.path != '/maintenance') {
+          return '/maintenance';
+        }
+        if (!isMaintenance && state.uri.path == '/maintenance') {
+          return '/';
+        }
+      } catch (e) {
+        // If API fails, assume not maintenance
+      }
+      return null;
+    },
     routes: [
+      GoRoute(
+        path: '/maintenance',
+        builder: (context, state) => const MaintenanceScreen(),
+      ),
       GoRoute(
         path: '/',
         builder: (context, state) => const HomeScreen(),

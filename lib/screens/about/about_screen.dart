@@ -5,6 +5,7 @@ import '../../widgets/floating_connect_buttons.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../widgets/buttons/primary_button.dart';
+import '../../core/services/api_service.dart';
 
 class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
@@ -15,12 +16,33 @@ class AboutScreen extends StatefulWidget {
 
 class _AboutScreenState extends State<AboutScreen> {
   final ScrollController _scrollController = ScrollController();
+  final ApiService _apiService = ApiService();
+  List<dynamic> _sections = [];
+  Map<String, dynamic> _pageContent = {};
+  bool _isLoading = true;
   bool _isScrolled = false;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    _loadContent();
+  }
+
+  Future<void> _loadContent() async {
+    try {
+      final sections = await _apiService.getAboutSections();
+      final pageContent = await _apiService.getPageContent('about');
+      if (mounted) {
+        setState(() {
+          _sections = sections.where((s) => s['isActive'] == true).toList();
+          _pageContent = pageContent;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   void _onScroll() {
@@ -38,92 +60,136 @@ class _AboutScreenState extends State<AboutScreen> {
     super.dispose();
   }
 
+  Map<String, dynamic>? _getSectionByType(String type) {
+    try {
+      return _sections.firstWhere((s) => s['type'] == type) as Map<String, dynamic>;
+    } catch (e) {
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final valuesSection = _getSectionByType('Values');
+    final csrSection = _getSectionByType('CSR');
+    final visionSection = _getSectionByType('Vision');
+    final futureSection = _getSectionByType('Future');
+
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            controller: _scrollController,
-            child: Column(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Stack(
               children: [
-                // 1. LIGHT HERO (Matching Reference Layout)
-                _AboutHeroLight(
-                  title: 'Powering The Future\nOf Electric Mobility',
-                  tagline: 'ABOUT US',
-                  description1: 'At **FIXXEV**, we are committed to revolutionizing the electric vehicle (EV) service industry by offering **multi-brand servicing, repairs, refurbishment, and warranty management**. With a combined experience of over **20+ years**, our team of skilled professionals and EV experts ensures that every vehicle receives top-notch care, enhancing its efficiency and longevity.',
-                  description2: 'As the demand for sustainable mobility grows, **FIXXEV** stands at the forefront of **after-sales service, fleet management, and component-level repairs**, ensuring that EV owners and businesses have access to reliable and cost-effective solutions.',
-                  imageUrl: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837', // Bike Mechanic
+                SingleChildScrollView(
+                  controller: _scrollController,
+                  child: Column(
+                    children: [
+                      // 1. LIGHT HERO
+                      _AboutHeroLight(
+                        title: _pageContent['title'] ?? 'Powering The Future\nOf Electric Mobility',
+                        tagline: 'ABOUT US',
+                        description1: _pageContent['desc1'] ?? 'At **FIXXEV**, we are committed to revolutionizing the electric vehicle (EV) service industry by offering **multi-brand servicing, repairs, refurbishment, and warranty management**.',
+                        description2: _pageContent['desc2'] ?? 'As the demand for sustainable mobility grows, **FIXXEV** stands at the forefront of **after-sales service, fleet management, and component-level repairs**.',
+                        imageUrl: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837',
+                      ),
+
+                      // 2. STATS BAR
+                      _AboutStatsBar(),
+
+                      // 3. Dynamic Sections
+                      if (valuesSection != null)
+                        _AboutZigZagBlock(
+                          image: valuesSection['imageUrl']?.isNotEmpty == true 
+                              ? valuesSection['imageUrl'] 
+                              : 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
+                          title: valuesSection['title'] ?? 'Our Core Values',
+                          label: valuesSection['label'] ?? '// VALUES',
+                          description: valuesSection['description'] ?? 'At FIXXEV, we are driven by integrity, excellence, and a deep commitment to the environment.',
+                          items: (valuesSection['items'] as List?)?.cast<String>() ?? const ['Integrity in every service', 'Excellence in engineering', 'Sustainable EV solutions'],
+                          isReversed: false,
+                        ),
+
+                      if (csrSection != null)
+                        _AboutZigZagBlock(
+                          image: csrSection['imageUrl']?.isNotEmpty == true 
+                              ? csrSection['imageUrl'] 
+                              : 'https://images.unsplash.com/photo-1531983412531-1f49a365ffed',
+                          title: csrSection['title'] ?? 'Corporate Social Responsibility (CSR)',
+                          label: csrSection['label'] ?? '// GIVING BACK',
+                          description: csrSection['description'] ?? 'FIXXEV is committed to making a positive impact on the environment and society.',
+                          items: (csrSection['items'] as List?)?.cast<String>() ?? const ['Green recycling programs', 'Community EV awareness', 'Waste reduction protocols'],
+                          isReversed: true,
+                        ),
+
+                      if (visionSection != null)
+                        _AboutZigZagBlock(
+                          image: visionSection['imageUrl']?.isNotEmpty == true 
+                              ? visionSection['imageUrl'] 
+                              : 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7',
+                          title: visionSection['title'] ?? 'Our Goal',
+                          label: visionSection['label'] ?? '// VISION',
+                          description: visionSection['description'] ?? 'Our goal is to build India\'s most reliable EV support ecosystem.',
+                          items: (visionSection['items'] as List?)?.cast<String>() ?? const ['Zero downtime for EV users', 'Nationwide service availability', 'Affordable premium care'],
+                          isReversed: false,
+                        ),
+
+                      if (futureSection != null)
+                        _AboutZigZagBlock(
+                          image: futureSection['imageUrl']?.isNotEmpty == true 
+                              ? futureSection['imageUrl'] 
+                              : 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e',
+                          title: futureSection['title'] ?? 'Future Plans & Expansion',
+                          label: futureSection['label'] ?? '// THE FUTURE',
+                          description: futureSection['description'] ?? 'We are rapidly expanding our footprint across India.',
+                          items: (futureSection['items'] as List?)?.cast<String>() ?? const ['Upcoming battery tech centers', 'Expansion to 200+ cities', 'Next-gen retrofit solutions'],
+                          isReversed: true,
+                        ),
+
+                      // Show any custom sections
+                      ..._sections
+                          .where((s) => s['type'] == 'Custom')
+                          .toList()
+                          .asMap()
+                          .entries
+                          .map((entry) {
+                        final section = entry.value as Map<String, dynamic>;
+                        return _AboutZigZagBlock(
+                          image: section['imageUrl']?.isNotEmpty == true 
+                              ? section['imageUrl'] 
+                              : 'https://images.unsplash.com/photo-1522071820081-009f0129c71c',
+                          title: section['title'] ?? '',
+                          label: section['label'] ?? '',
+                          description: section['description'] ?? '',
+                          items: (section['items'] as List?)?.cast<String>() ?? const [],
+                          isReversed: entry.key.isEven,
+                        );
+                      }),
+
+                      // CTA Section
+                      _AboutCTASection(),
+
+                      const FooterWidget(),
+                    ],
+                  ),
                 ),
-
-                // 2. STATS BAR (Our Theme: Navy)
-                _AboutStatsBar(),
-
-                // 3. CORE VALUES (Text Left)
-                _AboutZigZagBlock(
-                  image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80', // Team Collaboration
-                  title: 'Our Core Values',
-                  label: '// VALUES',
-                  description: 'At **FIXXEV**, we are driven by integrity, excellence, and a deep commitment to the environment. Our values guide every diagnostic we run and every part we replace.',
-                  items: ['Integrity in every service', 'Excellence in engineering', 'Sustainable EV solutions'],
-                  isReversed: false,
+                
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: CustomAppBar(
+                    isTransparent: false,
+                    backgroundColor: AppColors.navDark,
+                    useLightText: true,
+                    onMenuPressed: () {},
+                    onContactPressed: () {},
+                  ),
                 ),
-
-                // 4. CSR (Text Right)
-                _AboutZigZagBlock(
-                  image: 'https://images.unsplash.com/photo-1531983412531-1f49a365ffed', // Solar/Eco
-                  title: 'Corporate Social Responsibility (CSR)',
-                  label: '// GIVING BACK',
-                  description: 'FIXXEV is committed to making a positive impact on the environment and society. Our initiatives focus on **reducing carbon footprints** and promoting clean energy adoption through free community awareness programs.',
-                  items: ['Green recycling programs', 'Community EV awareness', 'Waste reduction protocols'],
-                  isReversed: true,
-                ),
-
-                // 5. OUR GOAL (Text Left)
-                _AboutZigZagBlock(
-                  image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7', // Battery Lab
-                  title: 'Our Goal',
-                  label: '// VISION',
-                  description: 'Our goal is to build India\'s most reliable **EV support ecosystem**, ensuring that every electric vehicle on the road has access to high-precision engineering and authentic spare parts.',
-                  items: ['Zero downtime for EV users', 'Nationwide service availability', 'Affordable premium care'],
-                  isReversed: false,
-                ),
-
-                // 6. EXPANSION (Text Right)
-                _AboutZigZagBlock(
-                  image: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e', // Diagnostics
-                  title: 'Future Plans & Expansion',
-                  label: '// THE FUTURE',
-                  description: 'We are rapidly expanding our footprint across India. With upcoming **battery tech centers** and retrofit solutions, FIXXEV is poised to lead the EV after-market revolution.',
-                  items: ['Upcoming battery tech centers', 'Expansion to 200+ cities', 'Next-gen retrofit solutions'],
-                  isReversed: true,
-                ),
-
-                // 7. JOIN US CTA
-                _AboutCTASection(),
-
-                const FooterWidget(),
+                
+                FloatingConnectButtons(scrollController: _scrollController),
               ],
             ),
-          ),
-          
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: CustomAppBar(
-              isTransparent: false,
-              backgroundColor: AppColors.navDark,
-              useLightText: true,
-              onMenuPressed: () {},
-              onContactPressed: () {},
-            ),
-          ),
-          
-          FloatingConnectButtons(scrollController: _scrollController),
-        ],
-      ),
     );
   }
 }
@@ -165,27 +231,28 @@ class _AboutHeroLight extends StatelessWidget {
                       Text(
                         tagline.toUpperCase(),
                         style: AppTextStyles.sectionLabel.copyWith(
-                          color: Colors.green.shade700, // Using reference style for label
+                          color: AppColors.accentTeal,
                           letterSpacing: 2,
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
                       Text(
                         title,
-                        style: AppTextStyles.sectionTitle.copyWith(
-                          fontSize: isMobile ? 36 : 48,
-                          color: AppColors.primaryNavy,
-                          height: 1.1,
-                          fontWeight: FontWeight.w800,
+                        style: AppTextStyles.heading1.copyWith(
+                          color: AppColors.textDark,
+                          fontSize: isMobile ? 32 : 48,
+                          height: 1.2,
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      Container(width: 60, height: 4, color: AppColors.accentRed), // Red line for our theme
+                      const SizedBox(height: 24),
+                      _buildRichParagraph(description1),
+                      const SizedBox(height: 16),
+                      _buildRichParagraph(description2),
                       const SizedBox(height: 32),
-                      _buildRichText(description1),
-                      const SizedBox(height: 20),
-                      _buildRichText(description2),
+                      PrimaryButton(
+                        text: 'GET IN TOUCH →',
+                        onPressed: () {},
+                      ),
                     ],
                   ),
                 ),
@@ -193,16 +260,12 @@ class _AboutHeroLight extends StatelessWidget {
               if (!isMobile)
                 Expanded(
                   flex: 1,
-                  child: ClipPath(
-                    clipper: _AboutHeroClipper(),
-                    child: Container(
-                      height: 550,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: NetworkImage(imageUrl),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
+                    child: Image.network(
+                      imageUrl,
+                      height: 500,
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
@@ -213,112 +276,59 @@ class _AboutHeroLight extends StatelessWidget {
     );
   }
 
-  Widget _buildRichText(String text) {
-    List<TextSpan> spans = [];
-    final parts = text.split('**');
-    for (int i = 0; i < parts.length; i++) {
-      if (i % 2 == 1) {
-        spans.add(TextSpan(
-          text: parts[i],
-          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
-        ));
-      } else {
-        spans.add(TextSpan(text: parts[i]));
+  Widget _buildRichParagraph(String text) {
+    final spans = <TextSpan>[];
+    final boldRegex = RegExp(r'\*\*(.+?)\*\*');
+    int lastEnd = 0;
+
+    for (final match in boldRegex.allMatches(text)) {
+      if (match.start > lastEnd) {
+        spans.add(TextSpan(text: text.substring(lastEnd, match.start)));
       }
+      spans.add(TextSpan(text: match.group(1), style: const TextStyle(fontWeight: FontWeight.bold)));
+      lastEnd = match.end;
     }
+    if (lastEnd < text.length) {
+      spans.add(TextSpan(text: text.substring(lastEnd)));
+    }
+
     return RichText(
       text: TextSpan(
-        style: AppTextStyles.bodySmall.copyWith(
-          color: Colors.black54,
-          height: 1.6,
-          fontSize: 14,
-        ),
+        style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textMuted, height: 1.7),
         children: spans,
       ),
     );
   }
 }
 
-class _AboutHeroClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    var path = Path();
-    path.moveTo(size.width * 0.2, 0);
-    path.lineTo(size.width, 0);
-    path.lineTo(size.width, size.height);
-    path.lineTo(0, size.height);
-    path.close();
-    return path;
-  }
-  @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
-}
-
 class _AboutStatsBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 900;
+    final isMobile = MediaQuery.of(context).size.width < 600;
+    final stats = [
+      {'value': '20+', 'label': 'Years Experience'},
+      {'value': '500+', 'label': 'Vehicles Serviced'},
+      {'value': '50+', 'label': 'Trained Technicians'},
+      {'value': '10+', 'label': 'Cities Covered'},
+    ];
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 60),
-      color: AppColors.primaryNavy, // Back to Navy theme
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: isMobile
-              ? Column(
-                  children: [
-                    _StatItem(value: 5000, suffix: '+', label: 'Satisfied Customers'),
-                    const SizedBox(height: 40),
-                    _StatItem(value: 90, suffix: '%', label: 'Problem Resolution Rate'),
-                    const SizedBox(height: 40),
-                    _StatItem(value: 100, suffix: '%', label: 'Commitment to Sustainability'),
-                  ],
-                )
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _StatItem(value: 5000, suffix: '+', label: 'Satisfied Customers'),
-                    _StatItem(value: 90, suffix: '%', label: 'Problem Resolution Rate'),
-                    _StatItem(value: 100, suffix: '%', label: 'Commitment to Sustainability'),
-                  ],
-                ),
-        ),
+      width: double.infinity,
+      color: AppColors.navDark,
+      padding: EdgeInsets.symmetric(vertical: 40, horizontal: isMobile ? 16 : 80),
+      child: Wrap(
+        alignment: WrapAlignment.spaceAround,
+        spacing: 32,
+        runSpacing: 24,
+        children: stats.map((stat) {
+          return Column(
+            children: [
+              Text(stat['value']!, style: AppTextStyles.heading1.copyWith(color: AppColors.accentTeal, fontSize: isMobile ? 32 : 48)),
+              const SizedBox(height: 8),
+              Text(stat['label']!, style: AppTextStyles.bodyMedium.copyWith(color: Colors.white70)),
+            ],
+          );
+        }).toList(),
       ),
-    );
-  }
-}
-
-class _StatItem extends StatelessWidget {
-  final int value;
-  final String suffix;
-  final String label;
-  const _StatItem({required this.value, required this.suffix, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0, end: value.toDouble()),
-          duration: const Duration(seconds: 2),
-          curve: Curves.easeOutExpo,
-          builder: (context, val, child) {
-            return Text(
-              '${val.toInt()}$suffix',
-              style: AppTextStyles.sectionTitle.copyWith(
-                color: AppColors.accentRed, // Red numbers for our theme
-                fontSize: 40,
-                fontWeight: FontWeight.bold,
-              ),
-            );
-          },
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label.toUpperCase(),
-          style: AppTextStyles.sectionLabel.copyWith(color: Colors.white.withAlpha(180), fontSize: 13, letterSpacing: 2),
-        ),
-      ],
     );
   }
 }
@@ -342,107 +352,105 @@ class _AboutZigZagBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 900;
+    final isMobile = MediaQuery.of(context).size.width < 900;
 
-    final imageWidget = Container(
-      height: isMobile ? 300 : 450,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: AppColors.backgroundDark,
-        borderRadius: BorderRadius.circular(24),
-        image: DecorationImage(image: NetworkImage(image), fit: BoxFit.cover),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(15),
-            blurRadius: 40,
-            offset: const Offset(0, 20),
+    final textContent = Padding(
+      padding: EdgeInsets.all(isMobile ? 24 : 48),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            label,
+            style: AppTextStyles.sectionLabel.copyWith(
+              color: const Color(0xFF4D8BFD),
+              letterSpacing: 2,
+            ),
           ),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: AppTextStyles.heading2.copyWith(
+              color: const Color(0xFF4D8BFD),
+              fontSize: isMobile ? 24 : 32,
+            ),
+          ),
+          Container(
+            width: 60,
+            height: 3,
+            margin: const EdgeInsets.only(top: 12, bottom: 24),
+            color: const Color(0xFF4D8BFD),
+          ),
+          _buildRichParagraph(description),
+          const SizedBox(height: 24),
+          ...items.map((item) => Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.check_circle, color: AppColors.accentTeal, size: 20),
+                const SizedBox(width: 12),
+                Expanded(child: Text(item, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textMuted))),
+              ],
+            ),
+          )),
         ],
       ),
     );
 
-    final contentWidget = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          label,
-          style: AppTextStyles.sectionLabel.copyWith(color: AppColors.accentRed, letterSpacing: 2),
+    final imageContent = ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: Image.network(
+        image,
+        height: isMobile ? 300 : 450,
+        width: double.infinity,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => Container(
+          height: isMobile ? 300 : 450,
+          color: Colors.grey[200],
+          child: const Icon(Icons.image, size: 48, color: Colors.grey),
         ),
-        const SizedBox(height: 16),
-        Text(
-          title,
-          style: AppTextStyles.sectionTitle.copyWith(
-            fontSize: isMobile ? 28 : 36,
-            color: AppColors.primaryNavy,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(width: 40, height: 3, color: AppColors.accentRed),
-        const SizedBox(height: 24),
-        _buildRichText(description),
-        const SizedBox(height: 32),
-        ...items.map((item) => Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: Row(
-            children: [
-              const Icon(Icons.check_circle, color: AppColors.accentRed, size: 20),
-              const SizedBox(width: 12),
-              Text(item, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
-            ],
-          ),
-        )),
-      ],
+      ),
     );
 
+    if (isMobile) {
+      return Container(
+        color: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Column(children: [imageContent, textContent]),
+      );
+    }
+
     return Container(
-      padding: EdgeInsets.symmetric(
-        vertical: 80,
-        horizontal: isMobile ? 20 : 80,
-      ),
-      color: isReversed ? Colors.white : AppColors.backgroundLight.withAlpha(50),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: isMobile
-              ? Column(
-                  children: [
-                    imageWidget,
-                    const SizedBox(height: 40),
-                    contentWidget,
-                  ],
-                )
-              : Row(
-                  children: [
-                    if (!isReversed) Expanded(child: imageWidget),
-                    if (!isReversed) const SizedBox(width: 80),
-                    Expanded(child: contentWidget),
-                    if (isReversed) const SizedBox(width: 80),
-                    if (isReversed) Expanded(child: imageWidget),
-                  ],
-                ),
-        ),
+      color: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 60),
+      child: Row(
+        children: isReversed
+            ? [Expanded(child: imageContent), const SizedBox(width: 48), Expanded(child: textContent)]
+            : [Expanded(child: textContent), const SizedBox(width: 48), Expanded(child: imageContent)],
       ),
     );
   }
 
-  Widget _buildRichText(String text) {
-    List<TextSpan> spans = [];
-    final parts = text.split('**');
-    for (int i = 0; i < parts.length; i++) {
-      if (i % 2 == 1) {
-        spans.add(TextSpan(
-          text: parts[i],
-          style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryNavy),
-        ));
-      } else {
-        spans.add(TextSpan(text: parts[i]));
+  Widget _buildRichParagraph(String text) {
+    final spans = <TextSpan>[];
+    final boldRegex = RegExp(r'\*\*(.+?)\*\*');
+    int lastEnd = 0;
+
+    for (final match in boldRegex.allMatches(text)) {
+      if (match.start > lastEnd) {
+        spans.add(TextSpan(text: text.substring(lastEnd, match.start)));
       }
+      spans.add(TextSpan(text: match.group(1), style: const TextStyle(fontWeight: FontWeight.bold)));
+      lastEnd = match.end;
     }
+    if (lastEnd < text.length) {
+      spans.add(TextSpan(text: text.substring(lastEnd)));
+    }
+
     return RichText(
       text: TextSpan(
-        style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6, fontSize: 16),
+        style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textMuted, height: 1.7),
         children: spans,
       ),
     );
@@ -453,26 +461,26 @@ class _AboutCTASection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
-      color: AppColors.backgroundLight.withAlpha(30),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
+      color: AppColors.navDark,
       child: Column(
         children: [
           Text(
-            'Join Us In Driving The EV Revolution!',
+            'Ready to Join the EV Revolution?',
+            style: AppTextStyles.heading2.copyWith(color: Colors.white),
             textAlign: TextAlign.center,
-            style: AppTextStyles.sectionTitle.copyWith(color: AppColors.primaryNavy),
           ),
           const SizedBox(height: 16),
           Text(
-            'At FIXXEV, we are always looking for passionate partners and talented individuals.\nLet\'s power the future together.',
+            'Partner with FIXXEV for reliable EV servicing and support.',
+            style: AppTextStyles.bodyLarge.copyWith(color: Colors.white70),
             textAlign: TextAlign.center,
-            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
           ),
-          const SizedBox(height: 48),
+          const SizedBox(height: 32),
           PrimaryButton(
             text: 'CONTACT US',
             onPressed: () {},
-            icon: Icons.mail_outline,
           ),
         ],
       ),

@@ -209,7 +209,7 @@ class _AnimatedLogoState extends State<_AnimatedLogo> {
             transform: Matrix4.identity()
               ..rotateZ(_isHovered ? 0.1 : 0.0),
             decoration: BoxDecoration(
-              color: AppColors.accentRed,
+              color: AppColors.accentBlue,
               borderRadius: BorderRadius.circular(10),
               boxShadow: _isHovered
                   ? [
@@ -233,13 +233,27 @@ class _AnimatedLogoState extends State<_AnimatedLogo> {
             ),
           ),
           const SizedBox(width: 12),
-          AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 300),
-            style: AppTextStyles.sectionTitleLight.copyWith(
-              fontSize: 26,
-              color: _isHovered ? AppColors.accentRed : AppColors.textLight,
+          RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: 'FIXX',
+                  style: AppTextStyles.sectionTitleLight.copyWith(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800,
+                    color: _isHovered ? AppColors.accentTeal : AppColors.textLight,
+                  ),
+                ),
+                TextSpan(
+                  text: 'EV',
+                  style: AppTextStyles.sectionTitleLight.copyWith(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.accentTeal, // Always Mint Green EV
+                  ),
+                ),
+              ],
             ),
-            child: const Text('FIXXEV'),
           ),
         ],
       ),

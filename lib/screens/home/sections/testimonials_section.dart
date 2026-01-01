@@ -4,7 +4,8 @@ import 'package:fixxev/core/theme/app_text_styles.dart';
 
 /// Testimonials section with premium animations and hover effects
 class TestimonialsSection extends StatefulWidget {
-  const TestimonialsSection({super.key});
+  final Map<String, dynamic> content;
+  const TestimonialsSection({super.key, required this.content});
 
   @override
   State<TestimonialsSection> createState() => _TestimonialsSectionState();
@@ -74,7 +75,7 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
             Text('// TESTIMONIALS', style: AppTextStyles.sectionLabel),
             const SizedBox(height: 16),
             Text(
-              'WHAT OUR CLIENTS SAY\nABOUT OUR SERVICES',
+              widget.content['testimonialsTitle'] ?? 'WHAT OUR CLIENTS SAY\nABOUT OUR SERVICES',
               style: isMobile
                   ? AppTextStyles.sectionTitle.copyWith(fontSize: 26)
                   : AppTextStyles.sectionTitle,

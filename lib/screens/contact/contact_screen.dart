@@ -9,6 +9,8 @@ import '../../widgets/subpage_hero.dart';
 import '../../widgets/section_header.dart';
 import '../../core/constants/app_constants.dart';
 
+import '../../core/services/api_service.dart';
+
 class ContactScreen extends StatefulWidget {
   const ContactScreen({super.key});
 
@@ -18,13 +20,41 @@ class ContactScreen extends StatefulWidget {
 
 class _ContactScreenState extends State<ContactScreen> {
   final ScrollController _scrollController = ScrollController();
+  final ApiService _apiService = ApiService();
+  late Future<Map<String, dynamic>> _contactContentFuture;
   bool _isScrolled = false;
   int _selectedFormIndex = 0; // 0: General, 1: Franchise
+  bool _isSubmitting = false;
+
+  // General Inquiry Controllers
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _subjectController = TextEditingController();
+  final _messageController = TextEditingController();
+
+  // Franchise Controllers
+  final _fNameController = TextEditingController();
+  final _fMobileController = TextEditingController();
+  final _fWhatsappController = TextEditingController();
+  final _fEmailController = TextEditingController();
+  final _fCityController = TextEditingController();
+  final _fVisionController = TextEditingController();
+
+  final Map<String, String> _franchiseData = {
+    'investment': '₹2 – 3 Lakhs',
+    'interest': 'EV Spares Franchise',
+    'hasLocation': 'No',
+    'locationSize': '300–500 sq.ft',
+    'runBusiness': 'No',
+    'industryExperience': 'No',
+    'managementType': 'Full time',
+  };
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    _contactContentFuture = _apiService.getPageContent('contact');
   }
 
   void _onScroll() {
@@ -39,6 +69,16 @@ class _ContactScreenState extends State<ContactScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _nameController.dispose();
+    _emailController.dispose();
+    _subjectController.dispose();
+    _messageController.dispose();
+    _fNameController.dispose();
+    _fMobileController.dispose();
+    _fWhatsappController.dispose();
+    _fEmailController.dispose();
+    _fCityController.dispose();
+    _fVisionController.dispose();
     super.dispose();
   }
 
@@ -46,161 +86,167 @@ class _ContactScreenState extends State<ContactScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            controller: _scrollController,
-            child: Column(
-              children: [
-                // Premium SubPage Hero
-                const SubPageHero(
-                  title: 'Contact Us',
-                  tagline: 'Get In Touch',
-                  imageUrl: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&h=1440&q=80',
-                ),
-                
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    vertical: 100,
-                    horizontal: MediaQuery.of(context).size.width < 768 ? 20 : 80,
-                  ),
-                  color: Colors.white,
-                  child: Center(
-                    child: Container(
-                      constraints: const BoxConstraints(maxWidth: 1200),
-                      child: Column(
-                        children: [
-                          const SectionHeader(
-                            title: 'Ready to Fix Your EV?',
-                            subtitle: 'Visit our center or send us a message',
-                            centered: true,
+      body: FutureBuilder<Map<String, dynamic>>(
+        future: _contactContentFuture,
+        builder: (context, snapshot) {
+          final content = snapshot.data ?? {};
+          return Stack(
+            children: [
+              SingleChildScrollView(
+                controller: _scrollController,
+                child: Column(
+                  children: [
+                    // Premium SubPage Hero
+                    const SubPageHero(
+                      title: 'Contact Us',
+                      tagline: 'Get In Touch',
+                      imageUrl: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&h=1440&q=80',
+                    ),
+                    
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 100,
+                        horizontal: MediaQuery.of(context).size.width < 768 ? 20 : 80,
+                      ),
+                      color: Colors.white,
+                      child: Center(
+                        child: Container(
+                          constraints: const BoxConstraints(maxWidth: 1200),
+                          child: Column(
+                            children: [
+                              const SectionHeader(
+                                title: 'Ready to Fix Your EV?',
+                                subtitle: 'Visit our center or send us a message',
+                                centered: true,
+                              ),
+                              const SizedBox(height: 60),
+                              
+                              // Form Toggle - Moved above the forms
+                              Container(
+                                constraints: const BoxConstraints(maxWidth: 600),
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade100,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: Colors.grey.shade300),
+                                ),
+                                child: Row(
+                                  children: [
+                                    _buildToggleButton(0, 'General Inquiry'),
+                                    _buildToggleButton(1, 'Franchise Application'),
+                                  ],
+                                ),
+                              ),
+                              
+                              const SizedBox(height: 60),
+    
+                              LayoutBuilder(
+                                builder: (context, constraints) {
+                                  // FRANCHISE MODE: Full width form
+                                  if (_selectedFormIndex == 1) {
+                                    return _buildFranchiseForm();
+                                  }
+    
+                                  // GENERAL INQUIRY MODE: Contact Details + Form
+                                  if (constraints.maxWidth < 900) {
+                                    return Column(
+                                      children: [
+                                        _buildContactInfoGrid(content),
+                                        const SizedBox(height: 60),
+                                        _buildContactForm(),
+                                      ],
+                                    );
+                                  }
+                                  return Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      // Left side: Contact Details
+                                      Expanded(flex: 2, child: _buildContactInfoGrid(content)),
+                                      const SizedBox(width: 80),
+                                      // Right side: General Enquiry Form
+                                      Expanded(flex: 3, child: _buildContactForm()),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 60),
-                          
-                          // Form Toggle - Moved above the forms
-                          Container(
-                            constraints: const BoxConstraints(maxWidth: 600),
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade100,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.grey.shade300),
-                            ),
-                            child: Row(
+                        ),
+                      ),
+                    ),
+                    
+                    // Map Placeholder
+                    Container(
+                      height: 400,
+                      width: double.infinity,
+                      color: AppColors.backgroundDark,
+                      child: Stack(
+                        children: [
+                          Image.network(
+                            'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&q=80',
+                            width: double.infinity,
+                            height: 400,
+                            fit: BoxFit.cover,
+                            opacity: const AlwaysStoppedAnimation<double>(0.4),
+                          ),
+                          Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                _buildToggleButton(0, 'General Inquiry'),
-                                _buildToggleButton(1, 'Franchise Application'),
+                                const Icon(Icons.location_on, color: AppColors.accentRed, size: 60),
+                                const SizedBox(height: 20),
+                                PrimaryButton(
+                                  text: 'OPEN IN GOOGLE MAPS',
+                                  onPressed: () {},
+                                  icon: Icons.map,
+                                ),
                               ],
                             ),
-                          ),
-                          
-                          const SizedBox(height: 60),
-
-                          LayoutBuilder(
-                            builder: (context, constraints) {
-                              // FRANCHISE MODE: Full width form
-                              if (_selectedFormIndex == 1) {
-                                return _buildFranchiseForm();
-                              }
-
-                              // GENERAL INQUIRY MODE: Contact Details + Form
-                              if (constraints.maxWidth < 900) {
-                                return Column(
-                                  children: [
-                                    _buildContactInfoGrid(),
-                                    const SizedBox(height: 60),
-                                    _buildContactForm(),
-                                  ],
-                                );
-                              }
-                              return Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Left side: Contact Details
-                                  Expanded(flex: 2, child: _buildContactInfoGrid()),
-                                  const SizedBox(width: 80),
-                                  // Right side: General Enquiry Form
-                                  Expanded(flex: 3, child: _buildContactForm()),
-                                ],
-                              );
-                            },
                           ),
                         ],
                       ),
                     ),
-                  ),
+                    
+                    const FooterWidget(),
+                  ],
                 ),
-                
-                // Map Placeholder
-                Container(
-                  height: 400,
-                  width: double.infinity,
-                  color: AppColors.backgroundDark,
-                  child: Stack(
-                    children: [
-                      Image.network(
-                        'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&q=80',
-                        width: double.infinity,
-                        height: 400,
-                        fit: BoxFit.cover,
-                        opacity: const AlwaysStoppedAnimation<double>(0.4),
-                      ),
-                      Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.location_on, color: AppColors.accentRed, size: 60),
-                            const SizedBox(height: 20),
-                            PrimaryButton(
-                              text: 'OPEN IN GOOGLE MAPS',
-                              onPressed: () {},
-                              icon: Icons.map,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+              ),
+              
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: CustomAppBar(
+                  isTransparent: !_isScrolled,
+                  backgroundColor: _isScrolled ? AppColors.navDark : null,
+                  useLightText: true,
+                  onMenuPressed: () {},
+                  onContactPressed: () {},
                 ),
-                
-                const FooterWidget(),
-              ],
-            ),
-          ),
-          
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: CustomAppBar(
-              isTransparent: !_isScrolled,
-              backgroundColor: _isScrolled ? AppColors.navDark : null,
-              useLightText: true,
-              onMenuPressed: () {},
-              onContactPressed: () {},
-            ),
-          ),
-          
-          FloatingConnectButtons(scrollController: _scrollController),
-        ],
+              ),
+              
+              FloatingConnectButtons(scrollController: _scrollController),
+            ],
+          );
+        },
       ),
     );
   }
 
-  Widget _buildContactInfoGrid() {
+  Widget _buildContactInfoGrid(Map<String, dynamic> content) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _ContactInfoItem(
           icon: Icons.location_on,
           title: 'Visit Our HQ',
-          detail: AppConstants.address,
+          detail: content['address'] ?? AppConstants.address,
         ),
         const SizedBox(height: 40),
         _ContactInfoItem(
           icon: Icons.phone_in_talk,
           title: 'Direct Support',
-          detail: AppConstants.phoneNumber,
+          detail: content['phone'] ?? AppConstants.phoneNumber,
         ),
         const SizedBox(height: 40),
         _ContactInfoItem(
@@ -212,7 +258,7 @@ class _ContactScreenState extends State<ContactScreen> {
         _ContactInfoItem(
           icon: Icons.email_outlined,
           title: 'Email Inquiry',
-          detail: AppConstants.email,
+          detail: content['email'] ?? AppConstants.email,
         ),
         const SizedBox(height: 40),
         const Divider(),
@@ -305,17 +351,17 @@ class _ContactScreenState extends State<ContactScreen> {
             style: AppTextStyles.sectionTitleLight.copyWith(fontSize: 24),
           ),
           const SizedBox(height: 40),
-          _CustomTextField(hint: 'Full Name'),
+          _CustomTextField(hint: 'Full Name', controller: _nameController),
           const SizedBox(height: 24),
-          _CustomTextField(hint: 'Email Address'),
+          _CustomTextField(hint: 'Email Address', controller: _emailController),
           const SizedBox(height: 24),
-          _CustomTextField(hint: 'Subject'),
+          _CustomTextField(hint: 'Subject', controller: _subjectController),
           const SizedBox(height: 24),
-          _CustomTextField(hint: 'Message', maxLines: 5),
+          _CustomTextField(hint: 'Message', maxLines: 5, controller: _messageController),
           const SizedBox(height: 40),
           PrimaryButton(
-            text: 'SUBMIT REQUEST',
-            onPressed: () {},
+            text: _isSubmitting ? 'SENDING...' : 'SUBMIT REQUEST',
+            onPressed: _isSubmitting ? () {} : _submitGeneralInquiry,
             icon: Icons.send_rounded,
             width: double.infinity,
           ),
@@ -323,72 +369,42 @@ class _ContactScreenState extends State<ContactScreen> {
       ),
     );
   }
-}
 
-class _ContactInfoItem extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String detail;
+  Future<void> _submitGeneralInquiry() async {
+    if (_nameController.text.isEmpty || _emailController.text.isEmpty || _messageController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all required fields')),
+      );
+      return;
+    }
 
-  const _ContactInfoItem({required this.icon, required this.title, required this.detail});
+    setState(() => _isSubmitting = true);
+    
+    final success = await _apiService.submitLead({
+      'name': _nameController.text,
+      'email': _emailController.text,
+      'subject': _subjectController.text,
+      'message': _messageController.text,
+      'type': 'Contact',
+    });
 
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-            color: AppColors.accentRed.withAlpha(20),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: AppColors.accentRed),
-        ),
-        const SizedBox(width: 20),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: AppTextStyles.cardTitle.copyWith(fontSize: 16)),
-              Text(
-                detail, 
-                style: AppTextStyles.bodySmall,
-                softWrap: true,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
+    if (mounted) {
+      setState(() => _isSubmitting = false);
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Inquiry submitted successfully!')),
+        );
+        _nameController.clear();
+        _emailController.clear();
+        _subjectController.clear();
+        _messageController.clear();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to submit inquiry. Please try again.')),
+        );
+      }
+    }
   }
-}
-
-class _CustomTextField extends StatelessWidget {
-  final String hint;
-  final int maxLines;
-
-  const _CustomTextField({required this.hint, this.maxLines = 1});
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      maxLines: maxLines,
-      style: const TextStyle(color: Colors.white),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
-        filled: true,
-        fillColor: Colors.white.withOpacity(0.1),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        contentPadding: const EdgeInsets.all(20),
-      ),
-    );
-  }
-}
 
   Widget _buildFranchiseForm() {
     return Center(
@@ -442,32 +458,32 @@ class _CustomTextField extends StatelessWidget {
               icon: Icons.person_outline,
               child: Column(
                 children: [
-                  _FranchiseTextField(label: 'Full Name', placeholder: 'Enter your full name'),
+                  _FranchiseTextField(label: 'Full Name', placeholder: 'Enter your full name', controller: _fNameController),
                   const SizedBox(height: 16),
                   LayoutBuilder(
                     builder: (context, constraints) {
                       if (constraints.maxWidth < 600) {
                          return Column(
                            children: [
-                             _FranchiseTextField(label: 'Mobile Number', placeholder: '+91 00000 00000'),
+                             _FranchiseTextField(label: 'Mobile Number', placeholder: '+91 00000 00000', controller: _fMobileController),
                              const SizedBox(height: 16),
-                             _FranchiseTextField(label: 'WhatsApp Number', placeholder: '+91 00000 00000'),
+                             _FranchiseTextField(label: 'WhatsApp Number', placeholder: '+91 00000 00000', controller: _fWhatsappController),
                            ],
                          );
                       }
                       return Row(
                         children: [
-                          Expanded(child: _FranchiseTextField(label: 'Mobile Number', placeholder: '+91 00000 00000')),
+                          Expanded(child: _FranchiseTextField(label: 'Mobile Number', placeholder: '+91 00000 00000', controller: _fMobileController)),
                           const SizedBox(width: 20),
-                          Expanded(child: _FranchiseTextField(label: 'WhatsApp Number', placeholder: '+91 00000 00000')),
+                          Expanded(child: _FranchiseTextField(label: 'WhatsApp Number', placeholder: '+91 00000 00000', controller: _fWhatsappController)),
                         ],
                       );
                     },
                   ),
                   const SizedBox(height: 16),
-                  _FranchiseTextField(label: 'Email ID', placeholder: 'yourname@example.com'),
+                  _FranchiseTextField(label: 'Email ID', placeholder: 'yourname@example.com', controller: _fEmailController),
                   const SizedBox(height: 16),
-                  _FranchiseTextField(label: 'City & State', placeholder: 'e.g. Hyderabad, Telangana'),
+                  _FranchiseTextField(label: 'City & State', placeholder: 'e.g. Hyderabad, Telangana', controller: _fCityController),
                 ],
               ),
             ),
@@ -483,7 +499,9 @@ class _CustomTextField extends StatelessWidget {
                   Text('What is your planned investment?', style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
                   const SizedBox(height: 16),
                   _RadioGroup(
-                    options: ['₹2 – 3 Lakhs', '₹3 – 5 Lakhs', '₹5 – 10 Lakhs', '₹10 Lakhs & above'],
+                    options: const ['₹2 – 3 Lakhs', '₹3 – 5 Lakhs', '₹5 – 10 Lakhs', '₹10 Lakhs & above'],
+                    initialValue: _franchiseData['investment'],
+                    onChanged: (v) => _franchiseData['investment'] = v,
                   ),
                 ],
               ),
@@ -500,13 +518,15 @@ class _CustomTextField extends StatelessWidget {
                   Text('Which FIXX EV opportunity are you interested in?', style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
                   const SizedBox(height: 16),
                   _RadioGroup(
-                    options: [
+                    options: const [
                       'EV Spares Franchise',
                       'EV Service Centre',
                       'Spares + Service Hub',
                       'District Franchise',
                       'Equity Partner'
                     ],
+                    initialValue: _franchiseData['interest'],
+                    onChanged: (v) => _franchiseData['interest'] = v,
                   ),
                 ],
               ),
@@ -520,13 +540,22 @@ class _CustomTextField extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                   _YesNoQuestion(question: 'Do you already have a commercial location?'),
+                   _YesNoQuestion(
+                     question: 'Do you already have a commercial location?',
+                     initialValue: _franchiseData['hasLocation'],
+                     onChanged: (v) => _franchiseData['hasLocation'] = v,
+                   ),
                    const SizedBox(height: 20),
                    const Divider(height: 1),
                    const SizedBox(height: 20),
                    Text('If yes, size available:', style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 12),
-                   _RadioGroup(options: ['300–500 sq.ft', '500–1000 sq.ft', '1000+ sq.ft'], isHorizontal: true),
+                   _RadioGroup(
+                     options: const ['300–500 sq.ft', '500–1000 sq.ft', '1000+ sq.ft'], 
+                     isHorizontal: true,
+                     initialValue: _franchiseData['locationSize'],
+                     onChanged: (v) => _franchiseData['locationSize'] = v,
+                   ),
                 ],
               ),
             ),
@@ -539,15 +568,27 @@ class _CustomTextField extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                   _YesNoQuestion(question: 'Have you run a business before?'),
+                   _YesNoQuestion(
+                     question: 'Have you run a business before?',
+                     initialValue: _franchiseData['runBusiness'],
+                     onChanged: (v) => _franchiseData['runBusiness'] = v,
+                   ),
                    const SizedBox(height: 20),
-                   _YesNoQuestion(question: 'Experience in automobile / EV / service industry?'),
+                   _YesNoQuestion(
+                     question: 'Experience in automobile / EV / service industry?',
+                     initialValue: _franchiseData['industryExperience'],
+                     onChanged: (v) => _franchiseData['industryExperience'] = v,
+                   ),
                    const SizedBox(height: 20),
                    const Divider(height: 1),
                    const SizedBox(height: 20),
                    Text('How will you manage the franchise?', style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
                    const SizedBox(height: 12),
-                   _RadioGroup(options: ['Full time', 'Part time', 'Through staff', 'With a partner']),
+                   _RadioGroup(
+                     options: const ['Full time', 'Part time', 'Through staff', 'With a partner'],
+                     initialValue: _franchiseData['managementType'],
+                     onChanged: (v) => _franchiseData['managementType'] = v,
+                   ),
                 ],
               ),
             ),
@@ -563,6 +604,7 @@ class _CustomTextField extends StatelessWidget {
                    Text('Why do you want to join FIXX EV?', style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
                    const SizedBox(height: 12),
                    TextField(
+                      controller: _fVisionController,
                       maxLines: 4,
                       style: AppTextStyles.bodyMedium,
                       decoration: InputDecoration(
@@ -615,8 +657,8 @@ class _CustomTextField extends StatelessWidget {
             const SizedBox(height: 40),
             
             PrimaryButton(
-              text: 'SUBMIT APPLICATION',
-              onPressed: () {},
+              text: _isSubmitting ? 'SUBMITTING...' : 'SUBMIT APPLICATION',
+              onPressed: _isSubmitting ? () {} : _submitFranchiseApplication,
               width: double.infinity,
               backgroundColor: AppColors.primaryNavy,
               padding: const EdgeInsets.symmetric(vertical: 20),
@@ -633,6 +675,50 @@ class _CustomTextField extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _submitFranchiseApplication() async {
+    if (_fNameController.text.isEmpty || _fEmailController.text.isEmpty || _fMobileController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in Name, Email and Mobile')),
+      );
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+    
+    final details = Map<String, String>.from(_franchiseData);
+    details['vision'] = _fVisionController.text;
+    details['whatsapp'] = _fWhatsappController.text;
+    details['location'] = _fCityController.text;
+
+    final success = await _apiService.submitLead({
+      'name': _fNameController.text,
+      'email': _fEmailController.text,
+      'phone': _fMobileController.text,
+      'type': 'Franchise',
+      'message': 'Franchise application for ${_franchiseData['interest'] ?? ''}',
+      'details': details,
+    });
+
+    if (mounted) {
+      setState(() => _isSubmitting = false);
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Application submitted successfully!')),
+        );
+        _fNameController.clear();
+        _fEmailController.clear();
+        _fMobileController.clear();
+        _fWhatsappController.clear();
+        _fCityController.clear();
+        _fVisionController.clear();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to submit application. Please try again.')),
+        );
+      }
+    }
   }
 
   Widget _buildSectionContainer({required String title, required IconData icon, required Widget child}) {
@@ -693,12 +779,14 @@ class _CustomTextField extends StatelessWidget {
       ),
     );
   }
+}
 
 class _FranchiseTextField extends StatelessWidget {
   final String label;
   final String placeholder;
+  final TextEditingController? controller;
 
-  const _FranchiseTextField({required this.label, required this.placeholder});
+  const _FranchiseTextField({required this.label, required this.placeholder, this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -708,6 +796,7 @@ class _FranchiseTextField extends StatelessWidget {
         Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
         const SizedBox(height: 8),
         TextField(
+          controller: controller,
           decoration: InputDecoration(
             hintText: placeholder,
             hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
@@ -732,8 +821,10 @@ class _FranchiseTextField extends StatelessWidget {
 class _RadioGroup extends StatefulWidget {
   final List<String> options;
   final bool isHorizontal;
+  final String? initialValue;
+  final ValueChanged<String>? onChanged;
 
-  const _RadioGroup({required this.options, this.isHorizontal = false});
+  const _RadioGroup({required this.options, this.isHorizontal = false, this.initialValue, this.onChanged});
 
   @override
   State<_RadioGroup> createState() => _RadioGroupState();
@@ -741,6 +832,12 @@ class _RadioGroup extends StatefulWidget {
 
 class _RadioGroupState extends State<_RadioGroup> {
   String? _selected;
+
+  @override
+  void initState() {
+    super.initState();
+    _selected = widget.initialValue;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -762,7 +859,10 @@ class _RadioGroupState extends State<_RadioGroup> {
   Widget _buildRadioItem(String option) {
     final isSelected = _selected == option;
     return InkWell(
-      onTap: () => setState(() => _selected = option),
+      onTap: () {
+        setState(() => _selected = option);
+        widget.onChanged?.call(option);
+      },
       borderRadius: BorderRadius.circular(8),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -809,8 +909,10 @@ class _RadioGroupState extends State<_RadioGroup> {
 
 class _YesNoQuestion extends StatelessWidget {
   final String question;
+  final String? initialValue;
+  final ValueChanged<String>? onChanged;
 
-  const _YesNoQuestion({required this.question});
+  const _YesNoQuestion({required this.question, this.initialValue, this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -819,8 +921,80 @@ class _YesNoQuestion extends StatelessWidget {
       children: [
         Text(question, style: AppTextStyles.bodyMedium),
         const SizedBox(height: 8),
-        const _RadioGroup(options: ['Yes', 'No'], isHorizontal: true),
+        _RadioGroup(
+          options: const ['Yes', 'No'], 
+          isHorizontal: true,
+          initialValue: initialValue,
+          onChanged: onChanged,
+        ),
       ],
+    );
+  }
+}
+
+class _ContactInfoItem extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String detail;
+
+  const _ContactInfoItem({required this.icon, required this.title, required this.detail});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+            color: AppColors.accentRed.withAlpha(20),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: AppColors.accentRed),
+        ),
+        const SizedBox(width: 20),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: AppTextStyles.cardTitle.copyWith(fontSize: 16)),
+              Text(
+                detail, 
+                style: AppTextStyles.bodySmall,
+                softWrap: true,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _CustomTextField extends StatelessWidget {
+  final String hint;
+  final int maxLines;
+  final TextEditingController? controller;
+
+  const _CustomTextField({required this.hint, this.maxLines = 1, this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      maxLines: maxLines,
+      style: const TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+        filled: true,
+        fillColor: Colors.white.withOpacity(0.1),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.all(20),
+      ),
     );
   }
 }

@@ -9,6 +9,7 @@ import 'package:fixxev/widgets/buttons/primary_button.dart';
 import 'package:fixxev/widgets/floating_connect_buttons.dart';
 import 'package:fixxev/widgets/section_header.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:fixxev/core/services/api_service.dart';
 
 class CKDContainerScreen extends StatefulWidget {
   const CKDContainerScreen({super.key});
@@ -19,10 +20,43 @@ class CKDContainerScreen extends StatefulWidget {
 
 class _CKDContainerScreenState extends State<CKDContainerScreen> {
   final ScrollController _scrollController = ScrollController();
+  final ApiService _apiService = ApiService();
+  late Future<Map<String, dynamic>> _pageContentFuture;
+
+  bool _isSubmitting = false;
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _cityController = TextEditingController();
+
+  final _countryController = TextEditingController();
+  final _stateController = TextEditingController();
+  final _descController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _pageContentFuture = _loadAllContent();
+  }
+
+  Future<Map<String, dynamic>> _loadAllContent() async {
+    final content = await _apiService.getPageContent('ckd-container');
+    final features = await _apiService.getCKDFeatures();
+    // Store features in content for easy access
+    content['ckdFeatures'] = features.where((f) => f['isActive'] == true).toList();
+    return content;
+  }
 
   @override
   void dispose() {
     _scrollController.dispose();
+    _nameController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
+    _cityController.dispose();
+    _countryController.dispose();
+    _stateController.dispose();
+    _descController.dispose();
     super.dispose();
   }
 
@@ -33,40 +67,65 @@ class _CKDContainerScreenState extends State<CKDContainerScreen> {
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
-          SingleChildScrollView(
-            controller: _scrollController,
-            child: Column(
-              children: [
-                // 1. Hero Section with Form
-                _HeroWithFormSection(),
-                
-                // 2. Join Community
-                _CommunitySection(),
-                
-                // 3. Why Choose (Dark)
-                _WhyChooseDarkSection(),
-                
-                // 4. CKD Features (Container Image)
-                _SmarterShowroomsSection(),
-                
-                // 5. Scalable Future (Stacked Cards)
-                _ScalableFutureSection(),
-                
-                // 6. Process (Dark Steps)
-                _ProcessDarkSection(),
-                
-                // 7. Network Map (Map Left, Text Right)
-                _NetworkMapSection(),
-                
-                // 8. Models Grid
-                _ModelsGridSection(),
-                
-                // 9. Bottom CTA Form
-                _BottomFormSection(),
-                
-                const FooterWidget(),
-              ],
-            ),
+          FutureBuilder<Map<String, dynamic>>(
+            future: _pageContentFuture,
+            builder: (context, snapshot) {
+              final content = snapshot.data ?? {};
+              
+              return SingleChildScrollView(
+                controller: _scrollController,
+                child: Column(
+                  children: [
+                    // 1. Hero Section with Form
+                    _HeroWithFormSection(
+                      content: content,
+                      nameController: _nameController,
+                      phoneController: _phoneController,
+                      emailController: _emailController,
+                      cityController: _cityController,
+                      isSubmitting: _isSubmitting,
+                      onSubmit: _submitInquiry,
+                    ),
+                    
+                    // 2. Join Community
+                    _CommunitySection(content: content),
+                    
+                    // 3. Why Choose (Dark)
+                    _WhyChooseDarkSection(content: content),
+                    
+                    // 4. CKD Features (Container Image)
+                    _SmarterShowroomsSection(content: content),
+                    
+                    // 5. Scalable Future (Stacked Cards)
+                    _ScalableFutureSection(),
+                    
+                    // 6. Process (Dark Steps)
+                    _ProcessDarkSection(),
+                    
+                    // 7. Network Map (Map Left, Text Right)
+                    _NetworkMapSection(),
+                    
+                    // 8. Models Grid
+                    _ModelsGridSection(),
+                    
+                    // 9. Bottom CTA Form
+                    _BottomFormSection(
+                      nameController: _nameController,
+                      countryController: _countryController,
+                      emailController: _emailController,
+                      stateController: _stateController,
+                      phoneController: _phoneController,
+                      cityController: _cityController,
+                      descController: _descController,
+                      isSubmitting: _isSubmitting,
+                      onSubmit: _submitInquiry,
+                    ),
+                    
+                    const FooterWidget(),
+                  ],
+                ),
+              );
+            }
           ),
           
           Positioned(
@@ -87,10 +146,73 @@ class _CKDContainerScreenState extends State<CKDContainerScreen> {
       ),
     );
   }
+
+  Future<void> _submitInquiry() async {
+    if (_nameController.text.isEmpty || _phoneController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in Name and Phone')),
+      );
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+    
+    final success = await _apiService.submitLead({
+      'name': _nameController.text,
+      'email': _emailController.text,
+      'phone': _phoneController.text,
+      'type': 'Quote',
+      'message': 'CKD Container Inquiry from ${_cityController.text}',
+      'details': {
+        'city': _cityController.text,
+        'state': _stateController.text,
+        'country': _countryController.text,
+        'description': _descController.text,
+      },
+    });
+
+    if (mounted) {
+      setState(() => _isSubmitting = false);
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Inquiry submitted successfully!')),
+        );
+        _nameController.clear();
+        _phoneController.clear();
+        _emailController.clear();
+        _cityController.clear();
+        _stateController.clear();
+        _countryController.clear();
+        _descController.clear();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to submit inquiry. Please try again.')),
+        );
+      }
+    }
+  }
 }
 
 // 1. Hero Section: Text Left, Form Right
 class _HeroWithFormSection extends StatelessWidget {
+  final Map<String, dynamic> content;
+  final TextEditingController nameController;
+  final TextEditingController phoneController;
+  final TextEditingController emailController;
+  final TextEditingController cityController;
+  final bool isSubmitting;
+  final VoidCallback onSubmit;
+
+  const _HeroWithFormSection({
+    required this.content,
+    required this.nameController,
+    required this.phoneController,
+    required this.emailController,
+    required this.cityController,
+    required this.isSubmitting,
+    required this.onSubmit,
+  });
+
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 900;
@@ -102,13 +224,8 @@ class _HeroWithFormSection extends StatelessWidget {
         left: isMobile ? 24 : 80,
         right: isMobile ? 24 : 80,
       ),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5F7FA), // Light greyish white
-        image: const DecorationImage(
-          image: NetworkImage('https://www.transparenttextures.com/patterns/cubes.png'), // Subtle pattern
-          repeat: ImageRepeat.repeat,
-          opacity: 0.05,
-        ),
+      decoration: const BoxDecoration(
+        color: Color(0xFFF5F7FA), // Light greyish white
       ),
       child: Center(
         child: Container(
@@ -155,7 +272,7 @@ class _HeroWithFormSection extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         Text(
-          'Powering the Future of EV\nInfrastructure with Smart,\nRapid Deployment\nSolutions.',
+          content['heroTitle'] ?? 'Powering the Future of EV\nInfrastructure with Smart,\nRapid Deployment\nSolutions.',
           style: AppTextStyles.heroTitle.copyWith(
             color: AppColors.primaryNavy,
             fontSize: 48,
@@ -164,7 +281,7 @@ class _HeroWithFormSection extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         Text(
-          'Reimagine EV stations with our modular CKD container models built for performance, speed, and scalability.',
+          content['heroSubtitle'] ?? 'Reimagine EV stations with our modular CKD container models built for performance, speed, and scalability.',
           style: AppTextStyles.bodyLarge.copyWith(
             color: AppColors.textGrey,
             height: 1.6,
@@ -196,17 +313,17 @@ class _HeroWithFormSection extends StatelessWidget {
             style: AppTextStyles.cardTitle.copyWith(fontSize: 24),
           ),
           const SizedBox(height: 24),
-          _SimpleTextField(label: 'Name'),
+          _SimpleTextField(label: 'Name', controller: nameController),
           const SizedBox(height: 16),
-          _SimpleTextField(label: 'Phone'),
+          _SimpleTextField(label: 'Phone', controller: phoneController),
           const SizedBox(height: 16),
-          _SimpleTextField(label: 'Email'),
+          _SimpleTextField(label: 'Email', controller: emailController),
           const SizedBox(height: 16),
-          _SimpleTextField(label: 'City'),
+          _SimpleTextField(label: 'City', controller: cityController),
           const SizedBox(height: 24),
           PrimaryButton(
-            text: 'SUBMIT',
-            onPressed: () {},
+            text: isSubmitting ? 'SUBMITTING...' : 'SUBMIT',
+            onPressed: isSubmitting ? () {} : onSubmit,
             width: double.infinity,
           ),
         ],
@@ -217,7 +334,8 @@ class _HeroWithFormSection extends StatelessWidget {
 
 class _SimpleTextField extends StatelessWidget {
   final String label;
-  const _SimpleTextField({required this.label});
+  final TextEditingController? controller;
+  const _SimpleTextField({required this.label, this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -227,6 +345,7 @@ class _SimpleTextField extends StatelessWidget {
         Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.textGrey)),
         const SizedBox(height: 8),
         TextField(
+          controller: controller,
           decoration: InputDecoration(
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade300)),
             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade300)),
@@ -241,6 +360,9 @@ class _SimpleTextField extends StatelessWidget {
 
 // 2. Join Community: Text Left, Image Right
 class _CommunitySection extends StatelessWidget {
+  final Map<String, dynamic> content;
+  const _CommunitySection({required this.content});
+
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 900;
@@ -262,12 +384,12 @@ class _CommunitySection extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Join the Fixx EV\nCommunity Get Your CKD\nContainer!',
+                      content['communityTitle'] ?? 'Join the Fixx EV\nCommunity Get Your CKD\nContainer!',
                       style: AppTextStyles.sectionTitle.copyWith(fontSize: 42),
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      'Our CKD showrooms offer a turnkey solution for entrepreneurs looking to enter the electric mobility market. Fast, efficient, and ready to deploy.',
+                      content['communityDesc'] ?? 'Our CKD showrooms offer a turnkey solution for entrepreneurs looking to enter the electric mobility market. Fast, efficient, and ready to deploy.',
                       style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey),
                     ),
                   ],
@@ -299,6 +421,9 @@ class _CommunitySection extends StatelessWidget {
 
 // 3. Why Choose: Dark Section
 class _WhyChooseDarkSection extends StatelessWidget {
+  final Map<String, dynamic> content;
+  const _WhyChooseDarkSection({required this.content});
+
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 900;
@@ -320,7 +445,7 @@ class _WhyChooseDarkSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Why Choose Fixx EV as Your Partner:',
+                content['whyChooseTitle'] ?? 'Why Choose Fixx EV as Your Partner:',
                 style: AppTextStyles.sectionTitleLight,
               ),
               const SizedBox(height: 50),
@@ -355,9 +480,13 @@ class _WhyChooseDarkSection extends StatelessWidget {
 
 // 4. CKD Features: Text Left, Container Image Right
 class _SmarterShowroomsSection extends StatelessWidget {
+  final Map<String, dynamic> content;
+  const _SmarterShowroomsSection({required this.content});
+
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 900;
+    final features = content['ckdFeatures'] as List<dynamic>? ?? [];
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: 100, horizontal: isMobile ? 24 : 80),
@@ -375,7 +504,7 @@ class _SmarterShowroomsSection extends StatelessWidget {
                       text: TextSpan(
                         style: AppTextStyles.sectionTitle.copyWith(fontSize: 36, height: 1.2),
                         children: [
-                          const TextSpan(text: 'CKD Containers\n'),
+                          const TextSpan(text: 'Modular CKD Showroom\n'),
                           TextSpan(
                             text: 'Smarter Showrooms, Built for Performance.',
                             style: TextStyle(color: AppColors.accentBlue),
@@ -389,17 +518,25 @@ class _SmarterShowroomsSection extends StatelessWidget {
                       style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
                     ),
                     const SizedBox(height: 24),
-                    _CheckList(text: 'Fully built containers with pre-installed infrastructure', boldText: 'pre-installed infrastructure'),
-                    _CheckList(text: 'Customizable layouts for sales, service, storage, or display', boldText: 'sales, service, storage, or display'),
-                    _CheckList(text: 'Quick installation with plug-and-play features', boldText: 'plug-and-play features'),
-                    _CheckList(text: 'Weatherproof, durable, and low-maintenance', boldText: ''),
-                    _CheckList(text: 'Built to reflect a premium EV retail experience', boldText: 'premium EV retail experience'),
+                    // Show dynamic features if available, otherwise static
+                    if (features.isNotEmpty)
+                      ...features.map((feature) => _CheckList(
+                        text: '${feature['title']} - ${feature['description'] ?? feature['subtitle'] ?? ''}',
+                        boldText: feature['title'] ?? '',
+                      ))
+                    else ...[
+                      _CheckList(text: 'Fully built containers with pre-installed infrastructure', boldText: 'pre-installed infrastructure'),
+                      _CheckList(text: 'Customizable layouts for sales, service, storage, or display', boldText: 'sales, service, storage, or display'),
+                      _CheckList(text: 'Quick installation with plug-and-play features', boldText: 'plug-and-play features'),
+                      _CheckList(text: 'Weatherproof, durable, and low-maintenance', boldText: ''),
+                      _CheckList(text: 'Built to reflect a premium EV retail experience', boldText: 'premium EV retail experience'),
+                    ],
                     const SizedBox(height: 24),
                     RichText(
                       text: TextSpan(
                         style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
                         children: [
-                          const TextSpan(text: 'With our container-based model, you don’t wait months for construction — you '),
+                          const TextSpan(text: "With our container-based model, you don't wait months for construction - you "),
                           TextSpan(
                             text: 'launch business, start selling, and generate revenue faster.',
                             style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryNavy),
@@ -421,7 +558,7 @@ class _SmarterShowroomsSection extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20)],
                     ),
-                    clipBehavior: Clip.antiAlias, // Important for borderRadius to clip child
+                    clipBehavior: Clip.antiAlias,
                     child: Image.network(
                       'https://plus.unsplash.com/premium_photo-1661932036915-4fd90bec6e8a?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y29udGFpbmVyfGVufDB8fDB8fHww',
                       fit: BoxFit.cover,
@@ -675,7 +812,7 @@ class _NetworkMapSection extends StatelessWidget {
                     color: const Color(0xFFE3F2FD), // Light blue background
                     boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20)],
                     image: const DecorationImage(
-                      image: NetworkImage('https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/India_location_map.svg/640px-India_location_map.svg.png'),
+                      image: const NetworkImage('https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/India_map_blank.svg/800px-India_map_blank.svg.png'),
                       fit: BoxFit.contain,
                       alignment: Alignment.center,
                     ),
@@ -921,6 +1058,28 @@ class _ModelCard extends StatelessWidget {
 
 // 9. Bottom Form Section
 class _BottomFormSection extends StatelessWidget {
+  final TextEditingController nameController;
+  final TextEditingController countryController;
+  final TextEditingController emailController;
+  final TextEditingController stateController;
+  final TextEditingController phoneController;
+  final TextEditingController cityController;
+  final TextEditingController descController;
+  final bool isSubmitting;
+  final VoidCallback onSubmit;
+
+  const _BottomFormSection({
+    required this.nameController,
+    required this.countryController,
+    required this.emailController,
+    required this.stateController,
+    required this.phoneController,
+    required this.cityController,
+    required this.descController,
+    required this.isSubmitting,
+    required this.onSubmit,
+  });
+
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 900;
@@ -940,19 +1099,23 @@ class _BottomFormSection extends StatelessWidget {
               const SizedBox(height: 50),
               Wrap(
                 spacing: 24, runSpacing: 24,
-                children: const [
-                  SizedBox(width: 350, child: _SimpleTextField(label: 'Name')),
-                  SizedBox(width: 350, child: _SimpleTextField(label: 'Country')),
-                  SizedBox(width: 350, child: _SimpleTextField(label: 'Email')),
-                  SizedBox(width: 350, child: _SimpleTextField(label: 'State')),
-                  SizedBox(width: 350, child: _SimpleTextField(label: 'Phone')),
-                  SizedBox(width: 350, child: _SimpleTextField(label: 'City')),
+                children: [
+                  SizedBox(width: 350, child: _SimpleTextField(label: 'Name', controller: nameController)),
+                  SizedBox(width: 350, child: _SimpleTextField(label: 'Country', controller: countryController)),
+                  SizedBox(width: 350, child: _SimpleTextField(label: 'Email', controller: emailController)),
+                  SizedBox(width: 350, child: _SimpleTextField(label: 'State', controller: stateController)),
+                  SizedBox(width: 350, child: _SimpleTextField(label: 'Phone', controller: phoneController)),
+                  SizedBox(width: 350, child: _SimpleTextField(label: 'City', controller: cityController)),
                 ],
               ),
               const SizedBox(height: 24),
-              const _SimpleTextField(label: 'Description'),
+              _SimpleTextField(label: 'Description', controller: descController),
               const SizedBox(height: 40),
-              PrimaryButton(text: 'SUBMIT', width: 200, onPressed: () {}),
+              PrimaryButton(
+                text: isSubmitting ? 'SUBMITTING...' : 'SUBMIT', 
+                width: 200, 
+                onPressed: isSubmitting ? () {} : onSubmit
+              ),
             ],
           ),
         ),

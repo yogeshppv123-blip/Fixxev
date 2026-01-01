@@ -1,13 +1,38 @@
 import 'package:flutter/material.dart';
+import '../../../core/services/api_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../widgets/buttons/primary_button.dart';
 
-class WhyChooseUsSection extends StatelessWidget {
-  const WhyChooseUsSection({super.key});
+class WhyChooseUsSection extends StatefulWidget {
+  final Map<String, dynamic> content;
+  const WhyChooseUsSection({super.key, required this.content});
+
+  @override
+  State<WhyChooseUsSection> createState() => _WhyChooseUsSectionState();
+}
+
+class _WhyChooseUsSectionState extends State<WhyChooseUsSection> {
+  final ApiService _apiService = ApiService();
+  bool _isSubmitting = false;
+
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _messageController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _messageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final content = widget.content;
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 900;
 
@@ -61,7 +86,7 @@ class WhyChooseUsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Why Choose Us',
+          widget.content['whyTitle'] ?? 'Why Choose Us',
           style: AppTextStyles.sectionTitleLight.copyWith(
             fontSize: isMobile ? 32 : 44,
             fontWeight: FontWeight.w700,
@@ -71,7 +96,7 @@ class WhyChooseUsSection extends StatelessWidget {
         Container(width: 60, height: 4, color: AppColors.accentRed),
         const SizedBox(height: 32),
         Text(
-          'At FIXXEV, we provide an ecosystem that ensures your electric vehicle remains in peak condition through skilled engineering and genuine support.',
+          widget.content['whyDesc'] ?? 'At FIXXEV, we provide an ecosystem that ensures your electric vehicle remains in peak condition through skilled engineering and genuine support.',
           style: AppTextStyles.bodyMedium.copyWith(
             color: Colors.white.withOpacity(0.9),
             height: 1.6,
@@ -116,10 +141,10 @@ class WhyChooseUsSection extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppColors.accentRed.withOpacity(0.2),
+            color: AppColors.accentTeal.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: AppColors.accentRed, size: 28),
+          child: Icon(icon, color: AppColors.accentTeal, size: 28),
         ),
         const SizedBox(width: 20),
         Expanded(
@@ -146,7 +171,7 @@ class WhyChooseUsSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(40),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F8E9), // Light green tint like reference
+        color: const Color(0xFFF0F4F8), // Light Blue tint instead of green
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -157,17 +182,17 @@ class WhyChooseUsSection extends StatelessWidget {
             style: AppTextStyles.sectionTitle.copyWith(fontSize: 24, color: AppColors.primaryNavy),
           ),
           const SizedBox(height: 32),
-          _buildField('Name'),
+          _buildField('Name', controller: _nameController),
           const SizedBox(height: 16),
-          _buildField('Email'),
+          _buildField('Email', controller: _emailController),
           const SizedBox(height: 16),
-          _buildField('Contact Number'),
+          _buildField('Contact Number', controller: _phoneController),
           const SizedBox(height: 16),
-          _buildField('Your Message', maxLines: 4),
+          _buildField('Your Message', maxLines: 4, controller: _messageController),
           const SizedBox(height: 32),
           PrimaryButton(
-            text: 'SEND REQUEST',
-            onPressed: () {},
+            text: _isSubmitting ? 'SENDING...' : 'SEND REQUEST',
+            onPressed: _isSubmitting ? () {} : _submitRequest,
             width: double.infinity,
           ),
         ],
@@ -175,8 +200,9 @@ class WhyChooseUsSection extends StatelessWidget {
     );
   }
 
-  Widget _buildField(String hint, {int maxLines = 1}) {
+  Widget _buildField(String hint, {int maxLines = 1, TextEditingController? controller}) {
     return TextField(
+      controller: controller,
       maxLines: maxLines,
       decoration: InputDecoration(
         hintText: hint,
@@ -189,6 +215,44 @@ class WhyChooseUsSection extends StatelessWidget {
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
     );
+  }
+
+  Future<void> _submitRequest() async {
+    if (_nameController.text.isEmpty || _phoneController.text.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please fill in Name and Contact Number')),
+        );
+      }
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+    
+    final success = await _apiService.submitLead({
+      'name': _nameController.text,
+      'email': _emailController.text,
+      'phone': _phoneController.text,
+      'type': 'Contact',
+      'message': 'Service Booking Request: ${_messageController.text}',
+    });
+
+    if (mounted) {
+      setState(() => _isSubmitting = false);
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Service request sent successfully!')),
+        );
+        _nameController.clear();
+        _emailController.clear();
+        _phoneController.clear();
+        _messageController.clear();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to send request.')),
+        );
+      }
+    }
   }
 }
 

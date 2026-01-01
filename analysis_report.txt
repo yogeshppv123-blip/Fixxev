@@ -1,0 +1,15 @@
+Analyzing contact_screen.dart...                                
+
+   info • The variable name '_SocialIcon' isn't a lowerCamelCase identifier • lib/screens/contact/contact_screen.dart:292:10 • non_constant_identifier_names
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/contact/contact_screen.dart:316:50 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/contact/contact_screen.dart:420:42 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/contact/contact_screen.dart:436:52 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/contact/contact_screen.dart:629:46 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/contact/contact_screen.dart:631:65 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/contact/contact_screen.dart:732:33 • deprecated_member_use
+warning • The declaration '_buildSectionTitle' isn't referenced • lib/screens/contact/contact_screen.dart:772:10 • unused_element
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/contact/contact_screen.dart:876:53 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/contact/contact_screen.dart:989:50 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/contact/contact_screen.dart:991:33 • deprecated_member_use
+
+11 issues found. (ran in 0.7s)

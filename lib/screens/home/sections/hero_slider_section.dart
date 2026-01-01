@@ -6,7 +6,8 @@ import 'package:fixxev/widgets/buttons/primary_button.dart';
 
 /// Hero Carousel section with high-quality 4K background images - Ken Burns Zoom Effect
 class HeroSliderSection extends StatefulWidget {
-  const HeroSliderSection({super.key});
+  final Map<String, dynamic> content;
+  const HeroSliderSection({super.key, required this.content});
 
   @override
   State<HeroSliderSection> createState() => _HeroSliderSectionState();
@@ -51,6 +52,16 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
   @override
   void initState() {
     super.initState();
+    if (widget.content.containsKey('heroTitle')) {
+      _slides[0]['title'] = widget.content['heroTitle']!;
+    }
+    if (widget.content.containsKey('heroSubtitle')) {
+      _slides[0]['subtitle'] = widget.content['heroSubtitle']!;
+    }
+    if (widget.content.containsKey('heroImage') && widget.content['heroImage']!.isNotEmpty) {
+      _slides[0]['image'] = widget.content['heroImage']!;
+    }
+    
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
@@ -227,7 +238,7 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
                 width: 4,
                 height: 24,
                 decoration: BoxDecoration(
-                  color: AppColors.accentRed,
+                  color: AppColors.accentBlue, // Changed to Sky Blue to match image
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -320,10 +331,10 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
             width: 54,
             height: 54,
             decoration: BoxDecoration(
-              color: AppColors.accentRed.withAlpha(20),
+              color: AppColors.secondary.withAlpha(20),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: AppColors.accentRed, size: 30),
+            child: Icon(icon, color: AppColors.secondary, size: 30),
           ),
           const SizedBox(height: 12),
           Text(
@@ -382,7 +393,7 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
             margin: const EdgeInsets.only(right: 10),
             decoration: BoxDecoration(
               color: _currentIndex == index
-                  ? AppColors.accentRed
+                  ? AppColors.secondary // Mint Green for active indicator
                   : AppColors.textLight.withAlpha(60),
               borderRadius: BorderRadius.circular(3),
             ),

@@ -4,7 +4,31 @@ import 'package:fixxev_admin/screens/dashboard/dashboard_screen.dart';
 import 'package:fixxev_admin/screens/pages/pages_list_screen.dart';
 import 'package:fixxev_admin/screens/leads/leads_screen.dart';
 import 'package:fixxev_admin/screens/blog/blog_list_screen.dart';
+import 'package:fixxev_admin/screens/products/products_screen.dart';
+import 'package:fixxev_admin/screens/media/media_screen.dart';
+import 'package:fixxev_admin/screens/settings/settings_screen.dart';
+import 'package:fixxev_admin/screens/services/services_list_screen.dart';
+import 'package:fixxev_admin/screens/team/team_list_screen.dart';
+import 'package:fixxev_admin/screens/blog/blog_edit_screen.dart';
+import 'package:fixxev_admin/screens/products/product_edit_screen.dart';
+import 'package:fixxev_admin/screens/services/service_edit_screen.dart';
+import 'package:fixxev_admin/screens/team/member_edit_screen.dart';
+import 'package:fixxev_admin/screens/pages/home_page_editor.dart';
+import 'package:fixxev_admin/screens/pages/about_page_editor.dart';
+import 'package:fixxev_admin/screens/pages/contact_page_editor.dart';
+import 'package:fixxev_admin/screens/pages/dealership_page_editor.dart';
+import 'package:fixxev_admin/screens/pages/blog_page_editor.dart';
+import 'package:fixxev_admin/screens/pages/products_page_editor.dart';
+import 'package:fixxev_admin/screens/pages/ckd_container_page_editor.dart';
+import 'package:fixxev_admin/screens/pages/services_page_editor.dart';
+import 'package:fixxev_admin/screens/about/about_list_screen.dart';
+import 'package:fixxev_admin/screens/about/about_edit_screen.dart';
+import 'package:fixxev_admin/screens/franchise/franchise_list_screen.dart';
+import 'package:fixxev_admin/screens/franchise/franchise_edit_screen.dart';
+import 'package:fixxev_admin/screens/ckd/ckd_list_screen.dart';
+import 'package:fixxev_admin/screens/ckd/ckd_edit_screen.dart';
 import 'package:fixxev_admin/core/theme/app_colors.dart';
+import 'package:fixxev_admin/widgets/sidebar.dart';
 
 void main() {
   runApp(const FixxevAdminApp());
@@ -64,47 +88,122 @@ class FixxevAdminApp extends StatelessWidget {
         '/pages': (context) => const PagesListScreen(),
         '/leads': (context) => const LeadsScreen(),
         '/blog': (context) => const BlogListScreen(),
-        // Placeholder routes - to be implemented
-        '/products': (context) => _placeholderScreen('Products'),
-        '/media': (context) => _placeholderScreen('Media'),
-        '/settings': (context) => _placeholderScreen('Settings'),
-        '/pages/home': (context) => _placeholderScreen('Edit Home Page'),
-        '/pages/about': (context) => _placeholderScreen('Edit About Page'),
-        '/pages/products': (context) => _placeholderScreen('Edit Products Page'),
-        '/pages/blog': (context) => _placeholderScreen('Edit Blog Page'),
-        '/pages/contact': (context) => _placeholderScreen('Edit Contact Page'),
-        '/pages/dealership': (context) => _placeholderScreen('Edit Dealership Page'),
-        '/blog/new': (context) => _placeholderScreen('New Blog Post'),
-        '/products/new': (context) => _placeholderScreen('New Product'),
+        '/products': (context) => const ProductsScreen(),
+        '/media': (context) => const MediaScreen(),
+        '/settings': (context) => const SettingsScreen(),
+        // New Sections
+        '/services': (context) => const ServicesListScreen(),
+        '/team': (context) => const TeamListScreen(),
+        // Pages Editing Placeholders
+        // Pages Editing
+        '/pages/home': (context) => const HomePageEditor(),
+        '/pages/about': (context) => const AboutPageEditor(),
+        '/pages/products': (context) => const ProductsPageEditor(),
+        '/pages/blog': (context) => const BlogPageEditor(),
+        '/pages/contact': (context) => const ContactPageEditor(),
+        '/pages/dealership': (context) => const DealershipPageEditor(),
+        '/pages/franchise': (context) => const DealershipPageEditor(), // Reuses dealership editor for franchise
+        '/pages/services': (context) => const ServicesPageEditor(),
+        '/pages/ckd-container': (context) => const CKDContainerPageEditor(),
+        '/blog/new': (context) => const BlogEditScreen(),
+        '/blog/edit': (context) {
+          final blog = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+          return BlogEditScreen(blog: blog);
+        },
+        '/products/new': (context) => const ProductEditScreen(),
+        '/products/edit': (context) {
+          final product = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+          return ProductEditScreen(product: product);
+        },
+        '/services/new': (context) => const ServiceEditScreen(),
+        '/services/edit': (context) {
+          final service = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+          return ServiceEditScreen(service: service);
+        },
+        '/team/new': (context) => const MemberEditScreen(),
+        '/team/edit': (context) {
+          final member = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+          return MemberEditScreen(member: member);
+        },
+        // About Sections
+        '/about': (context) => const AboutListScreen(),
+        '/about/new': (context) => const AboutEditScreen(),
+        '/about/edit': (context) {
+          final section = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+          return AboutEditScreen(section: section);
+        },
+        // Franchise Types
+        '/franchise': (context) => const FranchiseListScreen(),
+        '/franchise/new': (context) => const FranchiseEditScreen(),
+        '/franchise/edit': (context) {
+          final franchiseType = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+          return FranchiseEditScreen(franchiseType: franchiseType);
+        },
+        // CKD Features
+        '/ckd-content': (context) => const CKDListScreen(),
+        '/ckd-content/new': (context) => const CKDEditScreen(),
+        '/ckd-content/edit': (context) {
+          final feature = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+          return CKDEditScreen(feature: feature);
+        },
       },
     );
   }
 
-  Widget _placeholderScreen(String title) {
+  Widget _placeholderScreen(String title, {String activeRoute = ''}) {
+    // If no specific route provided, try to guess from title or default to empty
+    final route = activeRoute.isNotEmpty ? activeRoute : '/${title.toLowerCase().replaceAll(' ', '-')}';
+    
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
-      appBar: AppBar(
-        title: Text(title),
-        backgroundColor: AppColors.sidebarDark,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.construction, size: 64, color: AppColors.textMuted),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textLight),
+      body: Row(
+        children: [
+          // Sidebar
+          AdminSidebar(currentRoute: route),
+          
+          // Main Content
+          Expanded(
+            child: Column(
+              children: [
+                // AppBar-like header
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                  decoration: const BoxDecoration(
+                    color: AppColors.backgroundDark,
+                    border: Border(bottom: BorderSide(color: AppColors.sidebarDark)),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.construction, size: 64, color: AppColors.textMuted),
+                        const SizedBox(height: 16),
+                        Text(
+                          '$title Page',
+                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textLight),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Coming soon...',
+                          style: TextStyle(color: AppColors.textMuted),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Coming soon...',
-              style: TextStyle(color: AppColors.textMuted),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
+

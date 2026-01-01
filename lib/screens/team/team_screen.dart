@@ -7,6 +7,8 @@ import '../../core/theme/app_text_styles.dart';
 import '../../widgets/subpage_hero.dart';
 import '../../widgets/section_header.dart';
 
+import '../../core/services/api_service.dart';
+
 class TeamScreen extends StatefulWidget {
   const TeamScreen({super.key});
 
@@ -16,12 +18,15 @@ class TeamScreen extends StatefulWidget {
 
 class _TeamScreenState extends State<TeamScreen> {
   final ScrollController _scrollController = ScrollController();
+  final ApiService _apiService = ApiService();
+  late Future<List<dynamic>> _teamFuture;
   bool _isScrolled = false;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    _teamFuture = _apiService.getTeam();
   }
 
   void _onScroll() {
@@ -67,15 +72,33 @@ class _TeamScreenState extends State<TeamScreen> {
                         centered: true,
                       ),
                       const SizedBox(height: 60),
-                      Wrap(
-                        spacing: 40,
-                        runSpacing: 40,
-                        alignment: WrapAlignment.center,
-                        children: [
-                          _TeamMemberCard(name: 'Alex Rivera', role: 'EV Systems Engineer'),
-                          _TeamMemberCard(name: 'Sarah Chen', role: 'Battery Specialist'),
-                          _TeamMemberCard(name: 'Mark Thompson', role: 'Diagnostics Expert'),
-                        ],
+                      FutureBuilder<List<dynamic>>(
+                        future: _teamFuture,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(child: CircularProgressIndicator());
+                          }
+                          if (snapshot.hasError) {
+                            return Center(child: Text('Error: ${snapshot.error}'));
+                          }
+
+                          final members = snapshot.data ?? [];
+
+                          if (members.isEmpty) {
+                            return const Text('No team members found.');
+                          }
+
+                          return Wrap(
+                            spacing: 40,
+                            runSpacing: 40,
+                            alignment: WrapAlignment.center,
+                            children: members.map((m) => _TeamMemberCard(
+                              name: m['name'] ?? '',
+                              role: m['role'] ?? '',
+                              image: m['image'],
+                            )).toList(),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -109,8 +132,9 @@ class _TeamScreenState extends State<TeamScreen> {
 class _TeamMemberCard extends StatefulWidget {
   final String name;
   final String role;
+  final String? image;
 
-  const _TeamMemberCard({required this.name, required this.role});
+  const _TeamMemberCard({required this.name, required this.role, this.image});
 
   @override
   State<_TeamMemberCard> createState() => _TeamMemberCardState();
@@ -147,17 +171,32 @@ class _TeamMemberCardState extends State<_TeamMemberCard> {
               children: [
                 Container(
                   height: 320,
+                  width: double.infinity,
                   decoration: BoxDecoration(
                     color: AppColors.primaryNavy.withAlpha(10),
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
                   ),
-                  child: Center(
-                    child: Icon(
-                      Icons.person,
-                      size: 100,
-                      color: AppColors.primaryNavy.withAlpha(50),
-                    ),
-                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: widget.image != null && widget.image!.isNotEmpty
+                    ? Image.network(
+                        widget.image!,
+                        fit: BoxFit.cover,
+                        filterQuality: FilterQuality.high,
+                        errorBuilder: (context, error, stackTrace) => Center(
+                          child: Icon(
+                            Icons.person,
+                            size: 100,
+                            color: AppColors.primaryNavy.withAlpha(50),
+                          ),
+                        ),
+                      )
+                    : Center(
+                        child: Icon(
+                          Icons.person,
+                          size: 100,
+                          color: AppColors.primaryNavy.withAlpha(50),
+                        ),
+                      ),
                 ),
                 // Overlay social links on hover
                 if (_isHovered)

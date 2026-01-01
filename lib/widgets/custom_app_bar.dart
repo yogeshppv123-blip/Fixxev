@@ -100,13 +100,36 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               Container(
                 width: 44, height: 44,
                 decoration: BoxDecoration(
-                  color: AppColors.accentRed,
+                  color: AppColors.accentBlue,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: const Center(child: Text('F', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white))),
               ),
               const SizedBox(width: 10),
-              Text('FIXXEV', style: (isLight ? AppTextStyles.navLinkLight : AppTextStyles.navLink).copyWith(fontSize: 24, fontWeight: FontWeight.w700, letterSpacing: 1)),
+              RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'FIXX',
+                      style: (isLight ? AppTextStyles.navLinkLight : AppTextStyles.navLink).copyWith(
+                        fontSize: 24, 
+                        fontWeight: FontWeight.w800, 
+                        letterSpacing: 1,
+                        color: isLight ? AppColors.textLight : AppColors.primaryNavy,
+                      ),
+                    ),
+                    TextSpan(
+                      text: 'EV',
+                      style: (isLight ? AppTextStyles.navLinkLight : AppTextStyles.navLink).copyWith(
+                        fontSize: 24, 
+                        fontWeight: FontWeight.w800, 
+                        letterSpacing: 1,
+                        color: AppColors.accentTeal, // Mint Green EV
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           );
         },

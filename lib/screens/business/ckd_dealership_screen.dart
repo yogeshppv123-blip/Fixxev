@@ -4,13 +4,9 @@ import '../../widgets/footer_widget.dart';
 import '../../widgets/floating_connect_buttons.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
-import '../../widgets/section_header.dart';
 import '../../widgets/buttons/primary_button.dart';
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
-import 'dart:ui_web' as ui_web;
-
-part 'ckd_dealership_sections.dart';
+import 'package:go_router/go_router.dart';
+import '../../core/services/api_service.dart';
 
 class CKDealershipScreen extends StatefulWidget {
   const CKDealershipScreen({super.key});
@@ -21,20 +17,37 @@ class CKDealershipScreen extends StatefulWidget {
 
 class _CKDealershipScreenState extends State<CKDealershipScreen> {
   final ScrollController _scrollController = ScrollController();
+  final ApiService _apiService = ApiService();
   bool _isScrolled = false;
+  Map<String, dynamic> _content = {};
+  List<dynamic> _franchiseTypes = [];
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    _loadContent();
+  }
+
+  Future<void> _loadContent() async {
+    try {
+      final data = await _apiService.getPageContent('franchise');
+      final franchiseTypes = await _apiService.getFranchiseTypes();
+      if (mounted) {
+        setState(() {
+          _content = data;
+          _franchiseTypes = franchiseTypes.where((f) => f['isActive'] == true).toList();
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading franchise content: $e');
+    }
   }
 
   void _onScroll() {
     final isScrolled = _scrollController.offset > 50;
     if (isScrolled != _isScrolled) {
-      setState(() {
-        _isScrolled = isScrolled;
-      });
+      setState(() => _isScrolled = isScrolled);
     }
   }
 
@@ -55,35 +68,26 @@ class _CKDealershipScreenState extends State<CKDealershipScreen> {
             controller: _scrollController,
             child: Column(
               children: [
-                // 1. Engineered Split Hero with Form
-                const _DealershipHero(),
+                // 1. Hero Section
+                _FranchiseHero(content: _content),
 
-                // 2. Join Community (Image + Text) - NEW
-                const _JoinCommunitySection(),
+                // 2. What We Are Doing
+                _WhatWeDoSection(content: _content),
 
-                // 3. Why Partner With Us (Dark Section)
-                const _WhyPartnerSection(),
+                // 3. Franchise Options (Cards)
+                _FranchiseOptionsSection(content: _content, franchiseTypes: _franchiseTypes),
 
-                // 4. The Container Advantage (Text + Image)
-                const _ContainerAdvantageSection(),
-                
-                // 5. Low Risk, Scalable (Cards) - NEW
-                const _ScalableGrowthSection(),
+                // 4. Why Partner With Us
+                _WhyPartnerSection(content: _content),
 
-                // 6. Deployment Process
-                const _DeploymentProcessSection(),
-
-                // 7. Pan-India Network (Map)
-                const _NetworkMapSection(),
-
-                // 8. Model Showcase
-                const _ModelShowcaseSection(),
+                // 5. Inquiry Form
+                const _InquiryFormSection(),
 
                 const FooterWidget(),
               ],
             ),
           ),
-          
+
           Positioned(
             top: 0,
             left: 0,
@@ -96,7 +100,7 @@ class _CKDealershipScreenState extends State<CKDealershipScreen> {
               onContactPressed: () {},
             ),
           ),
-          
+
           FloatingConnectButtons(scrollController: _scrollController),
         ],
       ),
@@ -104,9 +108,10 @@ class _CKDealershipScreenState extends State<CKDealershipScreen> {
   }
 }
 
-// 1. Engineered Split Hero
-class _DealershipHero extends StatelessWidget {
-  const _DealershipHero();
+// 1. Hero Section
+class _FranchiseHero extends StatelessWidget {
+  final Map<String, dynamic> content;
+  const _FranchiseHero({required this.content});
 
   @override
   Widget build(BuildContext context) {
@@ -115,160 +120,58 @@ class _DealershipHero extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      constraints: BoxConstraints(minHeight: size.height * 0.9),
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 24 : 80,
+        vertical: 120,
+      ),
       decoration: const BoxDecoration(
-        color: AppColors.primaryNavy,
-      ),
-      child: Stack(
-        children: [
-          // Background Image with Overlay
-          Positioned.fill(
-            child: Opacity(
-              opacity: 0.4,
-              child: Image.network(
-                'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&q=80',
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.primaryNavy.withAlpha(220),
-                    AppColors.primaryNavy.withAlpha(150),
-                    Colors.transparent,
-                  ],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
-              ),
-            ),
-          ),
-          
-          // Content
-          Padding(
-            padding: EdgeInsets.only(
-              top: 140, 
-              bottom: 100, 
-              left: isMobile ? 24 : 80, 
-              right: isMobile ? 24 : 80
-            ),
-            child: isMobile 
-              ? Column(
-                  children: [
-                    _buildHeroText(isMobile),
-                    const SizedBox(height: 50),
-                    _buildHeroForm(isMobile),
-                  ],
-                )
-              : Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(child: _buildHeroText(isMobile)),
-                    const SizedBox(width: 80),
-                    SizedBox(width: 480, child: _buildHeroForm(isMobile)),
-                  ],
-                ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeroText(bool isMobile) {
-    return Column(
-      crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          'Powering the Future of EV\nInfrastructure with Smart,\nRapid Deployment Solutions.',
-          style: AppTextStyles.heroTitle.copyWith(
-            fontSize: isMobile ? 32 : 48,
-            height: 1.2,
-            color: Colors.white,
-            fontWeight: FontWeight.w800,
-          ),
-          textAlign: isMobile ? TextAlign.center : TextAlign.left,
+        gradient: LinearGradient(
+          colors: [AppColors.primaryNavy, Color(0xFF1B3A5C)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        const SizedBox(height: 24),
-        Text(
-          'Reimagine EV infrastructure with our modular CKD container model built for performance, speed, and scalability.',
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: Colors.white.withOpacity(0.8),
-            fontSize: 18,
-            height: 1.6,
-          ),
-          textAlign: isMobile ? TextAlign.center : TextAlign.left,
+        image: DecorationImage(
+          image: NetworkImage('https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=1600'),
+          fit: BoxFit.cover,
+          opacity: 0.15,
         ),
-      ],
-    );
-  }
-
-  Widget _buildHeroForm(bool isMobile) {
-    return Container(
-      padding: const EdgeInsets.all(40),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primaryNavy.withOpacity(0.1),
-            blurRadius: 40,
-            offset: const Offset(0, 20),
-          ),
-        ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Name', style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.bold)),
-              Text('Phone', style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.bold)),
-            ],
+          const SizedBox(height: 60),
+          Text(
+            'BE THE PART OF',
+            style: AppTextStyles.sectionLabel.copyWith(
+              color: AppColors.accentTeal,
+              letterSpacing: 4,
+            ),
           ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(child: _SimpleField(hint: 'Your Name', icon: null)),
-              const SizedBox(width: 12),
-              Expanded(child: _SimpleField(hint: 'Select', icon: Icons.keyboard_arrow_down)),
-            ],
+          const SizedBox(height: 16),
+          Text(
+            content['heroTitle'] ?? 'FIXXEV Franchise',
+            style: AppTextStyles.heroTitle.copyWith(
+              fontSize: isMobile ? 42 : 64,
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 20),
-          Text('Email', style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          const _SimpleField(hint: 'Your Email', icon: null),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(child: Text('State', style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.bold))),
-              const SizedBox(width: 12),
-              Expanded(child: Text('City', style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.bold))),
-            ],
+          const SizedBox(height: 24),
+          SizedBox(
+            width: 700,
+            child: Text(
+              content['heroSubtitle'] ?? 'Join India\'s fastest-growing EV service ecosystem. Partner with us as a Spare Parts Dealer or Service Center and be at the forefront of the electric mobility revolution.',
+              style: AppTextStyles.heroSubtitle.copyWith(
+                fontSize: 18,
+                color: Colors.white.withOpacity(0.85),
+              ),
+              textAlign: TextAlign.center,
+            ),
           ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(child: _SimpleField(hint: 'Select State', icon: Icons.keyboard_arrow_down)),
-              const SizedBox(width: 12),
-              Expanded(child: _SimpleField(hint: 'Select City', icon: Icons.keyboard_arrow_down)),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Text('Phone', style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          const _SimpleField(hint: '9880198801', icon: null),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
           PrimaryButton(
-            text: 'ENQUIRE NOW',
-            onPressed: () {},
-            width: double.infinity,
-            backgroundColor: AppColors.primaryNavy,
+            text: 'BECOME A PARTNER',
+            onPressed: () => context.go('/contact'),
+            icon: Icons.handshake_outlined,
           ),
         ],
       ),
@@ -276,90 +179,43 @@ class _DealershipHero extends StatelessWidget {
   }
 }
 
-class _HeroStat extends StatelessWidget {
-  final String navLabel;
-  final String value;
-
-  const _HeroStat({required this.navLabel, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          value,
-          style: AppTextStyles.cardTitle.copyWith(color: AppColors.accentRed, fontSize: 28),
-        ),
-        Text(
-          navLabel.toUpperCase(),
-          style: AppTextStyles.bodySmall.copyWith(color: Colors.white54, fontSize: 12),
-        ),
-      ],
-    );
-  }
-}
-
-class _SimpleField extends StatelessWidget {
-  final String hint;
-  final IconData? icon;
-
-  const _SimpleField({required this.hint, this.icon});
+// 2. What We Are Doing Section
+class _WhatWeDoSection extends StatelessWidget {
+  final Map<String, dynamic> content;
+  const _WhatWeDoSection({required this.content});
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      style: const TextStyle(fontSize: 14),
-      decoration: InputDecoration(
-        hintText: hint,
-        filled: true,
-        fillColor: Colors.grey.shade50,
-        suffixIcon: icon != null ? Icon(icon, color: AppColors.textGrey, size: 20) : null,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(4),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(4),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      ),
-    );
-  }
-}
-
-
-// 2. The Container Advantage
-class _ContainerAdvantageSection extends StatelessWidget {
-  const _ContainerAdvantageSection();
-
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final isMobile = size.width < 900;
+    final isMobile = MediaQuery.of(context).size.width < 900;
+    
+    // Parse features from comma-separated string
+    String featuresStr = content['missionFeatures'] ?? 'Multi-brand EV servicing and repairs, Genuine spare parts distribution, Battery diagnostics and refurbishment, 24/7 roadside assistance network, Pan-India service coverage';
+    List<String> features = featuresStr.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
 
     return Container(
+      padding: EdgeInsets.symmetric(
+        vertical: 100,
+        horizontal: isMobile ? 24 : 80,
+      ),
       color: Colors.white,
-      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 1200),
-          child: isMobile 
-            ? Column(
-                children: [
-                  _buildContent(),
-                  const SizedBox(height: 40),
-                  _buildImage(),
-                ],
-              )
-            : Row(
-                children: [
-                  Expanded(child: _buildImage()),
-                  const SizedBox(width: 80),
-                  Expanded(child: _buildContent()),
-                ],
-              ),
+          child: isMobile
+              ? Column(
+                  children: [
+                    _buildImage(),
+                    const SizedBox(height: 40),
+                    _buildContent(isMobile, features),
+                  ],
+                )
+              : Row(
+                  children: [
+                    Expanded(child: _buildImage()),
+                    const SizedBox(width: 80),
+                    Expanded(child: _buildContent(isMobile, features)),
+                  ],
+                ),
         ),
       ),
     );
@@ -367,452 +223,399 @@ class _ContainerAdvantageSection extends StatelessWidget {
 
   Widget _buildImage() {
     return Container(
-      height: 400,
+      height: 450,
       decoration: BoxDecoration(
-        color: Colors.black,
         borderRadius: BorderRadius.circular(20),
+        image: const DecorationImage(
+          image: NetworkImage('https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=800'),
+          fit: BoxFit.cover,
+        ),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, 10)),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 30,
+            offset: const Offset(0, 15),
+          ),
         ],
       ),
-      clipBehavior: Clip.antiAlias,
-      child: const _VideoPlayer(),
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(bool isMobile, List<String> features) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-          RichText(
-            text: TextSpan(
-              style: AppTextStyles.sectionTitle.copyWith(fontSize: 36, height: 1.2),
+        Text(
+          '// OUR MISSION',
+          style: AppTextStyles.sectionLabel.copyWith(
+            color: AppColors.accentBlue,
+            letterSpacing: 2,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          content['missionTitle'] ?? 'What We Are Doing',
+          style: AppTextStyles.sectionTitle.copyWith(
+            fontSize: isMobile ? 32 : 40,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(width: 50, height: 4, color: AppColors.accentBlue),
+        const SizedBox(height: 24),
+        Text(
+          content['missionDesc'] ?? 'FIXXEV is building India\'s most comprehensive EV after-sales service network. We provide:',
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.textGrey,
+            height: 1.7,
+            fontSize: 16,
+          ),
+        ),
+        const SizedBox(height: 24),
+        ...features.map((feature) => _buildFeatureItem(Icons.check_circle_outline, feature)),
+      ],
+    );
+  }
+
+  Widget _buildFeatureItem(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.accentTeal.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: AppColors.accentTeal, size: 22),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              text,
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontWeight: FontWeight.w500,
+                fontSize: 15,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// 3. Franchise Options Section
+class _FranchiseOptionsSection extends StatelessWidget {
+  final Map<String, dynamic> content;
+  final List<dynamic> franchiseTypes;
+  const _FranchiseOptionsSection({required this.content, required this.franchiseTypes});
+
+  @override
+  Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 900;
+    
+    // Use dynamic franchise types if available, otherwise fallback to content
+    final hasTypes = franchiseTypes.isNotEmpty;
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        vertical: 100,
+        horizontal: isMobile ? 24 : 80,
+      ),
+      color: AppColors.backgroundLight,
+      child: Column(
+        children: [
+          Text(
+            '// FRANCHISE OPTIONS',
+            style: AppTextStyles.sectionLabel.copyWith(
+              color: AppColors.accentBlue,
+              letterSpacing: 2,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Choose Your Partnership Model',
+            style: AppTextStyles.sectionTitle.copyWith(
+              fontSize: isMobile ? 28 : 36,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 60),
+          if (hasTypes)
+            _buildDynamicCards(context, isMobile)
+          else
+            _buildStaticCards(context, isMobile),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDynamicCards(BuildContext context, bool isMobile) {
+    if (isMobile) {
+      return Column(
+        children: franchiseTypes.asMap().entries.map((entry) {
+          final type = entry.value as Map<String, dynamic>;
+          return Padding(
+            padding: EdgeInsets.only(bottom: entry.key < franchiseTypes.length - 1 ? 40 : 0),
+            child: _buildFranchiseCard(
+              context,
+              title: type['title'] ?? 'Franchise Type',
+              description: type['description'] ?? '',
+              imageUrl: type['imageUrl']?.isNotEmpty == true 
+                  ? type['imageUrl'] 
+                  : (type['type'] == 'Spare Parts' 
+                      ? 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800'
+                      : 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800'),
+              benefits: (type['benefits'] as List?)?.cast<String>() ?? [],
+              icon: type['type'] == 'Spare Parts' ? Icons.inventory_2 : Icons.build_circle,
+            ),
+          );
+        }).toList(),
+      );
+    }
+    
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: franchiseTypes.asMap().entries.map((entry) {
+        final type = entry.value as Map<String, dynamic>;
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(left: entry.key > 0 ? 20 : 0, right: entry.key < franchiseTypes.length - 1 ? 20 : 0),
+            child: _buildFranchiseCard(
+              context,
+              title: type['title'] ?? 'Franchise Type',
+              description: type['description'] ?? '',
+              imageUrl: type['imageUrl']?.isNotEmpty == true 
+                  ? type['imageUrl'] 
+                  : (type['type'] == 'Spare Parts' 
+                      ? 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800'
+                      : 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800'),
+              benefits: (type['benefits'] as List?)?.cast<String>() ?? [],
+              icon: type['type'] == 'Spare Parts' ? Icons.inventory_2 : Icons.build_circle,
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildStaticCards(BuildContext context, bool isMobile) {
+    // Fallback to old static content
+    String sparePartsBenefitsStr = content['sparePartsBenefits'] ?? 'Direct OEM partnerships, Competitive wholesale pricing, Inventory management support, Marketing & branding assistance, Training on EV components';
+    List<String> sparePartsBenefits = sparePartsBenefitsStr.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+    
+    String serviceCenterBenefitsStr = content['serviceCenterBenefits'] ?? 'Complete center setup support, AIOT diagnostic tools access, Certified technician training, Lead generation support, Fleet management contracts';
+    List<String> serviceCenterBenefits = serviceCenterBenefitsStr.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+
+    if (isMobile) {
+      return Column(
+        children: [
+          _buildFranchiseCard(
+            context,
+            title: content['sparePartsTitle'] ?? 'Spare Parts Dealer',
+            description: content['sparePartsDesc'] ?? 'Become an authorized FIXXEV spare parts distributor.',
+            imageUrl: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800',
+            benefits: sparePartsBenefits,
+            icon: Icons.inventory_2,
+          ),
+          const SizedBox(height: 40),
+          _buildFranchiseCard(
+            context,
+            title: content['serviceCenterTitle'] ?? 'Service Center Dealer',
+            description: content['serviceCenterDesc'] ?? 'Open an authorized FIXXEV service center.',
+            imageUrl: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800',
+            benefits: serviceCenterBenefits,
+            icon: Icons.build_circle,
+          ),
+        ],
+      );
+    }
+    
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: _buildFranchiseCard(
+            context,
+            title: content['sparePartsTitle'] ?? 'Spare Parts Dealer',
+            description: content['sparePartsDesc'] ?? 'Become an authorized FIXXEV spare parts distributor.',
+            imageUrl: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800',
+            benefits: sparePartsBenefits,
+            icon: Icons.inventory_2,
+          ),
+        ),
+        const SizedBox(width: 40),
+        Expanded(
+          child: _buildFranchiseCard(
+            context,
+            title: content['serviceCenterTitle'] ?? 'Service Center Dealer',
+            description: content['serviceCenterDesc'] ?? 'Open an authorized FIXXEV service center.',
+            imageUrl: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800',
+            benefits: serviceCenterBenefits,
+            icon: Icons.build_circle,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFranchiseCard(
+    BuildContext context, {
+    required String title,
+    required String description,
+    required String imageUrl,
+    required List<String> benefits,
+    required IconData icon,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 30,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Image
+          Container(
+            height: 220,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: NetworkImage(imageUrl),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.primaryNavy.withOpacity(0.7),
+                    Colors.transparent,
+                  ],
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                ),
+              ),
+              padding: const EdgeInsets.all(24),
+              alignment: Alignment.bottomLeft,
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.accentBlue,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(icon, color: Colors.white, size: 28),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: AppTextStyles.sectionTitle.copyWith(
+                        fontSize: 24,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Content
+          Padding(
+            padding: const EdgeInsets.all(28),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const TextSpan(text: 'CKD Containers '),
-                TextSpan(
-                  text: 'Smarter\nShowrooms, Built for\nPerformance.',
-                  style: TextStyle(color: AppColors.primaryNavy),
+                Text(
+                  description,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textGrey,
+                    height: 1.6,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'Key Benefits:',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primaryNavy,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ...benefits.map((benefit) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Row(
+                        children: [
+                          Icon(Icons.check_circle, color: AppColors.accentTeal, size: 20),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              benefit,
+                              style: AppTextStyles.bodyMedium.copyWith(fontSize: 14),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: PrimaryButton(
+                    text: 'ENQUIRE NOW',
+                    onPressed: () => context.go('/contact'),
+                    icon: Icons.arrow_forward,
+                  ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 24),
-          Text(
-            'Our CKD containers are designed for speed and efficiency, providing a complete showroom experience in a compact, modular format.',
-            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
-          ),
-          const SizedBox(height: 32),
-          _FeaturePoint(text: 'Rapid deployment in under 4 weeks'),
-          _FeaturePoint(text: 'High visibility and modern showroom design'),
-          _FeaturePoint(text: 'Secure and durable construction'),
-          _FeaturePoint(text: 'Easily relocatable and modular architecture'),
-      ],
-    );
-  }
-}
-
-class _FeaturePoint extends StatelessWidget {
-  final String text;
-  const _FeaturePoint({super.key, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        children: [
-          const Icon(Icons.check_circle, color: AppColors.accentRed, size: 20),
-          const SizedBox(width: 12),
-          Expanded(child: Text(text, style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.bold))),
         ],
       ),
     );
   }
 }
 
-class _CheckListItem extends StatelessWidget {
-  final String text;
-  const _CheckListItem({super.key, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: const BoxDecoration(color: AppColors.accentRed, shape: BoxShape.circle),
-            child: const Icon(Icons.check, size: 12, color: Colors.white),
-          ),
-          const SizedBox(width: 16),
-          Expanded(child: Text(text, style: AppTextStyles.bodyMedium)),
-        ],
-      ),
-    );
-  }
-}
-
-
-// 3. Why Partner With Us (Dark Section)
+// 4. Why Partner Section
 class _WhyPartnerSection extends StatelessWidget {
-  const _WhyPartnerSection();
+  final Map<String, dynamic> content;
+  const _WhyPartnerSection({required this.content});
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 900;
+
     return Container(
-      color: AppColors.primaryNavy,
-      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: Column(
-            children: [
-              const SectionHeader(
-                title: 'Why Choose Fixx EV as Your Partner?',
-                label: 'PARTNERSHIP BENEFITS',
-                centered: true,
-                isLight: true,
-              ),
-              const SizedBox(height: 80),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final isMobile = constraints.maxWidth < 600;
-                  return Wrap(
-                    spacing: 30,
-                    runSpacing: 40,
-                    alignment: WrapAlignment.center,
-                    children: [
-                      _BenefitCard(
-                        icon: Icons.engineering,
-                        title: 'Technical Support',
-                        desc: 'Access to professionally trained technicians and experts.',
-                        isMobile: isMobile,
-                      ),
-                      _BenefitCard(
-                        icon: Icons.trending_up,
-                        title: 'High ROI',
-                        desc: 'Efficient business model with rapid break-even potential.',
-                        isMobile: isMobile,
-                      ),
-                      _BenefitCard(
-                        icon: Icons.local_shipping,
-                        title: 'Supply Chain',
-                        desc: 'Reliable access to OEM-certified spares and logistics.',
-                        isMobile: isMobile,
-                      ),
-                      _BenefitCard(
-                        icon: Icons.campaign,
-                        title: 'Marketing Support',
-                        desc: 'Growth through our centralized digital marketing tools.',
-                        isMobile: isMobile,
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
+      padding: EdgeInsets.symmetric(
+        vertical: 100,
+        horizontal: isMobile ? 24 : 80,
       ),
-    );
-  }
-}
-
-class _BenefitCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String desc;
-  final bool isMobile;
-
-  const _BenefitCard({required this.icon, required this.title, required this.desc, required this.isMobile});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: isMobile ? double.infinity : 260,
+      color: AppColors.primaryNavy,
       child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white.withOpacity(0.1)),
+          Text(
+            '// WHY CHOOSE US',
+            style: AppTextStyles.sectionLabel.copyWith(
+              color: AppColors.accentTeal,
+              letterSpacing: 2,
             ),
-            child: Icon(icon, size: 32, color: AppColors.accentRed),
           ),
-          const SizedBox(height: 24),
-          Text(title, style: AppTextStyles.cardTitle.copyWith(color: Colors.white)),
-          const SizedBox(height: 12),
-          Text(desc, style: AppTextStyles.bodySmall.copyWith(color: Colors.white54), textAlign: TextAlign.center),
-        ],
-      ),
-    );
-  }
-}
-
-
-// 4. Network Map
-class _NetworkMapSection extends StatelessWidget {
-  const _NetworkMapSection();
-
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final isMobile = size.width < 900;
-
-    return Container(
-      color: AppColors.backgroundLight,
-      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: isMobile
-              ? Column(
-                  children: [
-                    const SizedBox(height: 400, child: _GoogleMap()),
-                    const SizedBox(height: 40),
-                    _buildContent(isMobile),
-                  ],
-                )
-              : Row(
-                  children: [
-                    const Expanded(child: SizedBox(height: 500, child: _GoogleMap())),
-                    const SizedBox(width: 80),
-                    Expanded(child: _buildContent(isMobile)),
-                  ],
-                ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildContent(bool isMobile) {
-    return Column(
-      crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
-      children: [
-        RichText(
-          text: TextSpan(
-            style: AppTextStyles.sectionTitle.copyWith(fontSize: 36, height: 1.2),
-            children: [
-              const TextSpan(text: 'We are reaching every\n'),
-              TextSpan(
-                text: 'corner of India',
-                style: const TextStyle(color: AppColors.primaryNavy),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 24),
-        Text(
-          'Our mission is to make EV servicing accessible to everyone. We are rapidly expanding our network to ensure that no matter where you are, a Fixx EV authorized service centre is nearby.',
-          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
-          textAlign: isMobile ? TextAlign.center : TextAlign.left,
-        ),
-        const SizedBox(height: 32),
-        const _CheckPoint(text: 'Pan-India network of 500+ centres'),
-        const _CheckPoint(text: 'Standardized service processes'),
-        const _CheckPoint(text: 'Skilled technician support'),
-        const _CheckPoint(text: 'OEM-approved spares access'),
-      ],
-    );
-  }
-}
-
-class _CheckPoint extends StatelessWidget {
-  final String text;
-  const _CheckPoint({super.key, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.check_circle, color: AppColors.primaryNavy, size: 20),
-          const SizedBox(width: 12),
-          Text(text, style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
-}
-
-class _GoogleMap extends StatelessWidget {
-  const _GoogleMap({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    // Register the iframe view factory
-    // ignore: undefined_prefixed_name
-    ui_web.platformViewRegistry.registerViewFactory(
-      'google-maps-embed-fixx',
-      (int viewId) => html.IFrameElement()
-        ..src = 'https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d12082197.308827797!2d78.91756949306756!3d23.687872306691254!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1767074470784!5m2!1sen!2sin'
-        ..style.border = 'none'
-        ..style.height = '100%'
-        ..style.width = '100%'
-        ..allowFullscreen = true,
-    );
-
-    return const HtmlElementView(viewType: 'google-maps-embed-fixx');
-  }
-}
-
-class _VideoPlayer extends StatelessWidget {
-  const _VideoPlayer({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    // Register the video element view factory
-    // ignore: undefined_prefixed_name
-    ui_web.platformViewRegistry.registerViewFactory(
-      'local-video-embed-fixx',
-      (int viewId) {
-        final videoElement = html.VideoElement()
-          ..src = 'assets/dealership_video.mp4' // Local asset path
-          ..style.border = 'none'
-          ..style.height = '100%'
-          ..style.width = '100%'
-          ..style.objectFit = 'cover' // Ensure it fills the container
-          ..autoplay = true
-          ..loop = true
-          ..muted = true; // Required for autoplay
-        
-        // Ensure play is called (sometimes needed for strict browser policies)
-        videoElement.play();
-        
-        return videoElement;
-      }
-    );
-
-    return const HtmlElementView(viewType: 'local-video-embed-fixx');
-  }
-}
-
-// 5. Deployment Process
-class _DeploymentProcessSection extends StatelessWidget {
-  const _DeploymentProcessSection({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.primaryNavy,
-      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
-      child: Column(
-        children: [
-          const SectionHeader(
-            title: 'Process of Dealership',
-            label: 'ROADMAP',
-            centered: true,
-            isLight: true,
-          ),
-          const SizedBox(height: 80),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final isMobile = constraints.maxWidth < 800;
-              if (isMobile) {
-                return Column(
-                  children: const [
-                    _StepItem(number: '01', title: 'Submit Inquiry', desc: 'Fill the form to start your journey'),
-                    SizedBox(height: 40),
-                    _StepItem(number: '02', title: 'Site Selection', desc: 'Our experts help in finding the best spot'),
-                    SizedBox(height: 40),
-                    _StepItem(number: '03', title: 'Grand Launch', desc: 'Deployment and marketing support'),
-                  ],
-                );
-              }
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                    const Expanded(child: _StepItem(number: '01', title: 'Submit Inquiry', desc: 'Fill the form to start your journey')),
-                    const Icon(Icons.arrow_forward, color: Colors.white24, size: 40),
-                    const Expanded(child: _StepItem(number: '02', title: 'Site Selection', desc: 'Our experts help in finding the best spot')),
-                    const Icon(Icons.arrow_forward, color: Colors.white24, size: 40),
-                    const Expanded(child: _StepItem(number: '03', title: 'Grand Launch', desc: 'Deployment and marketing support')),
-                ],
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StepItem extends StatelessWidget {
-  final String number;
-  final String title;
-  final String desc;
-
-  const _StepItem({
-    required this.number,
-    required this.title,
-    required this.desc,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(number, style: AppTextStyles.heroTitle.copyWith(fontSize: 48, color: Colors.white12)),
-        const SizedBox(height: 16),
-        Text(title, style: AppTextStyles.cardTitle.copyWith(color: Colors.white, fontSize: 20)),
-        const SizedBox(height: 8),
-        Text(desc, style: AppTextStyles.bodySmall.copyWith(color: Colors.white70), textAlign: TextAlign.center),
-      ],
-    );
-  }
-}
-
-class _ProcessStep extends StatelessWidget {
-  final String number;
-  final String title;
-  final String desc;
-
-  const _ProcessStep({
-    required this.number,
-    required this.title,
-    required this.desc,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 220,
-      margin: const EdgeInsets.only(bottom: 30),
-      child: Column(
-        children: [
-          Text(number, style: AppTextStyles.heroTitle.copyWith(fontSize: 60, fontWeight: FontWeight.bold, color: AppColors.textGrey.withAlpha(25))),
-          const SizedBox(height: 10),
-          Text(title, style: AppTextStyles.cardTitle.copyWith(fontSize: 20)),
-          const SizedBox(height: 8),
-          Text(desc, style: AppTextStyles.bodySmall, textAlign: TextAlign.center),
-        ],
-      ),
-    );
-  }
-}
-
-// 6. Model Showcase
-class _ModelShowcaseSection extends StatelessWidget {
-  const _ModelShowcaseSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.backgroundLight,
-      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
-      child: Column(
-        children: [
-          const SectionHeader(
-            title: 'Choose Your Franchise Model',
-            label: 'PARTNERSHIP MODELS',
-            centered: true,
+          const SizedBox(height: 16),
+          Text(
+            content['whyPartnerTitle'] ?? 'Why Partner With FIXXEV?',
+            style: AppTextStyles.sectionTitleLight.copyWith(
+              fontSize: isMobile ? 28 : 36,
+            ),
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 60),
           Wrap(
@@ -820,132 +623,235 @@ class _ModelShowcaseSection extends StatelessWidget {
             runSpacing: 30,
             alignment: WrapAlignment.center,
             children: [
-              _ModelCard(
-                name: 'EV Spare Parts Micro-Outlet',
-                type: 'MODEL 1',
-                image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', // Replace with store image
-                features: ['Size: 200-300 sq. ft', 'Retail Focused', 'Low Investment', 'Ideal for High Footfall'],
+              _buildStatCard('20+', 'Years Combined Experience'),
+              _buildStatCard('50+', 'Cities Covered'),
+              _buildStatCard('5000+', 'Happy Customers'),
+              _buildStatCard('24/7', 'Support Available'),
+            ],
+          ),
+          const SizedBox(height: 60),
+          Container(
+            constraints: const BoxConstraints(maxWidth: 800),
+            child: Text(
+              content['whyPartnerDesc'] ?? 'FIXXEV is backed by industry veterans with over 20 years of experience in the EV space. Our partners get access to cutting-edge technology, comprehensive training, and continuous support to build a successful business.',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: Colors.white.withOpacity(0.8),
+                height: 1.7,
+                fontSize: 16,
               ),
-              _ModelCard(
-                name: 'Parts + Service Center',
-                type: 'MODEL 2',
-                image: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', // Workshop image
-                features: ['Size: 500-800 sq. ft', 'Retail + Service', 'Diagnostic Bay', 'Higher ROI'],
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatCard(String value, String label) {
+    return Container(
+      width: 200,
+      padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+      ),
+      child: Column(
+        children: [
+          Text(
+            value,
+            style: AppTextStyles.sectionTitle.copyWith(
+              fontSize: 40,
+              color: AppColors.accentBlue,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: Colors.white.withOpacity(0.8),
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// 5. Inquiry Form Section
+class _InquiryFormSection extends StatefulWidget {
+  const _InquiryFormSection();
+
+  @override
+  State<_InquiryFormSection> createState() => _InquiryFormSectionState();
+}
+
+class _InquiryFormSectionState extends State<_InquiryFormSection> {
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _cityController = TextEditingController();
+  String _selectedType = 'Spare Parts Dealer';
+  bool _isSubmitting = false;
+  final ApiService _apiService = ApiService();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _cityController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submitInquiry() async {
+    if (_nameController.text.isEmpty || _phoneController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in Name and Phone')),
+      );
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+
+    final success = await _apiService.submitLead({
+      'name': _nameController.text,
+      'email': _emailController.text,
+      'phone': _phoneController.text,
+      'type': 'Franchise',
+      'message': 'Franchise Inquiry: $_selectedType from ${_cityController.text}',
+      'details': {
+        'city': _cityController.text,
+        'franchiseType': _selectedType,
+      },
+    });
+
+    if (mounted) {
+      setState(() => _isSubmitting = false);
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Inquiry submitted successfully!')),
+        );
+        _nameController.clear();
+        _phoneController.clear();
+        _emailController.clear();
+        _cityController.clear();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to submit. Please try again.')),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 900;
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        vertical: 100,
+        horizontal: isMobile ? 24 : 80,
+      ),
+      color: Colors.white,
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 600),
+          padding: const EdgeInsets.all(40),
+          decoration: BoxDecoration(
+            color: AppColors.backgroundLight,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.accentBlue.withOpacity(0.1),
+                blurRadius: 40,
+                offset: const Offset(0, 15),
               ),
             ],
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ModelCard extends StatelessWidget {
-  final String name;
-  final String type;
-  final String image;
-  final List<String> features;
-
-  const _ModelCard({
-    required this.name,
-    required this.type,
-    required this.image,
-    this.features = const [],
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 320,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20)],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Image.network(image, height: 200, width: double.infinity, fit: BoxFit.cover),
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(type, style: AppTextStyles.bodySmall.copyWith(color: AppColors.accentRed, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 8),
-                Text(name, style: AppTextStyles.cardTitle),
-                const SizedBox(height: 16),
-                ...features.map((feature) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.check_circle_outline, size: 16, color: AppColors.primaryNavy),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(feature, style: AppTextStyles.bodySmall.copyWith(fontSize: 13))),
-                    ],
-                  ),
-                )).toList(),
-                const SizedBox(height: 16),
-                PrimaryButton(
-                  text: 'VIEW DETAILS',
-                  onPressed: (){},
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                )
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PulsingMapDot extends StatelessWidget {
-  final double top;
-  final double left;
-  final String label;
-
-  const _PulsingMapDot({
-    required this.top,
-    required this.left,
-    required this.label,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      top: top,
-      left: left,
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: AppColors.accentRed.withOpacity(0.3),
-              shape: BoxShape.circle,
-            ),
-            child: Container(
-              width: 12, height: 12,
-              decoration: const BoxDecoration(
-                color: AppColors.accentRed,
-                shape: BoxShape.circle,
+          child: Column(
+            children: [
+              Text(
+                'Start Your Franchise Journey',
+                style: AppTextStyles.sectionTitle.copyWith(fontSize: 28),
+                textAlign: TextAlign.center,
               ),
-            ),
+              const SizedBox(height: 8),
+              Text(
+                'Fill in your details and we\'ll get back to you',
+                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey),
+              ),
+              const SizedBox(height: 32),
+              _buildTextField(_nameController, 'Full Name', Icons.person_outline),
+              const SizedBox(height: 16),
+              _buildTextField(_emailController, 'Email Address', Icons.email_outlined),
+              const SizedBox(height: 16),
+              _buildTextField(_phoneController, 'Phone Number', Icons.phone_outlined),
+              const SizedBox(height: 16),
+              _buildTextField(_cityController, 'City', Icons.location_city_outlined),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _selectedType,
+                    isExpanded: true,
+                    items: ['Spare Parts Dealer', 'Service Center Dealer']
+                        .map((type) => DropdownMenuItem(
+                              value: type,
+                              child: Text(type),
+                            ))
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => _selectedType = value);
+                      }
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: PrimaryButton(
+                  text: _isSubmitting ? 'SUBMITTING...' : 'SUBMIT INQUIRY',
+                  onPressed: _isSubmitting ? null : _submitInquiry,
+                  icon: Icons.send,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.9),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Text(
-              label, 
-              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primaryNavy)
-            ),
-          ),
-        ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String hint, IconData icon) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        hintText: hint,
+        prefixIcon: Icon(icon, color: AppColors.textMuted),
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade200),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade200),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.accentBlue, width: 2),
+        ),
       ),
     );
   }

@@ -4,7 +4,8 @@ import 'package:fixxev/core/theme/app_text_styles.dart';
 import 'package:fixxev/widgets/buttons/primary_button.dart';
 
 class JoinMissionSection extends StatelessWidget {
-  const JoinMissionSection({super.key});
+  final Map<String, dynamic> content;
+  const JoinMissionSection({super.key, required this.content});
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +37,7 @@ class JoinMissionSection extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'DRIVING INDIA’S EV FUTURE',
+                content['joinTitle'] ?? 'DRIVING INDIA’S EV FUTURE',
                 textAlign: TextAlign.center,
                 style: isMobile
                     ? AppTextStyles.sectionTitleLight.copyWith(fontSize: 32)
@@ -44,7 +45,7 @@ class JoinMissionSection extends StatelessWidget {
               ),
               const SizedBox(height: 32),
               Text(
-                'If you are an investor, partner, or entrepreneur who believes in the future of clean mobility, you are most welcome to join this mission and grow with us.',
+                content['joinSubtitle'] ?? 'If you are an investor, partner, or entrepreneur who believes in the future of clean mobility, you are most welcome to join this mission and grow with us.',
                 textAlign: TextAlign.center,
                 style: AppTextStyles.bodyLarge.copyWith(
                   color: AppColors.textLight.withAlpha(200),
