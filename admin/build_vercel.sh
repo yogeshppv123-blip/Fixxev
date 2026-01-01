@@ -30,4 +30,10 @@ else
     flutter build web --release --no-tree-shake-icons
 fi
 
-echo "✅  Build Complete! Output in build/web"
+# Move build output to public directory (Standard for Vercel)
+echo "📂 Moving build output to 'public' folder..."
+rm -rf public
+mkdir -p public
+cp -r build/web/* public/
+
+echo "✅  Build Complete! Output is in 'public' folder"
