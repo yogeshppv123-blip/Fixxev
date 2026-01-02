@@ -472,20 +472,20 @@ class _WhyChooseDarkSection extends StatelessWidget {
           }).toList()
         : [
       {
-        'title': content['whyItem1Title'] ?? '🔹 Product Sourcing',
-        'desc': content['whyItem1Desc'] ?? 'We connect you with reliable, audited EV factories producing proven low-speed scooter platforms.'
+        'title': content['whyItem1Title'] ?? '🔹 Product Sourcing & Compatibility Testing',
+        'desc': content['whyItem1Desc'] ?? 'We connect you with reliable, audited EV factories producing proven low-speed scooter platforms. Our team handles rigorous compatibility testing to ensure components meet Indian road conditions and user expectations before you commit to a brand launch.'
       },
       {
-        'title': content['whyItem2Title'] ?? '🔹 CKD Import & Logistics',
-        'desc': content['whyItem2Desc'] ?? 'We manage Factory coordination, CKD packing, Export documentation, Shipping & customs clearance, and Port-to-factory movement.'
+        'title': content['whyItem2Title'] ?? '🔹 CKD Import & Logistics Handling',
+        'desc': content['whyItem2Desc'] ?? 'Our team manages the entire complex import chain, including factory coordination, professional CKD packing, export documentation, international shipping, and customs clearance. We ensure secure port-to-factory movement so you can focus on your business while we handle the global logistics.'
       },
       {
-        'title': content['whyItem3Title'] ?? '🔹 Local Assembly & Quality Control',
-        'desc': content['whyItem3Desc'] ?? 'Fixx EV supports Assembly line setup, Technician training, Quality inspection, PDI & testing.'
+        'title': content['whyItem3Title'] ?? '🔹 Local Assembly & Quality Assurance',
+        'desc': content['whyItem3Desc'] ?? 'Fixx EV provides hands-on support for assembly line setup, technician training, and standard operating procedures (SOPs). We implement multi-stage quality inspections, PDI protocols, and stress testing to ensure every vehicle rolling off your line is market-ready and reliable.'
       },
       {
-        'title': content['whyItem4Title'] ?? '🔹 Branding & Model Customisation',
-        'desc': content['whyItem4Desc'] ?? 'We help you create Your own brand, Model names, Colour options, Stickering & decals, Packaging & manuals.'
+        'title': content['whyItem4Title'] ?? '🔹 Branding, Marketing & GTM Support',
+        'desc': content['whyItem4Desc'] ?? 'We help you transform generic kits into a premium brand. This includes designing your brand identity, model-specific decal sets, Indianized packaging, and user manuals. Beyond the product, we assist in market positioning and dealer network strategies to ensure a successful launch.'
       },
     ];
 
