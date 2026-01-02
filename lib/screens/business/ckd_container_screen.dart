@@ -508,26 +508,66 @@ class _WhyChooseDarkSection extends StatelessWidget {
                 style: AppTextStyles.bodyLarge.copyWith(color: Colors.white70),
               ),
               const SizedBox(height: 50),
-              Wrap(
-                spacing: 24,
-                runSpacing: 24,
-                children: features.map((f) => Container(
-                  width: isMobile ? double.infinity : 500, // Wider cards
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.white.withOpacity(0.2)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(f['title']!, style: AppTextStyles.cardTitle.copyWith(color: Colors.white, fontSize: 20)),
-                      const SizedBox(height: 12),
-                      Text(f['desc']!, style: AppTextStyles.bodyMedium.copyWith(color: Colors.white70, height: 1.5)),
-                    ],
-                  ),
-                )).toList(),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final crossAxisCount = isMobile ? 1 : (constraints.maxWidth > 900 ? 2 : 1);
+                  final itemWidth = (constraints.maxWidth - (crossAxisCount - 1) * 24) / crossAxisCount;
+                  
+                  return GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      crossAxisSpacing: 24,
+                      mainAxisSpacing: 24,
+                      childAspectRatio: isMobile ? 1.5 : (constraints.maxWidth > 1000 ? 2.2 : 1.8),
+                    ),
+                    itemCount: features.length,
+                    itemBuilder: (context, index) {
+                      final f = features[index];
+                      return Container(
+                        padding: const EdgeInsets.all(28),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.white.withOpacity(0.15)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              f['title']!, 
+                              style: AppTextStyles.cardTitle.copyWith(
+                                color: Colors.white, 
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              )
+                            ),
+                            const SizedBox(height: 16),
+                            Expanded(
+                              child: Text(
+                                f['desc']!, 
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  color: Colors.white.withOpacity(0.85), 
+                                  height: 1.6,
+                                  fontSize: 14,
+                                ),
+                                overflow: TextOverflow.fade,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
             ],
           ),

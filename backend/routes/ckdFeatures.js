@@ -70,29 +70,29 @@ router.post('/seed', async (req, res) => {
         const defaultFeatures = [
             {
                 title: 'Product Sourcing & Compatibility Testing',
-                subtitle: 'Sourcing',
-                description: 'We identify and procure high-quality EV components, ensuring complete compatibility for Indian road conditions.',
+                subtitle: 'Strategic Sourcing',
+                description: 'At Fixx EV, we specialize in identifying and procuring high-quality EV components from audited global factories. Our expert team conducts rigorous compatibility testing and bench-marking to ensure that every part—from battery cells to powertrain controllers—is perfectly optimized for Indian road conditions and climate.',
                 category: 'Support',
                 order: 1,
             },
             {
                 title: 'CKD Import & Logistics Handling',
-                subtitle: 'Logistics',
-                description: 'Our team manages the complex import process, customs clearance, and secure transportation of CKD kits.',
+                subtitle: 'Seamless Logistics',
+                description: 'Navigating international trade can be complex. We manage the entire import lifecycle for your brand, including factory coordination, secure CKD packing, export documentation, international shipping, and customs clearance at Indian ports. We ensure your kits arrive safely and on time at your assembly unit.',
                 category: 'Support',
                 order: 2,
             },
             {
                 title: 'Local Assembly Support & Quality Checks',
-                subtitle: 'Assembly',
-                description: 'We provide technical guidance for local assembly and rigorous quality control protocols to ensure safety.',
+                subtitle: 'Precision Assembly',
+                description: 'Launch your assembly operations with confidence. We provide detailed technical guidance for setting up local assembly lines, along with standardized technician training modules. Our multi-stage quality control protocols and PDI (Pre-Delivery Inspection) systems guarantee that every vehicle meets safety standards.',
                 category: 'Support',
                 order: 3,
             },
             {
                 title: 'Branding, Marketing & Sales Support',
-                subtitle: 'Growth',
-                description: 'Leverage our brand assets and marketing strategies to launch your dealership and drive sales effectively.',
+                subtitle: 'Brand Growth',
+                description: 'Transform generic EV kits into a powerful local brand. We assist you with brand identity design, localized marketing strategies, and dealer network expansion. From digital presence to physical showroom branding, we provide the tools and support needed to drive sales and scale your EV business rapidly.',
                 category: 'Support',
                 order: 4,
             }
