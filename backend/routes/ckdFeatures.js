@@ -71,28 +71,28 @@ router.post('/seed', async (req, res) => {
             {
                 title: 'Product Sourcing & Compatibility Testing',
                 subtitle: 'Strategic Sourcing',
-                description: 'At Fixx EV, we specialize in identifying and procuring high-quality EV components from audited global factories. Our expert team conducts rigorous compatibility testing and bench-marking to ensure that every part—from battery cells to powertrain controllers—is perfectly optimized for Indian road conditions and climate.',
+                description: 'We connect you with reliable, audited EV factories producing proven low-speed platforms. Our team handles rigorous compatibility testing to ensure components meet Indian road conditions and user expectations before you commit to a brand launch.',
                 category: 'Support',
                 order: 1,
             },
             {
                 title: 'CKD Import & Logistics Handling',
                 subtitle: 'Seamless Logistics',
-                description: 'Navigating international trade can be complex. We manage the entire import lifecycle for your brand, including factory coordination, secure CKD packing, export documentation, international shipping, and customs clearance at Indian ports. We ensure your kits arrive safely and on time at your assembly unit.',
+                description: 'Our team manages the entire complex import chain, including factory coordination, professional CKD packing, export documentation, international shipping, and customs clearance. We ensure secure port-to-factory movement for your kits.',
                 category: 'Support',
                 order: 2,
             },
             {
                 title: 'Local Assembly Support & Quality Checks',
                 subtitle: 'Precision Assembly',
-                description: 'Launch your assembly operations with confidence. We provide detailed technical guidance for setting up local assembly lines, along with standardized technician training modules. Our multi-stage quality control protocols and PDI (Pre-Delivery Inspection) systems guarantee that every vehicle meets safety standards.',
+                description: 'Fixx EV provides hands-on support for assembly line setup, technician training, and standard operating procedures (SOPs). We implement multi-stage quality inspections and rigorous testing to ensure every vehicle is market-ready and reliable.',
                 category: 'Support',
                 order: 3,
             },
             {
                 title: 'Branding, Marketing & Sales Support',
                 subtitle: 'Brand Growth',
-                description: 'Transform generic EV kits into a powerful local brand. We assist you with brand identity design, localized marketing strategies, and dealer network expansion. From digital presence to physical showroom branding, we provide the tools and support needed to drive sales and scale your EV business rapidly.',
+                description: 'We help you transform generic kits into a premium brand. This includes designing your brand identity, model-specific decals, Indianized packaging, and user manuals. Beyond product, we assist in market positioning and dealer strategies.',
                 category: 'Support',
                 order: 4,
             }

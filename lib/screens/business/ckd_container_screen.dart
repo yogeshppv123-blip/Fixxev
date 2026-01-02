@@ -477,21 +477,21 @@ class _WhyChooseDarkSection extends StatelessWidget {
       },
       {
         'title': content['whyItem2Title'] ?? '🔹 CKD Import & Logistics Handling',
-        'desc': content['whyItem2Desc'] ?? 'Our team manages the entire complex import chain, including factory coordination, professional CKD packing, export documentation, international shipping, and customs clearance. We ensure secure port-to-factory movement so you can focus on your business while we handle the global logistics.'
+        'desc': content['whyItem2Desc'] ?? 'Our team manages the entire complex import chain, including factory coordination, professional CKD packing, export documentation, international shipping, and customs clearance. We ensure secure port-to-factory movement for your kits.'
       },
       {
         'title': content['whyItem3Title'] ?? '🔹 Local Assembly & Quality Assurance',
-        'desc': content['whyItem3Desc'] ?? 'Fixx EV provides hands-on support for assembly line setup, technician training, and standard operating procedures (SOPs). We implement multi-stage quality inspections, PDI protocols, and stress testing to ensure every vehicle rolling off your line is market-ready and reliable.'
+        'desc': content['whyItem3Desc'] ?? 'Fixx EV provides hands-on support for assembly line setup, technician training, and standard operating procedures (SOPs). We implement multi-stage quality inspections and rigorous testing to ensure every vehicle is market-ready and reliable.'
       },
       {
         'title': content['whyItem4Title'] ?? '🔹 Branding, Marketing & GTM Support',
-        'desc': content['whyItem4Desc'] ?? 'We help you transform generic kits into a premium brand. This includes designing your brand identity, model-specific decal sets, Indianized packaging, and user manuals. Beyond the product, we assist in market positioning and dealer network strategies to ensure a successful launch.'
+        'desc': content['whyItem4Desc'] ?? 'We help you transform generic kits into a premium brand. This includes designing your brand identity, model-specific decals, Indianized packaging, and user manuals. Beyond product, we assist in market positioning and dealer strategies.'
       },
     ];
 
     return Container(
       color: AppColors.primary, // Electric Blue
-      padding: EdgeInsets.symmetric(vertical: 80, horizontal: isMobile ? 24 : 80),
+      padding: EdgeInsets.symmetric(vertical: 65, horizontal: isMobile ? 24 : 80),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 1200),
@@ -520,7 +520,7 @@ class _WhyChooseDarkSection extends StatelessWidget {
                       crossAxisCount: crossAxisCount,
                       crossAxisSpacing: 24,
                       mainAxisSpacing: 24,
-                      childAspectRatio: isMobile ? 1.5 : (constraints.maxWidth > 1000 ? 2.2 : 1.8),
+                      childAspectRatio: isMobile ? 1.6 : (constraints.maxWidth > 1000 ? 2.5 : 2.1),
                     ),
                     itemCount: features.length,
                     itemBuilder: (context, index) {
@@ -852,7 +852,7 @@ class _ProcessDarkSection extends StatelessWidget {
     
     return Container(
       color: AppColors.primary,
-      padding: EdgeInsets.symmetric(vertical: 80, horizontal: isMobile ? 24 : 80),
+      padding: EdgeInsets.symmetric(vertical: 65, horizontal: isMobile ? 24 : 80),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 1200),
@@ -878,12 +878,12 @@ class _ProcessDarkSection extends StatelessWidget {
                     crossAxisCount: crossAxisCount,
                     crossAxisSpacing: 20,
                     mainAxisSpacing: 20,
-                    childAspectRatio: isMobile ? 1.6 : (constraints.maxWidth > 1000 ? 0.85 : 0.7),
+                    childAspectRatio: isMobile ? 1.7 : (constraints.maxWidth > 1000 ? 1.05 : 0.85),
                     children: [
                       _DarkStep(
                         num: '01', 
                         title: content['step1Title'] ?? 'Contact Us', 
-                        desc: content['step1Desc'] ?? 'Get in touch with our team to discuss your EV business goals. We provide initial consulting on market trends, sourcing requirements, and capital investment to ensure you start on the right path.'
+                        desc: content['step1Desc'] ?? 'Get in touch with our team to discuss your EV business goals. We provide initial consulting on market trends, sourcing needs, and capital planning to ensure your business starts on the right path.'
                       ),
                       _DarkStep(
                         num: '02', 
@@ -893,12 +893,12 @@ class _ProcessDarkSection extends StatelessWidget {
                       _DarkStep(
                         num: '03', 
                         title: content['step3Title'] ?? 'Order Placement', 
-                        desc: content['step3Desc'] ?? 'Once the strategy is finalized, you place your orders through our secure portal. We coordinate with factory partners for component production and manage all export-import documentation on your behalf.'
+                        desc: content['step3Desc'] ?? 'Once the strategy is finalized, you place your orders through our secure portal. We coordinate with factory partners for component production and manage all export-import documentation for your team.'
                       ),
                       _DarkStep(
                         num: '04', 
-                        title: content['step4Title'] ?? 'Delivery', 
-                        desc: content['step4Desc'] ?? 'We deliver your CKD containers on time to your facility. Our support doesn\'t end there—we provide assembly guidance, quality audit checklists, and logistics support to get your brand moving.'
+                        title: content['step4Title'] ?? 'Delivery Support', 
+                        desc: content['step4Desc'] ?? 'We deliver your CKD containers on time to your facility. Our support doesn\'t end there—we provide assembly guidance, quality audit checklists, and logistics support to get your new EV brand moving.'
                       ),
                     ],
                   );
