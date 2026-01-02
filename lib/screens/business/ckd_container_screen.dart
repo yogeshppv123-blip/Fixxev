@@ -97,13 +97,13 @@ class _CKDContainerScreenState extends State<CKDContainerScreen> {
                     _SmarterShowroomsSection(content: content),
                     
                     // 5. Scalable Future (Stacked Cards)
-                    _ScalableFutureSection(),
+                    _ScalableFutureSection(content: content),
                     
                     // 6. Process (Dark Steps)
-                    _ProcessDarkSection(),
+                    _ProcessDarkSection(content: content),
                     
                     // 7. Network Map (Map Left, Text Right)
-                    _NetworkMapSection(),
+                    _NetworkMapSection(content: content),
                     
                     // 8. Models Grid
                     _ModelsGridSection(),
@@ -224,8 +224,13 @@ class _HeroWithFormSection extends StatelessWidget {
         left: isMobile ? 24 : 80,
         right: isMobile ? 24 : 80,
       ),
-      decoration: const BoxDecoration(
-        color: Color(0xFFF5F7FA), // Light greyish white
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F7FA), // Light greyish white
+        image: DecorationImage(
+          image: AssetImage('assets/images/c14.jpg'),
+          fit: BoxFit.cover,
+          opacity: 0.15,
+        ),
       ),
       child: Center(
         child: Container(
@@ -258,11 +263,11 @@ class _HeroWithFormSection extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: AppColors.accentBlue,
+            color: AppColors.accentTeal, // Updated to Green
             borderRadius: BorderRadius.circular(4),
           ),
           child: Text(
-            'EV Infrastructure',
+            content['heroTagline'] ?? 'START OR SCALE',
             style: AppTextStyles.bodySmall.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -272,18 +277,18 @@ class _HeroWithFormSection extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         Text(
-          content['heroTitle'] ?? 'Powering the Future of EV\nInfrastructure with Smart,\nRapid Deployment\nSolutions.',
+          content['heroTitle'] ?? 'Build Your Own EV Brand\nwith Fixx EV',
           style: AppTextStyles.heroTitle.copyWith(
-            color: AppColors.primaryNavy,
+            color: AppColors.primary, // Electric Blue
             fontSize: 48,
             height: 1.1,
           ),
         ),
         const SizedBox(height: 24),
         Text(
-          content['heroSubtitle'] ?? 'Reimagine EV stations with our modular CKD container models built for performance, speed, and scalability.',
+          content['heroSubtitle'] ?? 'At Fixx EV, we don’t just service electric vehicles — we help create EV brands.\n\nWith over 10 years of deep industry expertise in electric mobility, manufacturing, sourcing and after-sales, we enable entrepreneurs, dealers, fleet operators and startups to launch their own EV brand without the heavy risk and complexity of setting up everything alone.',
           style: AppTextStyles.bodyLarge.copyWith(
-            color: AppColors.textGrey,
+            color: AppColors.textDark,
             height: 1.6,
           ),
         ),
@@ -384,12 +389,25 @@ class _CommunitySection extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      content['communityTitle'] ?? 'Join the Fixx EV\nCommunity Get Your CKD\nContainer!',
-                      style: AppTextStyles.sectionTitle.copyWith(fontSize: 42),
+                      content['communityTitle'] ?? 'CKD Import & Assembly\nSolutions',
+                      style: AppTextStyles.sectionTitle.copyWith(fontSize: 42, color: AppColors.primary),
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      content['communityDesc'] ?? 'Our CKD showrooms offer a turnkey solution for entrepreneurs looking to enter the electric mobility market. Fast, efficient, and ready to deploy.',
+                      content['communityDesc'] ?? 'Fixx EV offers complete CKD (Completely Knocked Down) import solutions for both low-speed and high speed electric scooters.',
+                      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textDark, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: (content['communityItems'] != null
+                          ? (content['communityItems'] as String).split('\n').where((s) => s.trim().isNotEmpty).toList()
+                          : ['Launch your own EV brand', 'Control product quality', 'Improve margins', 'Build long-term market presence'])
+                          .map((item) => _buildBullet(item.trim())).toList(),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      content['communityConclusion'] ?? 'We handle everything — from factory sourcing in China to assembly, testing and go-to-market support in India.',
                       style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey),
                     ),
                   ],
@@ -403,8 +421,10 @@ class _CommunitySection extends StatelessWidget {
                     height: 350,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      image: const DecorationImage(
-                        image: NetworkImage('https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=800'),
+                      image: DecorationImage(
+                        image: content['communityImage'] != null && content['communityImage'].toString().isNotEmpty
+                            ? NetworkImage(content['communityImage'])
+                            : const AssetImage('assets/images/c14.jpg') as ImageProvider,
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -414,6 +434,19 @@ class _CommunitySection extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildBullet(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          const Icon(Icons.check_circle, color: AppColors.accentTeal, size: 20),
+          const SizedBox(width: 12),
+          Text(text, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textDark)),
+        ],
       ),
     );
   }
@@ -428,15 +461,36 @@ class _WhyChooseDarkSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 900;
     
-    final features = [
-      {'title': 'Fast Deployment', 'desc': 'Ready in 4 weeks'},
-      {'title': 'High Durability', 'desc': 'Built to last 20+ years'},
-      {'title': 'Instant ROI', 'desc': 'Low capex, high returns'},
-      {'title': 'Curated Models', 'desc': 'Customizable designs'},
+    final List<dynamic> ckdf = (content['ckdFeatures'] as List?) ?? [];
+    final supportFeatures = ckdf.where((f) => f['category'] == 'Support' && f['isActive'] == true).toList();
+
+    // Map to UI format
+    final features = supportFeatures.isNotEmpty 
+        ? supportFeatures.map((f) => {
+            'title': f['title'] ?? '',
+            'desc': f['description'] ?? '',
+          }).toList()
+        : [
+      {
+        'title': content['whyItem1Title'] ?? '🔹 Product Sourcing',
+        'desc': content['whyItem1Desc'] ?? 'We connect you with reliable, audited EV factories producing proven low-speed scooter platforms.'
+      },
+      {
+        'title': content['whyItem2Title'] ?? '🔹 CKD Import & Logistics',
+        'desc': content['whyItem2Desc'] ?? 'We manage Factory coordination, CKD packing, Export documentation, Shipping & customs clearance, and Port-to-factory movement.'
+      },
+      {
+        'title': content['whyItem3Title'] ?? '🔹 Local Assembly & Quality Control',
+        'desc': content['whyItem3Desc'] ?? 'Fixx EV supports Assembly line setup, Technician training, Quality inspection, PDI & testing.'
+      },
+      {
+        'title': content['whyItem4Title'] ?? '🔹 Branding & Model Customisation',
+        'desc': content['whyItem4Desc'] ?? 'We help you create Your own brand, Model names, Colour options, Stickering & decals, Packaging & manuals.'
+      },
     ];
 
     return Container(
-      color: const Color(0xFF111111), // Dark black layout
+      color: AppColors.primary, // Electric Blue
       padding: EdgeInsets.symmetric(vertical: 80, horizontal: isMobile ? 24 : 80),
       child: Center(
         child: Container(
@@ -445,27 +499,32 @@ class _WhyChooseDarkSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                content['whyChooseTitle'] ?? 'Why Choose Fixx EV as Your Partner:',
-                style: AppTextStyles.sectionTitleLight,
+                content['endToEndTitle'] ?? 'End-to-End EV Brand Launch Support',
+                style: AppTextStyles.sectionTitleLight.copyWith(fontSize: 36),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                content['endToEndDesc'] ?? 'When you partner with Fixx EV, you get a full-stack EV business solution:',
+                style: AppTextStyles.bodyLarge.copyWith(color: Colors.white70),
               ),
               const SizedBox(height: 50),
               Wrap(
                 spacing: 24,
                 runSpacing: 24,
                 children: features.map((f) => Container(
-                  width: isMobile ? double.infinity : 270,
+                  width: isMobile ? double.infinity : 500, // Wider cards
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.white.withOpacity(0.1)),
+                    border: Border.all(color: Colors.white.withOpacity(0.2)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(f['title']!, style: AppTextStyles.cardTitle.copyWith(color: Colors.white, fontSize: 18)),
-                      const SizedBox(height: 8),
-                      Text(f['desc']!, style: AppTextStyles.bodySmall.copyWith(color: Colors.grey)),
+                      Text(f['title']!, style: AppTextStyles.cardTitle.copyWith(color: Colors.white, fontSize: 20)),
+                      const SizedBox(height: 12),
+                      Text(f['desc']!, style: AppTextStyles.bodyMedium.copyWith(color: Colors.white70, height: 1.5)),
                     ],
                   ),
                 )).toList(),
@@ -486,7 +545,6 @@ class _SmarterShowroomsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 900;
-    final features = content['ckdFeatures'] as List<dynamic>? ?? [];
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: 100, horizontal: isMobile ? 24 : 80),
@@ -502,47 +560,33 @@ class _SmarterShowroomsSection extends StatelessWidget {
                   children: [
                     RichText(
                       text: TextSpan(
-                        style: AppTextStyles.sectionTitle.copyWith(fontSize: 36, height: 1.2),
+                        style: AppTextStyles.sectionTitle.copyWith(fontSize: 36, height: 1.2, color: AppColors.primary),
                         children: [
-                          const TextSpan(text: 'Modular CKD Showroom\n'),
-                          TextSpan(
-                            text: 'Smarter Showrooms, Built for Performance.',
-                            style: TextStyle(color: AppColors.accentBlue),
-                          ),
+                          TextSpan(text: content['smarterTitle'] ?? 'Sales, Service & Spare Parts Support'),
                         ],
                       ),
                     ),
                     const SizedBox(height: 32),
                     Text(
-                      'Our CKD containers are engineered to simplify dealership setup while maximizing efficiency:',
+                      content['smarterDesc'] ?? 'Launching a brand is not just about selling — it’s about supporting customers after sale.\n\nThrough Fixx EV’s nationwide EV Service Centres and India’s largest EV spares network, your brand gets:',
                       style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
                     ),
                     const SizedBox(height: 24),
-                    // Show dynamic features if available, otherwise static
-                    if (features.isNotEmpty)
-                      ...features.map((feature) => _CheckList(
-                        text: '${feature['title']} - ${feature['description'] ?? feature['subtitle'] ?? ''}',
-                        boldText: feature['title'] ?? '',
-                      ))
-                    else ...[
-                      _CheckList(text: 'Fully built containers with pre-installed infrastructure', boldText: 'pre-installed infrastructure'),
-                      _CheckList(text: 'Customizable layouts for sales, service, storage, or display', boldText: 'sales, service, storage, or display'),
-                      _CheckList(text: 'Quick installation with plug-and-play features', boldText: 'plug-and-play features'),
-                      _CheckList(text: 'Weatherproof, durable, and low-maintenance', boldText: ''),
-                      _CheckList(text: 'Built to reflect a premium EV retail experience', boldText: 'premium EV retail experience'),
-                    ],
+                    // Dynamic Checklist
+                    ...(content['smarterItems'] != null 
+                        ? (content['smarterItems'] as String).split('\n')
+                        : [
+                            'Service infrastructure',
+                            'Genuine spare parts',
+                            'Trained technicians',
+                            'Warranty support',
+                            'Nationwide coverage'
+                          ]).where((item) => item.trim().isNotEmpty).map((item) => _CheckList(text: item.trim(), boldText: '')),
+                    
                     const SizedBox(height: 24),
-                    RichText(
-                      text: TextSpan(
-                        style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
-                        children: [
-                          const TextSpan(text: "With our container-based model, you don't wait months for construction - you "),
-                          TextSpan(
-                            text: 'launch business, start selling, and generate revenue faster.',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryNavy),
-                          ),
-                        ],
-                      ),
+                    Text(
+                      'This gives your brand instant credibility and trust in the market.',
+                      style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textDark, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -552,29 +596,16 @@ class _SmarterShowroomsSection extends StatelessWidget {
                 Expanded(
                   flex: 5,
                   child: Container(
-                    height: 631,
+                    height: 500,
                     decoration: BoxDecoration(
                       color: Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20)],
                     ),
                     clipBehavior: Clip.antiAlias,
-                    child: Image.network(
-                      'https://plus.unsplash.com/premium_photo-1661932036915-4fd90bec6e8a?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y29udGFpbmVyfGVufDB8fDB8fHww',
-                      fit: BoxFit.cover,
-                      alignment: Alignment.center,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Center(
-                           child: Column(
-                             mainAxisSize: MainAxisSize.min,
-                             children: [
-                               Icon(Icons.broken_image, size: 40, color: Colors.grey),
-                               Text('Image not found', style: TextStyle(color: Colors.grey)),
-                             ],
-                           ),
-                        );
-                      },
-                    ),
+                    child: content['smarterImage'] != null && content['smarterImage'].toString().isNotEmpty
+                        ? Image.network(content['smarterImage'], fit: BoxFit.cover)
+                        : Image.asset('assets/images/c12.jpg', fit: BoxFit.cover),
                   ),
                 ),
               ]
@@ -635,6 +666,9 @@ class _CheckList extends StatelessWidget {
 
 // 5. Scalable Future: Image Left, Stacked Cards Right
 class _ScalableFutureSection extends StatelessWidget {
+  final Map<String, dynamic> content;
+  const _ScalableFutureSection({required this.content});
+
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 900;
@@ -654,8 +688,10 @@ class _ScalableFutureSection extends StatelessWidget {
                     height: 400,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
-                      image: const DecorationImage(
-                        image: NetworkImage('https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800'),
+                      image: DecorationImage(
+                        image: content['whyImage'] != null && content['whyImage'].toString().isNotEmpty
+                            ? NetworkImage(content['whyImage'])
+                            : const AssetImage('assets/images/c11.png') as ImageProvider,
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -668,26 +704,47 @@ class _ScalableFutureSection extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'It\'s low-risk, scalable, and\nfuture-ready.',
-                      style: AppTextStyles.sectionTitle.copyWith(fontSize: 36),
+                      content['whyFixxTitle'] ?? 'Why Fixx EV?',
+                      style: AppTextStyles.sectionTitle.copyWith(fontSize: 36, color: AppColors.primary),
                     ),
-                    const SizedBox(height: 40),
-                    _StackedCard(
-                      title: 'Setup Within 4 Weeks',
-                      subtitle: 'Rapid deployment model',
-                      color: AppColors.primaryNavy,
+                    const SizedBox(height: 24),
+                    Text(
+                      content['whyFixxSubtitle'] ?? 'With 10+ years of EV industry experience, Fixx EV has worked across:',
+                      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, fontSize: 16),
                     ),
-                    const SizedBox(height: 16),
-                    _StackedCard(
-                      title: 'Investment: ₹15-25 Lakhs',
-                      subtitle: 'High ROI business model',
-                      color: Colors.black,
+                    const SizedBox(height: 24),
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      children: (content['whyFixxChips'] != null
+                          ? (content['whyFixxChips'] as String).split('\n').where((s) => s.trim().isNotEmpty).toList()
+                          : ['Manufacturing', 'Import & sourcing', 'Sales & distribution', 'Service & spare parts', 'Fleet operations'])
+                          .map((chip) => _Chip(chip.trim())).toList(),
                     ),
-                    const SizedBox(height: 16),
-                    _StackedCard(
-                      title: 'Recover ROI in 12-18 Months',
-                      subtitle: 'Proven profitable strategy',
-                      color: AppColors.primaryNavy,
+                    const SizedBox(height: 32),
+                     Text(
+                      content['whyFixxConclusion'] ?? 'We know what works — and what fails — in the Indian EV market.',
+                      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textDark, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 32),
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: AppColors.backgroundLight,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.primary.withOpacity(0.1)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(content['missionLabel'] ?? 'OUR MISSION', style: AppTextStyles.bodySmall.copyWith(color: AppColors.accentTeal, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 8),
+                          Text(
+                            content['missionText'] ?? 'Help 100s of entrepreneurs build profitable, sustainable EV brands — without burning money or time.',
+                            style: AppTextStyles.cardTitle.copyWith(fontSize: 18),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -696,6 +753,23 @@ class _ScalableFutureSection extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _Chip extends StatelessWidget {
+  final String label;
+  const _Chip(this.label);
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.textDark)),
     );
   }
 }
@@ -729,12 +803,15 @@ class _StackedCard extends StatelessWidget {
 
 // 6. Process: Dark Steps
 class _ProcessDarkSection extends StatelessWidget {
+  final Map<String, dynamic> content;
+  const _ProcessDarkSection({required this.content});
+
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 900;
     
     return Container(
-      color: const Color(0xFF111111),
+      color: AppColors.primary,
       padding: EdgeInsets.symmetric(vertical: 80, horizontal: isMobile ? 24 : 80),
       child: Center(
         child: Container(
@@ -742,16 +819,49 @@ class _ProcessDarkSection extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Process of Dealership', style: AppTextStyles.sectionTitleLight),
+              Text(
+                content['processTitle'] ?? 'From Import to Indian Roads — We Make It Simple',
+                style: AppTextStyles.sectionTitleLight.copyWith(fontSize: 36),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                content['processDesc'] ?? 'Fixx EV helps you go from factory to showroom to customer with one trusted partner, whether you are:',
+                style: AppTextStyles.bodyMedium.copyWith(color: Colors.white70),
+              ),
               const SizedBox(height: 50),
               Wrap(
-                spacing: 40,
-                runSpacing: 40,
+                spacing: 24,
+                runSpacing: 24,
                 children: [
-                  _DarkStep(num: '01', title: 'Apply Today', desc: 'Submit the form & get approved.'),
-                  _DarkStep(num: '02', title: 'Site Selection', desc: 'We help you finalize locations.'),
-                  _DarkStep(num: '03', title: 'Great Launch', desc: 'Inaugurate your dealership.'),
+                  _DarkStep(num: '01', title: content['step1Title'] ?? 'A Dealer', desc: content['step1Desc'] ?? 'Wanting your own brand to improve margins.'),
+                  _DarkStep(num: '02', title: content['step2Title'] ?? 'A Fleet Operator', desc: content['step2Desc'] ?? 'Looking for custom vehicles tailored to your needs.'),
+                  _DarkStep(num: '03', title: content['step3Title'] ?? 'A Startup', desc: content['step3Desc'] ?? 'Building a new EV brand from scratch.'),
+                  _DarkStep(num: '04', title: content['step4Title'] ?? 'A Distributor', desc: content['step4Desc'] ?? 'Seeking regional exclusivity for new products.'),
                 ],
+              ),
+              const SizedBox(height: 60),
+              Center(
+                child: Column(
+                  children: [
+                    Text(
+                      content['processTagline'] ?? 'Fixx EV — Your EV Brand, Built Right',
+                      style: AppTextStyles.heading2.copyWith(color: Colors.white),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      content['processSlogan'] ?? 'Import. Assemble. Brand. Sell. Service.',
+                      style: AppTextStyles.bodyLarge.copyWith(color: AppColors.accentTeal, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      content['processCta'] ?? 'We do it all — so you can focus on growing your business.',
+                      style: AppTextStyles.bodyMedium.copyWith(color: Colors.white70),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -770,18 +880,22 @@ class _DarkStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 280,
+    return Container(
+      width: 260,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(num, style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey)),
+          Text(num, style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.accentTeal)),
           const SizedBox(height: 8),
-          Container(height: 1, width: 280, color: Colors.grey.shade800),
-          const SizedBox(height: 16),
           Text(title, style: AppTextStyles.cardTitle.copyWith(color: Colors.white)),
           const SizedBox(height: 8),
-          Text(desc, style: AppTextStyles.bodySmall.copyWith(color: Colors.grey)),
+          Text(desc, style: AppTextStyles.bodySmall.copyWith(color: Colors.white70)),
         ],
       ),
     );
@@ -789,11 +903,18 @@ class _DarkStep extends StatelessWidget {
 }
 
 // 7. Network Map Section
-// 7. Network Map Section
 class _NetworkMapSection extends StatelessWidget {
+  final Map<String, dynamic> content;
+  const _NetworkMapSection({required this.content});
+
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 900;
+    
+    // Parse dynamic bullet points
+    final bulletItems = content['networkItems'] != null
+        ? (content['networkItems'] as String).split('\n').where((s) => s.trim().isNotEmpty).toList()
+        : ['Exclusive territory rights', 'Faster installation timelines', 'Affordable infrastructure', 'Reliable supply and service support'];
     
     return Container(
       padding: EdgeInsets.symmetric(vertical: 100, horizontal: isMobile ? 24 : 80),
@@ -831,57 +952,31 @@ class _NetworkMapSection extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    RichText(
-                      text: TextSpan(
-                        style: AppTextStyles.sectionTitle.copyWith(fontSize: 36, color: AppColors.primaryNavy, height: 1.2),
-                        children: [
-                          const TextSpan(text: 'We are reaching every\ncorner of India '),
-                          TextSpan(
-                            text: 'every\ncorner of India',
-                            style: TextStyle(color: AppColors.accentBlue),
-                          ),
-                        ],
-                      ),
+                    Text(
+                      content['networkTitle'] ?? 'We are reaching every corner of India',
+                      style: AppTextStyles.sectionTitle.copyWith(fontSize: 36, color: AppColors.primaryNavy, height: 1.2),
                     ),
                     const SizedBox(height: 24),
-                    RichText(
-                      text: TextSpan(
-                        style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
-                        children: const [
-                          TextSpan(text: 'At Fixx EV, our vision is to make clean mobility accessible everywhere—not just in big cities. Through '),
-                          TextSpan(text: 'modular CKD container showrooms', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
-                          TextSpan(text: ', we enable fast deployment, lower setup costs, and seamless expansion across India.'),
-                        ],
-                      ),
+                    Text(
+                      content['networkDesc'] ?? 'At Fixx EV, our vision is to make clean mobility accessible everywhere—not just in big cities. Through modular CKD container showrooms, we enable fast deployment, lower setup costs, and seamless expansion across India.',
+                      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
                     ),
                     const SizedBox(height: 16),
-                    RichText(
-                      text: TextSpan(
-                        style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
-                        children: const [
-                          TextSpan(text: 'From metros like '),
-                          TextSpan(text: 'Mumbai, Delhi, and Bengaluru', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
-                          TextSpan(text: ', to fast-growing Tier-2 and Tier-3 cities, Fixx EV empowers entrepreneurs to build profitable EV businesses where demand is rising fastest.'),
-                        ],
-                      ),
+                    Text(
+                      content['networkDesc2'] ?? 'From metros like Mumbai, Delhi, and Bengaluru, to fast-growing Tier-2 and Tier-3 cities, Fixx EV empowers entrepreneurs to build profitable EV businesses where demand is rising fastest.',
+                      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
                     ),
                     const SizedBox(height: 24),
-                    Text('Our dealer-first model ensures every partner gets:', style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
+                    Text(
+                      content['networkBulletTitle'] ?? 'Our dealer-first model ensures every partner gets:',
+                      style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(height: 16),
-                    _BulletPoint('Exclusive territory rights'),
-                    _BulletPoint('Faster installation timelines'),
-                    _BulletPoint('Affordable infrastructure'),
-                    _BulletPoint('Reliable supply and service support'),
+                    ...bulletItems.map((item) => _BulletPoint(item)),
                     const SizedBox(height: 16),
-                    RichText(
-                      text: TextSpan(
-                        style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
-                        children: const [
-                          TextSpan(text: 'This PAN-India strategy gives dealers a powerful competitive edge, while customers benefit from '),
-                          TextSpan(text: 'quick service, better availability, and trusted EV solutions', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
-                          TextSpan(text: '.'),
-                        ],
-                      ),
+                    Text(
+                      content['networkConclusion'] ?? 'This PAN-India strategy gives dealers a powerful competitive edge, while customers benefit from quick service, better availability, and trusted EV solutions.',
+                      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
                     ),
                   ],
                 ),
@@ -1019,11 +1114,11 @@ class _ModelsGridSection extends StatelessWidget {
               const SizedBox(height: 50),
               Row(
                 children: [
-                  Expanded(child: _ModelCard('https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=500', 'Vector X')),
+                  Expanded(child: _ModelCard('assets/images/c11.png', 'Vector X')),
                   const SizedBox(width: 24),
-                  Expanded(child: _ModelCard('https://images.unsplash.com/photo-1558980394-0a06c4631733?w=500', 'Storm R')),
+                  Expanded(child: _ModelCard('assets/images/c13.jpg', 'Urban S')),
                   const SizedBox(width: 24),
-                  Expanded(child: _ModelCard('https://images.unsplash.com/photo-1558981420-87aa9dad1c89?w=500', 'Sprint Pro')),
+                  Expanded(child: _ModelCard('assets/images/c12.jpg', 'Metro Glide')),
                 ],
               ),
             ],
@@ -1046,7 +1141,12 @@ class _ModelCard extends StatelessWidget {
           height: 300,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            image: DecorationImage(image: NetworkImage(img), fit: BoxFit.cover),
+            image: DecorationImage(
+              image: img.startsWith('assets') 
+                  ? AssetImage(img) as ImageProvider 
+                  : NetworkImage(img),
+              fit: BoxFit.cover,
+            ),
           ),
         ),
         const SizedBox(height: 16),

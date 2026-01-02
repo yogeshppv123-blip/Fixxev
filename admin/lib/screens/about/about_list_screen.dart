@@ -144,6 +144,13 @@ class _AboutListScreenState extends State<AboutListScreen> {
                 style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
               ),
               const SizedBox(width: 16),
+              OutlinedButton.icon(
+                onPressed: () => Navigator.pushNamed(context, '/pages/about'),
+                icon: const Icon(Icons.edit_document),
+                label: const Text('Edit Page Details'),
+                style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
+              ),
+              const SizedBox(width: 16),
               ElevatedButton.icon(
                 onPressed: () => Navigator.pushNamed(context, '/about/new'),
                 icon: const Icon(Icons.add),
@@ -289,6 +296,12 @@ class _AboutListScreenState extends State<AboutListScreen> {
       case 'Vision': return Icons.visibility;
       case 'CSR': return Icons.eco;
       case 'Future': return Icons.rocket_launch;
+      case 'Infrastructure': return Icons.apartment;
+      case 'Technology': return Icons.phone_android;
+      case 'Franchise': return Icons.store;
+      case 'Impact': return Icons.eco;
+      case 'Investment': return Icons.attach_money;
+      case 'Join': return Icons.handshake;
       default: return Icons.info_outline;
     }
   }

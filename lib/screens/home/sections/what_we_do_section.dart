@@ -68,7 +68,7 @@ class _WhatWeDoSectionState extends State<WhatWeDoSection>
         width: double.infinity,
         padding: EdgeInsets.symmetric(
           horizontal: isMobile ? 20 : 80,
-          vertical: 100,
+          vertical: 30, // Reduced spacing
         ),
         color: AppColors.white,
         child: FadeTransition(
@@ -79,8 +79,8 @@ class _WhatWeDoSectionState extends State<WhatWeDoSection>
               children: [
                 // Section header with animation
                 SectionHeader(
-                  label: widget.content['whatWeDoLabel'] ?? '// FRANCHISE-LED GROWTH',
-                  title: widget.content['whatWeDoTitle'] ?? 'BUILDING INDIA’S LARGEST\nEV SERVICE NETWORK',
+                  label: (widget.content['whatWeDoLabel'] ?? 'FRANCHISE-LED GROWTH').toString().replaceAll('//', '').trim(),
+                  title: widget.content['whatWeDoTitle'] ?? 'BUILDING INDIA\'S LARGEST\nEV SERVICE NETWORK',
                 ),
                 const SizedBox(height: 60),
                 // Experience cards with staggered animation

@@ -57,10 +57,10 @@ class _StatsBarSectionState extends State<StatsBarSection> {
         width: double.infinity,
         padding: EdgeInsets.symmetric(
           horizontal: isMobile ? 20 : 60,
-          vertical: isMobile ? 40 : 60,
+          vertical: isMobile ? 20 : 25, // Minimal spacing
         ),
         decoration: const BoxDecoration(
-          color: AppColors.primaryNavy, // Darker theme like FIXXEV stats
+          color: Colors.white, // Clean white background
         ),
         child: isMobile
             ? Column(
@@ -193,7 +193,7 @@ class _StatItemState extends State<_StatItem> with SingleTickerProviderStateMixi
         Text(
           '$_prefix${_formatNumber(_currentValue)}$_suffix',
           style: AppTextStyles.heroTitle.copyWith(
-            color: AppColors.accentRed,
+            color: AppColors.primaryNavy, // Blue stats
             fontSize: 40,
             fontWeight: FontWeight.bold,
           ),
@@ -202,7 +202,7 @@ class _StatItemState extends State<_StatItem> with SingleTickerProviderStateMixi
         Text(
           widget.label.toUpperCase(),
           style: AppTextStyles.bodySmall.copyWith(
-            color: Colors.white.withOpacity(0.8),
+            color: AppColors.textGrey,
             letterSpacing: 1.5,
             fontWeight: FontWeight.w600,
           ),

@@ -32,6 +32,39 @@ class _AboutPageEditorState extends State<AboutPageEditor> {
   final _futureTitleController = TextEditingController();
   final _futureDescController = TextEditingController();
 
+  // Building
+  final _buildingLabelController = TextEditingController();
+  final _buildingTitleController = TextEditingController();
+  final _buildingDescController = TextEditingController();
+  final _buildingItemsController = TextEditingController();
+  
+  // Tech
+  final _techLabelController = TextEditingController();
+  final _techTitleController = TextEditingController();
+  final _techDescController = TextEditingController();
+
+  // Franchise
+  final _franchiseLabelController = TextEditingController();
+  final _franchiseTitleController = TextEditingController();
+  final _franchiseDescController = TextEditingController();
+  final _franchiseItemsController = TextEditingController();
+
+  // Impact
+  final _impactLabelController = TextEditingController();
+  final _impactTitleController = TextEditingController();
+  final _impactDescController = TextEditingController();
+
+  // Invest
+  final _investLabelController = TextEditingController();
+  final _investTitleController = TextEditingController();
+  final _investDescController = TextEditingController();
+  final _investItemsController = TextEditingController();
+
+  // AboutJoin
+  final _aboutJoinLabelController = TextEditingController();
+  final _aboutJoinTitleController = TextEditingController();
+  final _aboutJoinDescController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -59,6 +92,31 @@ class _AboutPageEditorState extends State<AboutPageEditor> {
         
         _futureTitleController.text = content['futureTitle'] ?? 'Future Plans & Expansion';
         _futureDescController.text = content['futureDesc'] ?? 'We are rapidly expanding our footprint across India.';
+
+        _buildingLabelController.text = content['buildingLabel'] ?? '// INFRASTRUCTURE';
+        _buildingTitleController.text = content['buildingTitle'] ?? 'What We Are Building';
+        _buildingDescController.text = content['buildingDesc'] ?? ''; 
+        _buildingItemsController.text = content['buildingItems'] ?? 'A pan-India network of 500+ EV service centres\nOEM-certified spares & standardized service processes\nSkilled, trained technicians supported by Fixx EV\nCentralized quality control & supply chain';
+
+        _techLabelController.text = content['techLabel'] ?? '// INNOVATION';
+        // ...
+        
+        _franchiseLabelController.text = content['franchiseLabel'] ?? '// GROWTH';
+        _franchiseTitleController.text = content['franchiseTitle'] ?? 'Franchise-Led Growth Model';
+        _franchiseDescController.text = content['franchiseDesc'] ?? 'Fixx EV follows a capital-light...';
+        _franchiseItemsController.text = content['franchiseItems'] ?? 'Branding & onboarding support\nTechnical training & SOPs\nOEM-approved parts access\nDigital tools & customer acquisition';
+
+        _impactLabelController.text = content['impactLabel'] ?? '// IMPACT';
+        // ...
+        
+        _investLabelController.text = content['investLabel'] ?? '// OPPORTUNITY';
+        _investTitleController.text = content['investTitle'] ?? 'Investment Opportunity';
+        _investDescController.text = content['investDesc'] ?? 'Fixx EV presents a high-impact opportunity...';
+        _investItemsController.text = content['investItems'] ?? 'Strategic investor partnerships\nFranchise network expansion\nLargest EV service ecosystem in India';
+
+        _aboutJoinLabelController.text = content['aboutJoinLabel'] ?? '// COLLABORATION';
+        _aboutJoinTitleController.text = content['aboutJoinTitle'] ?? 'Join the Mission';
+        _aboutJoinDescController.text = content['aboutJoinDesc'] ?? 'We are now inviting strategic investors...';
         
         _isLoading = false;
       });
@@ -85,6 +143,27 @@ class _AboutPageEditorState extends State<AboutPageEditor> {
         'csrDesc': _csrDescController.text,
         'futureTitle': _futureTitleController.text,
         'futureDesc': _futureDescController.text,
+        'buildingLabel': _buildingLabelController.text,
+        'buildingTitle': _buildingTitleController.text,
+        'buildingDesc': _buildingDescController.text,
+        'buildingItems': _buildingItemsController.text,
+        'techLabel': _techLabelController.text,
+        'techTitle': _techTitleController.text,
+        'techDesc': _techDescController.text,
+        'franchiseLabel': _franchiseLabelController.text,
+        'franchiseTitle': _franchiseTitleController.text,
+        'franchiseDesc': _franchiseDescController.text,
+        'franchiseItems': _franchiseItemsController.text,
+        'impactLabel': _impactLabelController.text,
+        'impactTitle': _impactTitleController.text,
+        'impactDesc': _impactDescController.text,
+        'investLabel': _investLabelController.text,
+        'investTitle': _investTitleController.text,
+        'investDesc': _investDescController.text,
+        'investItems': _investItemsController.text,
+        'aboutJoinLabel': _aboutJoinLabelController.text,
+        'aboutJoinTitle': _aboutJoinTitleController.text,
+        'aboutJoinDesc': _aboutJoinDescController.text,
       };
       
       await _apiService.updatePageContent('about', content);
@@ -169,10 +248,22 @@ class _AboutPageEditorState extends State<AboutPageEditor> {
                                 _buildTextField('Future Plans Description', _futureDescController, maxLines: 3),
                               ],
                             ),
-                          ],
-                        ),
-                      ),
+                        const SizedBox(height: 32),
+                        _buildDynamicSection('Infrastructure', Icons.apartment, _buildingLabelController, _buildingTitleController, _buildingDescController, itemsC: _buildingItemsController),
+                        const SizedBox(height: 32),
+                        _buildDynamicSection('Technology', Icons.phone_android, _techLabelController, _techTitleController, _techDescController),
+                        const SizedBox(height: 32),
+                        _buildDynamicSection('Franchise Model', Icons.store, _franchiseLabelController, _franchiseTitleController, _franchiseDescController, itemsC: _franchiseItemsController),
+                        const SizedBox(height: 32),
+                        _buildDynamicSection('Impact', Icons.eco, _impactLabelController, _impactTitleController, _impactDescController),
+                        const SizedBox(height: 32),
+                        _buildDynamicSection('Investment', Icons.attach_money, _investLabelController, _investTitleController, _investDescController, itemsC: _investItemsController),
+                        const SizedBox(height: 32),
+                        _buildDynamicSection('Join Mission', Icons.handshake, _aboutJoinLabelController, _aboutJoinTitleController, _aboutJoinDescController),
+                      ],
                     ),
+                  ),
+                ),
                   ],
                 ),
           ),
@@ -232,6 +323,24 @@ class _AboutPageEditorState extends State<AboutPageEditor> {
           ...children,
         ],
       ),
+    );
+  }
+
+  Widget _buildDynamicSection(String title, IconData icon, TextEditingController labelC, TextEditingController titleC, TextEditingController descC, {TextEditingController? itemsC}) {
+    return _buildSectionCard(
+      title: title,
+      icon: icon,
+      children: [
+        _buildTextField('Section Label', labelC),
+        const SizedBox(height: 16),
+        _buildTextField('Section Title', titleC),
+        const SizedBox(height: 16),
+        _buildTextField('Description', descC, maxLines: 5),
+        if (itemsC != null) ...[
+           const SizedBox(height: 16),
+           _buildTextField('Items List (One item per line)', itemsC, maxLines: 4),
+        ],
+      ],
     );
   }
 

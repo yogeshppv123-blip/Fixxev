@@ -3,56 +3,64 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  // Primary Brand Colors - Exactly matching images (Sky Blue + Mint Green)
-  static const Color primaryNavy = Color(0xFF0D1B2A); // Dark Navy
-  static const Color accentBlue = Color(0xFF4D8BFD); // Primary Blue
-  static const Color accentTeal = Color(0xFF5ED3B8); // Mint Green from image
+  // Branding Colors (Electric Blue & White Style)
+  static const Color electricBlue = Color(0xFF437BDC); // #437bdc - Main Blue
+  static const Color vibrantBlue = Color(0xFF4E8AFF);  // #4e8aff - Lighter Blue
+  static const Color cleanWhite = Color(0xFFFFFFFF);
+  static const Color lightGrey = Color(0xFFF7F9FC);
+  static const Color darkText = Color(0xFF1A1A1A);
+  
+  // Legacy Aliases (mapped to new theme)
+  static const Color primaryNavy = electricBlue; // Map old Navy to Blue
+  static const Color accentBlue = vibrantBlue;   // Use lighter blue here
+  static const Color accentTeal = Color(0xFF2BC155); // Fresh Green Accent
+  static const Color accentRed = electricBlue;   // Map old RED to BLUE to remove red!
   
   // Primary brand accents
-  static const Color accentRed = accentTeal; // Changed back to Green for specific accents
-  static const Color primary = accentBlue;   
+  static const Color primary = electricBlue;   
   static const Color secondary = accentTeal; 
   
   // Backgrounds
-  static const Color white = Color(0xFFFFFFFF);
-  static const Color backgroundLight = Color(0xFFF8F9FA);
-  static const Color backgroundDark = Color(0xFF1B263B);
-  static const Color navDark = Color(0xFF303C49);
+  static const Color white = cleanWhite;
+  static const Color backgroundLight = lightGrey;
+  static const Color backgroundDark = cleanWhite; // Remove dark backgrounds, make them white
+  static const Color navDark = electricBlue;      // Navbar becomes Blue
+  static const Color cardDark = cleanWhite;       // Cards become white
 
   // Text Colors
-  static const Color textDark = Color(0xFF1B263B);
-  static const Color textLight = Color(0xFFFFFFFF);
-  static const Color textGrey = Color(0xFF778DA9);
-  static const Color textMuted = Color(0xFF415A77);
+  static const Color textDark = darkText;
+  static const Color textLight = cleanWhite;
+  static const Color textGrey = Color(0xFF777777);
+  static const Color textMuted = Color(0xFF999999);
   
   // Decorative
-  static const Color shadowColor = Color(0x1F000000);
-  static const Color lightMint = Color(0xFFE0F2F1); 
+  static const Color shadowColor = Color(0x1A000000); // Lighter shadow
+  static const Color lightMint = Color(0xFFE3F2FD);   // Light Blue (was mint)
 
   // Additional colors
-  static const Color primaryDark = Color(0xFF0D1B2A);
+  static const Color primaryDark = electricBlue;
   
-  // Gradients - Standardized (Solid)
+  // Gradients - Updated to Blue
   static const LinearGradient redGradient = LinearGradient(
-    colors: [accentBlue, accentBlue], // Primary Buttons remain Blue
+    colors: [electricBlue, vibrantBlue], 
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
   
   static const LinearGradient brandGradient = LinearGradient(
-    colors: [accentBlue, accentBlue], // Brand highlights remain Blue
+    colors: [electricBlue, vibrantBlue],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
   
   static const LinearGradient tealGradient = LinearGradient(
-    colors: [accentTeal, accentTeal], // Green accents
+    colors: [accentTeal, Color(0xFF25A04A)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
   
   static const LinearGradient blueGradient = LinearGradient(
-    colors: [accentBlue, accentBlue],
+    colors: [electricBlue, vibrantBlue],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );

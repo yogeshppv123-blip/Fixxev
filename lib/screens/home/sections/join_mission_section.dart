@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fixxev/core/theme/app_colors.dart';
 import 'package:fixxev/core/theme/app_text_styles.dart';
 import 'package:fixxev/widgets/buttons/primary_button.dart';
+import 'package:go_router/go_router.dart';
 
 class JoinMissionSection extends StatelessWidget {
   final Map<String, dynamic> content;
@@ -19,11 +20,11 @@ class JoinMissionSection extends StatelessWidget {
         vertical: 100,
       ),
       decoration: BoxDecoration(
-        color: AppColors.primaryNavy,
+        color: Colors.white,
         image: DecorationImage(
           image: const NetworkImage('https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&w=2000&q=80'),
           fit: BoxFit.cover,
-          opacity: 0.15,
+          opacity: 0.08,
         ),
       ),
       child: Center(
@@ -33,22 +34,22 @@ class JoinMissionSection extends StatelessWidget {
             children: [
               Text(
                 'JOIN THE MISSION',
-                style: AppTextStyles.sectionLabel.copyWith(color: AppColors.accentRed),
+                style: AppTextStyles.sectionLabel,
               ),
               const SizedBox(height: 16),
               Text(
-                content['joinTitle'] ?? 'DRIVING INDIA’S EV FUTURE',
+                content['joinTitle'] ?? 'Join The Mission',
                 textAlign: TextAlign.center,
                 style: isMobile
-                    ? AppTextStyles.sectionTitleLight.copyWith(fontSize: 32)
-                    : AppTextStyles.sectionTitleLight.copyWith(fontSize: 48),
+                    ? AppTextStyles.sectionTitle.copyWith(fontSize: 32)
+                    : AppTextStyles.sectionTitle.copyWith(fontSize: 48),
               ),
               const SizedBox(height: 32),
               Text(
-                content['joinSubtitle'] ?? 'If you are an investor, partner, or entrepreneur who believes in the future of clean mobility, you are most welcome to join this mission and grow with us.',
+                content['joinSubtitle'] ?? 'Partner with us to transform the EV spares & service landscape.',
                 textAlign: TextAlign.center,
                 style: AppTextStyles.bodyLarge.copyWith(
-                  color: AppColors.textLight.withAlpha(200),
+                  color: AppColors.textGrey,
                   height: 1.6,
                 ),
               ),
@@ -93,7 +94,7 @@ class JoinMissionSection extends StatelessWidget {
                 text: 'GET IN TOUCH TODAY',
                 icon: Icons.mail_outline,
                 onPressed: () {
-                  // Navigate to contact
+                  context.go('/contact');
                 },
               ),
             ],
@@ -108,28 +109,65 @@ class JoinMissionSection extends StatelessWidget {
     required String title,
     required String description,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: Colors.white.withAlpha(5),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withAlpha(15)),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, size: 48, color: AppColors.accentRed),
-          const SizedBox(height: 20),
-          Text(
-            title,
-            style: AppTextStyles.cardTitle.copyWith(color: Colors.white, fontSize: 20),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            description,
-            textAlign: TextAlign.center,
-            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textGrey),
-          ),
-        ],
+    return _HoverCard(icon: icon, title: title, description: description);
+  }
+}
+
+class _HoverCard extends StatefulWidget {
+  final IconData icon;
+  final String title;
+  final String description;
+  
+  const _HoverCard({required this.icon, required this.title, required this.description});
+  
+  @override
+  State<_HoverCard> createState() => _HoverCardState();
+}
+
+class _HoverCardState extends State<_HoverCard> {
+  bool _isHovered = false;
+  
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: _isHovered ? AppColors.primaryNavy : AppColors.backgroundLight,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: _isHovered ? AppColors.primaryNavy : AppColors.textGrey.withAlpha(30)),
+          boxShadow: _isHovered ? [
+            BoxShadow(
+              color: AppColors.primaryNavy.withAlpha(50),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ] : [],
+        ),
+        child: Column(
+          children: [
+            Icon(widget.icon, size: 48, color: _isHovered ? Colors.white : AppColors.secondary),
+            const SizedBox(height: 20),
+            Text(
+              widget.title,
+              style: AppTextStyles.cardTitle.copyWith(
+                color: _isHovered ? Colors.white : AppColors.textDark,
+                fontSize: 20,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              widget.description,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: _isHovered ? Colors.white70 : AppColors.textGrey,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

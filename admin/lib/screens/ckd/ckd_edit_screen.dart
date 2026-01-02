@@ -23,7 +23,7 @@ class _CKDEditScreenState extends State<CKDEditScreen> {
   final _imageUrlController = TextEditingController();
   String _selectedCategory = 'Infrastructure';
 
-  final List<String> _categories = ['Infrastructure', 'Technology', 'Design', 'Efficiency', 'Sustainability'];
+  final List<String> _categories = ['Infrastructure', 'Technology', 'Design', 'Efficiency', 'Sustainability', 'Support'];
 
   @override
   void initState() {

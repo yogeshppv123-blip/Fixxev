@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:fixxev/core/theme/app_colors.dart';
 import 'package:fixxev/core/theme/app_text_styles.dart';
@@ -135,15 +136,15 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
               );
             },
           ),
-          // Gradient Overlay
+          // Gradient Overlay - Lighter with blur
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppColors.primaryNavy.withAlpha(240),
-                    AppColors.primaryNavy.withAlpha(200),
-                    AppColors.primaryNavy.withAlpha(100),
+                    Colors.black.withOpacity(0.5),
+                    Colors.black.withOpacity(0.25),
+                    Colors.black.withOpacity(0.1),
                   ],
                   stops: const [0.0, 0.5, 1.0],
                   begin: Alignment.centerLeft,
@@ -213,14 +214,24 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
   }
 
   Widget _buildSlideBackground(int index) {
-    return Image.network(
-      _slides[index]['image']!,
-      fit: BoxFit.cover,
-      alignment: Alignment.center,
-      loadingBuilder: (context, child, loadingProgress) {
-        if (loadingProgress == null) return child;
-        return Container(color: AppColors.primaryNavy);
-      },
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Image.network(
+          _slides[index]['image']!,
+          fit: BoxFit.cover,
+          alignment: Alignment.center,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Container(color: AppColors.primaryNavy);
+          },
+        ),
+        // Slight blur effect
+        BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
+          child: Container(color: Colors.transparent),
+        ),
+      ],
     );
   }
 

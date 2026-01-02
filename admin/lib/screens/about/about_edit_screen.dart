@@ -24,7 +24,7 @@ class _AboutEditScreenState extends State<AboutEditScreen> {
   final _imageUrlController = TextEditingController();
   String _selectedType = 'Values';
 
-  final List<String> _types = ['Values', 'Vision', 'CSR', 'Future', 'Custom'];
+  final List<String> _types = ['Values', 'Vision', 'CSR', 'Future', 'Custom', 'Infrastructure', 'Technology', 'Franchise', 'Impact', 'Investment', 'Join'];
 
   @override
   void initState() {

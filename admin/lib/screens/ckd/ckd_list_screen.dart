@@ -144,6 +144,13 @@ class _CKDListScreenState extends State<CKDListScreen> {
                 style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
               ),
               const SizedBox(width: 16),
+              OutlinedButton.icon(
+                onPressed: () => Navigator.pushNamed(context, '/pages/ckd-container'),
+                icon: const Icon(Icons.edit_document),
+                label: const Text('Edit Page Details'),
+                style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
+              ),
+              const SizedBox(width: 16),
               ElevatedButton.icon(
                 onPressed: () => Navigator.pushNamed(context, '/ckd-content/new'),
                 icon: const Icon(Icons.add),

@@ -7,7 +7,7 @@ const ckdFeatureSchema = new mongoose.Schema({
     title: { type: String, required: true },
     subtitle: { type: String, default: '' },
     description: { type: String, default: '' },
-    category: { type: String, enum: ['Infrastructure', 'Technology', 'Design', 'Efficiency', 'Sustainability'], default: 'Infrastructure' },
+    category: { type: String, enum: ['Infrastructure', 'Technology', 'Design', 'Efficiency', 'Sustainability', 'Support'], default: 'Infrastructure' },
     imageUrl: { type: String, default: '' },
     isActive: { type: Boolean, default: true },
     order: { type: Number, default: 0 },
@@ -65,47 +65,37 @@ router.delete('/:id', async (req, res) => {
 // Seed default data
 router.post('/seed', async (req, res) => {
     try {
-        const count = await CKDFeature.countDocuments();
-        if (count > 0) {
-            return res.json({ message: 'Data already exists' });
-        }
+        await CKDFeature.deleteMany({});
 
         const defaultFeatures = [
             {
-                title: 'Modular Design',
-                subtitle: 'Flexible & Scalable',
-                description: 'Our CKD containers are designed with modularity in mind, allowing for easy customization and expansion.',
-                category: 'Design',
+                title: 'Product Sourcing & Compatibility Testing',
+                subtitle: 'Sourcing',
+                description: 'We identify and procure high-quality EV components, ensuring complete compatibility for Indian road conditions.',
+                category: 'Support',
                 order: 1,
             },
             {
-                title: 'Rapid Deployment',
-                subtitle: '30-Day Setup',
-                description: 'Get your showroom up and running in just 30 days with our pre-fabricated container solutions.',
-                category: 'Efficiency',
+                title: 'CKD Import & Logistics Handling',
+                subtitle: 'Logistics',
+                description: 'Our team manages the complex import process, customs clearance, and secure transportation of CKD kits.',
+                category: 'Support',
                 order: 2,
             },
             {
-                title: 'Smart Technology',
-                subtitle: 'IoT Integrated',
-                description: 'Built-in IoT sensors and smart systems for real-time monitoring and diagnostics.',
-                category: 'Technology',
+                title: 'Local Assembly Support & Quality Checks',
+                subtitle: 'Assembly',
+                description: 'We provide technical guidance for local assembly and rigorous quality control protocols to ensure safety.',
+                category: 'Support',
                 order: 3,
             },
             {
-                title: 'Eco-Friendly',
-                subtitle: 'Sustainable Materials',
-                description: 'Constructed with eco-friendly materials and designed for minimal environmental impact.',
-                category: 'Sustainability',
+                title: 'Branding, Marketing & Sales Support',
+                subtitle: 'Growth',
+                description: 'Leverage our brand assets and marketing strategies to launch your dealership and drive sales effectively.',
+                category: 'Support',
                 order: 4,
-            },
-            {
-                title: 'All-Weather Ready',
-                subtitle: 'Climate Controlled',
-                description: 'Fully insulated with climate control systems for year-round operation in any weather.',
-                category: 'Infrastructure',
-                order: 5,
-            },
+            }
         ];
 
         await CKDFeature.insertMany(defaultFeatures);

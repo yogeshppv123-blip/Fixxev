@@ -90,7 +90,7 @@ class _AboutUsSectionState extends State<AboutUsSection>
       child: Container(
         width: double.infinity,
         decoration: const BoxDecoration(
-          color: AppColors.primaryNavy,
+          color: Colors.white, // Clean white background
         ),
         child: Stack(
           children: [
@@ -178,7 +178,7 @@ class _AboutUsSectionState extends State<AboutUsSection>
         SectionHeader(
           label: widget.content['aboutLabel'] ?? 'ANNOUNCING MISSION 500',
           title: widget.content['aboutTitle'] ?? "SOLVING INDIA’S EV\nAFTER-SALES GAP",
-          isLight: true,
+          isLight: false, // Dark text on white bg
           centered: false,
           crossAxisAlignment: CrossAxisAlignment.start,
         ),
@@ -352,7 +352,7 @@ class _AnimatedImageSectionState extends State<_AnimatedImageSection> {
       if (partHighlight(i)) {
         spans.add(TextSpan(
           text: parts[i],
-          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textDark),
         ));
       } else {
         spans.add(TextSpan(text: parts[i]));
@@ -437,7 +437,7 @@ class _AnimatedStatBoxState extends State<_AnimatedStatBox>
               decoration: BoxDecoration(
                 color: _isHovered 
                     ? AppColors.accentRed.withAlpha(30) 
-                    : AppColors.primaryDark,
+                    : Colors.white.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: _isHovered 
@@ -465,7 +465,7 @@ class _AnimatedStatBoxState extends State<_AnimatedStatBox>
                       Text(
                         _countAnimation.value.toInt().toString(),
                         style: AppTextStyles.statNumber.copyWith(
-                          color: AppColors.accentRed,
+                          color: Colors.white,
                         ),
                       ),
                       Padding(
@@ -474,7 +474,7 @@ class _AnimatedStatBoxState extends State<_AnimatedStatBox>
                           widget.suffix,
                           style: AppTextStyles.statNumber.copyWith(
                             fontSize: 24,
-                            color: AppColors.accentRed,
+                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -486,7 +486,7 @@ class _AnimatedStatBoxState extends State<_AnimatedStatBox>
                     style: AppTextStyles.statLabel.copyWith(
                       color: _isHovered 
                           ? AppColors.textLight 
-                          : AppColors.textGrey,
+                          : Colors.white70,
                     ),
                     child: Text(widget.label),
                   ),

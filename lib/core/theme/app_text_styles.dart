@@ -69,7 +69,7 @@ class AppTextStyles {
   static TextStyle sectionLabel = GoogleFonts.poppins(
     fontSize: 14,
     fontWeight: FontWeight.w600,
-    color: AppColors.primary, // Changed to Sky Blue for consistency
+    color: AppColors.secondary, // Green label color
     letterSpacing: 2,
   );
 

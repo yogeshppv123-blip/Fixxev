@@ -85,75 +85,26 @@ class _AboutScreenState extends State<AboutScreen> {
                   controller: _scrollController,
                   child: Column(
                     children: [
-                      // 1. LIGHT HERO
+                      // 1. LIGHT HERO - Launch Announcement
                       _AboutHeroLight(
-                        title: _pageContent['title'] ?? 'Powering The Future\nOf Electric Mobility',
-                        tagline: 'ABOUT US',
-                        description1: _pageContent['desc1'] ?? 'At **FIXXEV**, we are committed to revolutionizing the electric vehicle (EV) service industry by offering **multi-brand servicing, repairs, refurbishment, and warranty management**.',
-                        description2: _pageContent['desc2'] ?? 'As the demand for sustainable mobility grows, **FIXXEV** stands at the forefront of **after-sales service, fleet management, and component-level repairs**.',
-                        imageUrl: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837',
+                        title: _pageContent['title'] ?? 'Driving India’s EV Future 🔋',
+                        tagline: 'LAUNCH ANNOUNCEMENT',
+                        description1: _pageContent['desc1'] ?? 'Fixx EV Technologies Pvt. Ltd. is on a mission to solve one of the biggest barriers to electric vehicle adoption in India — reliable after-sales service and spares availability.',
+                        description2: _pageContent['desc2'] ?? 'As India rapidly moves towards electric mobility, the service ecosystem has remained fragmented. At Fixx EV we are building a nationwide, standardized EV after-sales network by appointing 500 Authorized Franchise Service Centres.',
+                        imageUrl: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&q=80&w=2000',
                       ),
 
                       // 2. STATS BAR
                       _AboutStatsBar(),
 
-                      // 3. Dynamic Sections
-                      if (valuesSection != null)
-                        _AboutZigZagBlock(
-                          image: valuesSection['imageUrl']?.isNotEmpty == true 
-                              ? valuesSection['imageUrl'] 
-                              : 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',
-                          title: valuesSection['title'] ?? 'Our Core Values',
-                          label: valuesSection['label'] ?? '// VALUES',
-                          description: valuesSection['description'] ?? 'At FIXXEV, we are driven by integrity, excellence, and a deep commitment to the environment.',
-                          items: (valuesSection['items'] as List?)?.cast<String>() ?? const ['Integrity in every service', 'Excellence in engineering', 'Sustainable EV solutions'],
-                          isReversed: false,
-                        ),
-
-                      if (csrSection != null)
-                        _AboutZigZagBlock(
-                          image: csrSection['imageUrl']?.isNotEmpty == true 
-                              ? csrSection['imageUrl'] 
-                              : 'https://images.unsplash.com/photo-1531983412531-1f49a365ffed',
-                          title: csrSection['title'] ?? 'Corporate Social Responsibility (CSR)',
-                          label: csrSection['label'] ?? '// GIVING BACK',
-                          description: csrSection['description'] ?? 'FIXXEV is committed to making a positive impact on the environment and society.',
-                          items: (csrSection['items'] as List?)?.cast<String>() ?? const ['Green recycling programs', 'Community EV awareness', 'Waste reduction protocols'],
-                          isReversed: true,
-                        ),
-
-                      if (visionSection != null)
-                        _AboutZigZagBlock(
-                          image: visionSection['imageUrl']?.isNotEmpty == true 
-                              ? visionSection['imageUrl'] 
-                              : 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7',
-                          title: visionSection['title'] ?? 'Our Goal',
-                          label: visionSection['label'] ?? '// VISION',
-                          description: visionSection['description'] ?? 'Our goal is to build India\'s most reliable EV support ecosystem.',
-                          items: (visionSection['items'] as List?)?.cast<String>() ?? const ['Zero downtime for EV users', 'Nationwide service availability', 'Affordable premium care'],
-                          isReversed: false,
-                        ),
-
-                      if (futureSection != null)
-                        _AboutZigZagBlock(
-                          image: futureSection['imageUrl']?.isNotEmpty == true 
-                              ? futureSection['imageUrl'] 
-                              : 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e',
-                          title: futureSection['title'] ?? 'Future Plans & Expansion',
-                          label: futureSection['label'] ?? '// THE FUTURE',
-                          description: futureSection['description'] ?? 'We are rapidly expanding our footprint across India.',
-                          items: (futureSection['items'] as List?)?.cast<String>() ?? const ['Upcoming battery tech centers', 'Expansion to 200+ cities', 'Next-gen retrofit solutions'],
-                          isReversed: true,
-                        ),
-
-                      // Show any custom sections
+                      // 3. SECTIONS (User Requested Content)
+                      
+                      // Dynamic Sections (Infrastructure, Franchise, Values, etc.)
                       ..._sections
-                          .where((s) => s['type'] == 'Custom')
-                          .toList()
                           .asMap()
                           .entries
                           .map((entry) {
-                        final section = entry.value as Map<String, dynamic>;
+                        final section = entry.value;
                         return _AboutZigZagBlock(
                           image: section['imageUrl']?.isNotEmpty == true 
                               ? section['imageUrl'] 
@@ -162,7 +113,7 @@ class _AboutScreenState extends State<AboutScreen> {
                           label: section['label'] ?? '',
                           description: section['description'] ?? '',
                           items: (section['items'] as List?)?.cast<String>() ?? const [],
-                          isReversed: entry.key.isEven,
+                          isReversed: entry.key.isOdd,
                         );
                       }),
 
@@ -340,6 +291,7 @@ class _AboutZigZagBlock extends StatelessWidget {
   final String description;
   final List<String> items;
   final bool isReversed;
+  final Color? backgroundColor;
 
   const _AboutZigZagBlock({
     required this.image,
@@ -348,6 +300,7 @@ class _AboutZigZagBlock extends StatelessWidget {
     required this.description,
     required this.items,
     required this.isReversed,
+    this.backgroundColor,
   });
 
   @override
@@ -363,7 +316,7 @@ class _AboutZigZagBlock extends StatelessWidget {
           Text(
             label,
             style: AppTextStyles.sectionLabel.copyWith(
-              color: const Color(0xFF4D8BFD),
+              color: AppColors.primary,
               letterSpacing: 2,
             ),
           ),
@@ -371,7 +324,7 @@ class _AboutZigZagBlock extends StatelessWidget {
           Text(
             title,
             style: AppTextStyles.heading2.copyWith(
-              color: const Color(0xFF4D8BFD),
+              color: AppColors.primary,
               fontSize: isMobile ? 24 : 32,
             ),
           ),
@@ -379,7 +332,7 @@ class _AboutZigZagBlock extends StatelessWidget {
             width: 60,
             height: 3,
             margin: const EdgeInsets.only(top: 12, bottom: 24),
-            color: const Color(0xFF4D8BFD),
+            color: AppColors.primary,
           ),
           _buildRichParagraph(description),
           const SizedBox(height: 24),
@@ -415,14 +368,14 @@ class _AboutZigZagBlock extends StatelessWidget {
 
     if (isMobile) {
       return Container(
-        color: Colors.white,
+        color: backgroundColor ?? Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 24),
         child: Column(children: [imageContent, textContent]),
       );
     }
 
     return Container(
-      color: Colors.white,
+      color: backgroundColor ?? Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 60),
       child: Row(
         children: isReversed

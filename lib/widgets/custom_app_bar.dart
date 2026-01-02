@@ -203,7 +203,7 @@ class _NavItemState extends State<_NavItem> {
                   fontSize: 13,
                   fontWeight: (_isHovered || widget.isActive) ? FontWeight.w700 : FontWeight.w500,
                   color: (_isHovered || widget.isActive)
-                      ? AppColors.accentRed 
+                      ? AppColors.accentTeal // Green for active/hover state
                       : (widget.isLight ? AppColors.textLight : AppColors.textDark),
                   letterSpacing: 0.5,
                 ),
@@ -215,7 +215,7 @@ class _NavItemState extends State<_NavItem> {
                 height: 2,
                 width: (_isHovered || widget.isActive) ? 20 : 0,
                 decoration: BoxDecoration(
-                  color: AppColors.accentRed,
+                  color: AppColors.accentTeal, // Green underline
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),

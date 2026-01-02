@@ -24,21 +24,21 @@ class FooterWidget extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: isMobile ? 20 : 80,
-              vertical: 60,
+              vertical: 30, // Reduced from 60
             ),
             child: isMobile ? _buildMobileLayout() : _buildDesktopLayout(),
           ),
-          // Bottom bar
+          // Bottom bar - minimal padding
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 40),
             decoration: const BoxDecoration(
               color: AppColors.backgroundDark,
             ),
             child: Center(
               child: Text(
                 '© ${DateTime.now().year} FIXXEV. All Rights Reserved.',
-                style: AppTextStyles.footerText.copyWith(fontSize: 13),
+                style: AppTextStyles.footerText.copyWith(fontSize: 12, color: Colors.white70),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -113,12 +113,12 @@ class FooterWidget extends StatelessWidget {
       children: [
         // Animated Logo
         const _AnimatedLogo(),
-        const SizedBox(height: 32),
+        const SizedBox(height: 16),
         Text(
           '**Fixx EV Technologies Pvt. Ltd.** is building India’s largest, nationwide standardized EV after-sales service and spares network. Solving the biggest barriers to EV adoption.',
-          style: AppTextStyles.footerText.copyWith(height: 1.8),
+          style: AppTextStyles.footerText.copyWith(height: 1.5, color: Colors.white70, fontSize: 13),
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: 16),
         _buildSocialLinks(),
       ],
     );
@@ -140,11 +140,12 @@ class FooterWidget extends StatelessWidget {
 
   Widget _buildGiantContactIcons() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _GiantIconRow(icon: Icons.phone_in_talk, text: AppConstants.phoneNumber),
-        const SizedBox(height: 32),
+        const SizedBox(height: 12),
         _GiantIconRow(icon: Icons.alternate_email, text: AppConstants.email),
+        const SizedBox(height: 12),
         _GiantIconRow(icon: Icons.location_on_outlined, text: AppConstants.address),
       ],
     );
@@ -158,28 +159,31 @@ class _GiantIconRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Text(
-          text,
-          style: AppTextStyles.footerText.copyWith(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+    return Padding(
+      padding: const EdgeInsets.only(right: 40), // Right padding for vacant space
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.white.withAlpha(40),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.white.withAlpha(100), width: 1),
+            ),
+            child: Icon(icon, color: AppColors.white, size: 24),
           ),
-        ),
-        const SizedBox(width: 24),
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: AppColors.accentRed.withAlpha(40),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.accentRed.withAlpha(100), width: 1),
+          const SizedBox(width: 16),
+          Text(
+            text,
+            style: AppTextStyles.footerText.copyWith(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
-          child: Icon(icon, color: AppColors.accentRed, size: 48),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -209,14 +213,14 @@ class _AnimatedLogoState extends State<_AnimatedLogo> {
             transform: Matrix4.identity()
               ..rotateZ(_isHovered ? 0.1 : 0.0),
             decoration: BoxDecoration(
-              color: AppColors.accentBlue,
+              color: AppColors.white,
               borderRadius: BorderRadius.circular(10),
               boxShadow: _isHovered
                   ? [
-                      BoxShadow(
-                        color: AppColors.accentRed.withAlpha(80),
+                      const BoxShadow(
+                        color: Colors.black26,
                         blurRadius: 20,
-                        offset: const Offset(0, 8),
+                        offset: Offset(0, 8),
                       ),
                     ]
                   : [],
@@ -227,7 +231,7 @@ class _AnimatedLogoState extends State<_AnimatedLogo> {
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.white,
+                  color: AppColors.electricBlue,
                 ),
               ),
             ),
@@ -288,12 +292,12 @@ class _AnimatedSocialButtonState extends State<_AnimatedSocialButton> {
         transform: Matrix4.identity()
           ..translate(0.0, _isHovered ? -4.0 : 0.0),
         decoration: BoxDecoration(
-          color: _isHovered ? AppColors.accentRed : AppColors.textLight.withAlpha(15),
+          color: _isHovered ? AppColors.white : AppColors.textLight.withAlpha(15),
           borderRadius: BorderRadius.circular(8),
           boxShadow: _isHovered
               ? [
                   BoxShadow(
-                    color: AppColors.accentRed.withAlpha(50),
+                    color: Colors.black.withAlpha(50),
                     blurRadius: 15,
                     offset: const Offset(0, 6),
                   ),
@@ -305,7 +309,7 @@ class _AnimatedSocialButtonState extends State<_AnimatedSocialButton> {
           duration: const Duration(milliseconds: 300),
           child: Icon(
             widget.icon,
-            color: AppColors.textLight,
+            color: _isHovered ? AppColors.electricBlue : AppColors.textLight,
             size: 20,
           ),
         ),
@@ -334,7 +338,7 @@ class _FooterLinksColumn extends StatelessWidget {
         Container(
           width: 30,
           height: 3,
-          color: AppColors.accentRed,
+          color: AppColors.accentTeal,
         ),
         const SizedBox(height: 20),
         ...links.map((link) => _AnimatedFooterLink(
@@ -378,7 +382,7 @@ class _AnimatedFooterLinkState extends State<_AnimatedFooterLink> {
                   ..translate(_isHovered ? 4.0 : 0.0, 0.0),
                 child: Icon(
                   Icons.chevron_right,
-                  color: _isHovered ? AppColors.textLight : AppColors.accentRed,
+                  color: _isHovered ? AppColors.white : AppColors.secondary,
                   size: 16,
                 ),
               ),
@@ -386,7 +390,7 @@ class _AnimatedFooterLinkState extends State<_AnimatedFooterLink> {
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 200),
                 style: AppTextStyles.footerLink.copyWith(
-                  color: _isHovered ? AppColors.accentRed : AppColors.textLight,
+                  color: _isHovered ? AppColors.secondary : AppColors.textLight,
                 ),
                 child: Text(widget.text),
               ),
@@ -428,13 +432,13 @@ class _AnimatedContactRowState extends State<_AnimatedContactRow> {
               ..scale(_isHovered ? 1.1 : 1.0),
             decoration: BoxDecoration(
               color: _isHovered 
-                  ? AppColors.accentRed 
-                  : AppColors.accentRed.withAlpha(30),
+                  ? AppColors.white 
+                  : AppColors.white.withAlpha(30),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               widget.icon, 
-              color: _isHovered ? AppColors.white : AppColors.accentRed, 
+              color: _isHovered ? AppColors.electricBlue : AppColors.white, 
               size: 18,
             ),
           ),
@@ -446,7 +450,7 @@ class _AnimatedContactRowState extends State<_AnimatedContactRow> {
                 duration: const Duration(milliseconds: 300),
                 style: AppTextStyles.footerText.copyWith(
                   height: 1.5,
-                  color: _isHovered ? AppColors.textLight : AppColors.textGrey,
+                  color: _isHovered ? AppColors.textLight : Colors.white70,
                 ),
                 child: Text(widget.text),
               ),
