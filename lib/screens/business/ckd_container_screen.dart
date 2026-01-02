@@ -424,7 +424,7 @@ class _CommunitySection extends StatelessWidget {
                       image: DecorationImage(
                         image: content['communityImage'] != null && content['communityImage'].toString().isNotEmpty
                             ? NetworkImage(content['communityImage'])
-                            : const AssetImage('assets/images/c14.jpg') as ImageProvider,
+                            : const AssetImage('assets/images/fixx_community.png') as ImageProvider,
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -645,7 +645,7 @@ class _SmarterShowroomsSection extends StatelessWidget {
                     clipBehavior: Clip.antiAlias,
                     child: content['smarterImage'] != null && content['smarterImage'].toString().isNotEmpty
                         ? Image.network(content['smarterImage'], fit: BoxFit.cover)
-                        : Image.asset('assets/images/c12.jpg', fit: BoxFit.cover),
+                        : Image.asset('assets/images/your_ev_brand.png', fit: BoxFit.cover),
                   ),
                 ),
               ]
@@ -731,7 +731,7 @@ class _ScalableFutureSection extends StatelessWidget {
                       image: DecorationImage(
                         image: content['whyImage'] != null && content['whyImage'].toString().isNotEmpty
                             ? NetworkImage(content['whyImage'])
-                            : const AssetImage('assets/images/c11.png') as ImageProvider,
+                            : const AssetImage('assets/images/why_fixx_ev.png') as ImageProvider,
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -1207,16 +1207,37 @@ class _ModelCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          height: 300,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            image: DecorationImage(
-              image: img.startsWith('assets') 
-                  ? AssetImage(img) as ImageProvider 
-                  : NetworkImage(img),
-              fit: BoxFit.cover,
-            ),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            height: 300,
+            width: double.infinity,
+            color: Colors.grey[200],
+            child: img.startsWith('assets')
+                ? Image.asset(
+                    img,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.broken_image, color: Colors.grey, size: 48),
+                            const SizedBox(height: 8),
+                            Text('Image not found\n$img', 
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(color: Colors.grey, fontSize: 10)
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  )
+                : Image.network(
+                    img,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image),
+                  ),
           ),
         ),
         const SizedBox(height: 16),
