@@ -23,6 +23,13 @@ echo "⬇️  Getting dependencies..."
 flutter pub get
 
 echo "🏗️  Building Web Application..."
-flutter build web --release --no-tree-shake-icons
+# Pass API_URL from environment if available
+if [ -n "$API_URL" ]; then
+    echo "Using API_URL: $API_URL"
+    flutter build web --release --dart-define=API_URL="$API_URL" --no-tree-shake-icons
+else
+    echo "Using default API_URL (http://127.0.0.1:5001/api)"
+    flutter build web --release --no-tree-shake-icons
+fi
 
 echo "✅  Build Complete! Output in build/web"
