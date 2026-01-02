@@ -869,15 +869,40 @@ class _ProcessDarkSection extends StatelessWidget {
                 style: AppTextStyles.bodyMedium.copyWith(color: Colors.white70),
               ),
               const SizedBox(height: 50),
-              Wrap(
-                spacing: 24,
-                runSpacing: 24,
-                children: [
-                  _DarkStep(num: '01', title: content['step1Title'] ?? 'A Dealer', desc: content['step1Desc'] ?? 'Wanting your own brand to improve margins.'),
-                  _DarkStep(num: '02', title: content['step2Title'] ?? 'A Fleet Operator', desc: content['step2Desc'] ?? 'Looking for custom vehicles tailored to your needs.'),
-                  _DarkStep(num: '03', title: content['step3Title'] ?? 'A Startup', desc: content['step3Desc'] ?? 'Building a new EV brand from scratch.'),
-                  _DarkStep(num: '04', title: content['step4Title'] ?? 'A Distributor', desc: content['step4Desc'] ?? 'Seeking regional exclusivity for new products.'),
-                ],
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final crossAxisCount = isMobile ? 1 : (constraints.maxWidth > 900 ? 4 : 2);
+                  return GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: crossAxisCount,
+                    crossAxisSpacing: 20,
+                    mainAxisSpacing: 20,
+                    childAspectRatio: isMobile ? 1.6 : (constraints.maxWidth > 1000 ? 0.85 : 0.7),
+                    children: [
+                      _DarkStep(
+                        num: '01', 
+                        title: content['step1Title'] ?? 'Contact Us', 
+                        desc: content['step1Desc'] ?? 'Get in touch with our team to discuss your EV business goals. We provide initial consulting on market trends, sourcing requirements, and capital investment to ensure you start on the right path.'
+                      ),
+                      _DarkStep(
+                        num: '02', 
+                        title: content['step2Title'] ?? 'Share Requirements', 
+                        desc: content['step2Desc'] ?? 'Tell us about your target market, preferred vehicle types, and expected volume. We evaluate your requirements to create a customized CKD solution that fits your regional demand and technical specs.'
+                      ),
+                      _DarkStep(
+                        num: '03', 
+                        title: content['step3Title'] ?? 'Order Placement', 
+                        desc: content['step3Desc'] ?? 'Once the strategy is finalized, you place your orders through our secure portal. We coordinate with factory partners for component production and manage all export-import documentation on your behalf.'
+                      ),
+                      _DarkStep(
+                        num: '04', 
+                        title: content['step4Title'] ?? 'Delivery', 
+                        desc: content['step4Desc'] ?? 'We deliver your CKD containers on time to your facility. Our support doesn\'t end there—we provide assembly guidance, quality audit checklists, and logistics support to get your brand moving.'
+                      ),
+                    ],
+                  );
+                },
               ),
               const SizedBox(height: 60),
               Center(
@@ -921,21 +946,26 @@ class _DarkStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 260,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24), // Increased padding
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        color: Colors.white.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(16), // Softer corners
+        border: Border.all(color: Colors.white.withOpacity(0.12)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(num, style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.accentTeal)),
-          const SizedBox(height: 8),
-          Text(title, style: AppTextStyles.cardTitle.copyWith(color: Colors.white)),
-          const SizedBox(height: 8),
-          Text(desc, style: AppTextStyles.bodySmall.copyWith(color: Colors.white70)),
+          Text(num, style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.accentTeal)),
+          const SizedBox(height: 12),
+          Text(title, style: AppTextStyles.cardTitle.copyWith(color: Colors.white, fontSize: 18)),
+          const SizedBox(height: 12),
+          Expanded(
+            child: Text(
+              desc, 
+              style: AppTextStyles.bodySmall.copyWith(color: Colors.white.withOpacity(0.8), height: 1.5),
+              overflow: TextOverflow.fade,
+            ),
+          ),
         ],
       ),
     );
@@ -1154,11 +1184,11 @@ class _ModelsGridSection extends StatelessWidget {
               const SizedBox(height: 50),
               Row(
                 children: [
-                  Expanded(child: _ModelCard('assets/images/c11.png', 'Vector X')),
+                  Expanded(child: _ModelCard('assets/images/vector_x.png', 'Vector X')),
                   const SizedBox(width: 24),
-                  Expanded(child: _ModelCard('assets/images/c13.jpg', 'Urban S')),
+                  Expanded(child: _ModelCard('assets/images/urban_s.png', 'Urban S')),
                   const SizedBox(width: 24),
-                  Expanded(child: _ModelCard('assets/images/c12.jpg', 'Metro Glide')),
+                  Expanded(child: _ModelCard('assets/images/metro_glide.png', 'Metro Glide')),
                 ],
               ),
             ],
