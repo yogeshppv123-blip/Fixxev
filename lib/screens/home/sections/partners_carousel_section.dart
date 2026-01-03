@@ -51,31 +51,38 @@ class _PartnersCarouselSectionState extends State<PartnersCarouselSection> {
 
   @override
   Widget build(BuildContext context) {
-    // Placeholder logos for partners (using icons or colored boxes)
-    final partners = [
-      {'name': 'EV CORE', 'icon': Icons.bolt},
-      {'name': 'BATTERIX', 'icon': Icons.battery_full},
-      {'name': 'AUTOFLOW', 'icon': Icons.auto_mode},
-      {'name': 'GRIDTECH', 'icon': Icons.grid_view},
-      {'name': 'NEXCHARGE', 'icon': Icons.cable},
-      {'name': 'E-DRIVE', 'icon': Icons.speed},
-    ];
+    final List<dynamic> dynamicPartners = widget.content['partnerLogos'] ?? [];
+    
+    final partners = dynamicPartners.isNotEmpty 
+      ? dynamicPartners.map((p) => {
+          'name': (p['name'] ?? '').toString(),
+          'image': (p['image'] ?? '').toString(),
+          'icon': Icons.bolt, // Fallback if no image
+        }).toList()
+      : [
+          {'name': 'EV CORE', 'icon': Icons.bolt},
+          {'name': 'BATTERIX', 'icon': Icons.battery_full},
+          {'name': 'AUTOFLOW', 'icon': Icons.auto_mode},
+          {'name': 'GRIDTECH', 'icon': Icons.grid_view},
+          {'name': 'NEXCHARGE', 'icon': Icons.cable},
+          {'name': 'E-DRIVE', 'icon': Icons.speed},
+        ];
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 60),
       decoration: const BoxDecoration(
-        color: Color(0xFFF8F9FA), // Slightly cleaner white/grey
+        color: Color(0xFFF8F9FA),
       ),
       child: Column(
         children: [
           Text(
             widget.content['partnersTitle'] ?? 'OUR TRUSTED PARTNERS',
             style: TextStyle(
-              fontSize: 14, // Slightly larger
-              letterSpacing: 3.0, // More spacing for premium feel
+              fontSize: 14,
+              letterSpacing: 3.0,
               fontWeight: FontWeight.w800,
-              color: AppColors.primaryNavy.withAlpha(180), // More visible
+              color: AppColors.primaryNavy.withAlpha(180),
             ),
           ),
           const SizedBox(height: 40),
@@ -85,10 +92,14 @@ class _PartnersCarouselSectionState extends State<PartnersCarouselSection> {
               controller: _scrollController,
               scrollDirection: Axis.horizontal,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: 20, // Multiplied for infinite loop effect
+              itemCount: 20,
               itemBuilder: (context, index) {
                 final partner = partners[index % partners.length];
-                return _PartnerLogo(name: partner['name'] as String, icon: partner['icon'] as IconData);
+                return _PartnerLogo(
+                  name: partner['name'] as String, 
+                  icon: partner['icon'] as IconData?,
+                  imageUrl: partner['image'] as String?,
+                );
               },
             ),
           ),
@@ -100,9 +111,10 @@ class _PartnersCarouselSectionState extends State<PartnersCarouselSection> {
 
 class _PartnerLogo extends StatefulWidget {
   final String name;
-  final IconData icon;
+  final IconData? icon;
+  final String? imageUrl;
 
-  const _PartnerLogo({required this.name, required this.icon});
+  const _PartnerLogo({required this.name, this.icon, this.imageUrl});
 
   @override
   State<_PartnerLogo> createState() => _PartnerLogoState();
@@ -130,19 +142,26 @@ class _PartnerLogoState extends State<_PartnerLogo> {
         ),
         child: Row(
           children: [
-            Icon(
-              widget.icon,
-              color: AppColors.accentRed,
-              size: 28,
-            ),
+            if (widget.imageUrl != null && widget.imageUrl!.isNotEmpty)
+              Image.network(
+                widget.imageUrl!,
+                height: 32,
+                errorBuilder: (context, error, stackTrace) => Icon(widget.icon ?? Icons.business, color: AppColors.accentRed, size: 28),
+              )
+            else
+              Icon(
+                widget.icon ?? Icons.business,
+                color: AppColors.accentRed,
+                size: 28,
+              ),
             const SizedBox(width: 12),
             Text(
               widget.name,
               style: const TextStyle(
                 fontSize: 18,
-                fontWeight: FontWeight.w900, // Slightly bolder for premium look
+                fontWeight: FontWeight.w900,
                 color: AppColors.primaryNavy,
-                letterSpacing: 1.5, // Increased letter spacing
+                letterSpacing: 1.5,
               ),
             ),
           ],

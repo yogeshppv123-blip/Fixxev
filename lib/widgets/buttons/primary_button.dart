@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fixxev/core/theme/app_colors.dart';
 import 'package:fixxev/core/theme/app_text_styles.dart';
+import 'package:fixxev/core/providers/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 /// Primary CTA Button with hover/tap animation effect - Red theme
 class PrimaryButton extends StatefulWidget {
@@ -54,6 +56,8 @@ class _PrimaryButtonState extends State<PrimaryButton>
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
@@ -66,12 +70,12 @@ class _PrimaryButtonState extends State<PrimaryButton>
               duration: const Duration(milliseconds: 200),
               width: widget.width,
               decoration: BoxDecoration(
-                gradient: widget.backgroundColor == null ? AppColors.redGradient : null,
+                gradient: widget.backgroundColor == null ? themeProvider.primaryGradient : null,
                 color: widget.backgroundColor,
                 borderRadius: BorderRadius.circular(6),
                 boxShadow: [
                   BoxShadow(
-                    color: (widget.backgroundColor ?? AppColors.accentRed).withAlpha(_isHovered ? 80 : 50),
+                    color: (widget.backgroundColor ?? themeProvider.primaryColor).withAlpha(_isHovered ? 80 : 50),
                     blurRadius: _isHovered ? 20 : 10,
                     offset: Offset(0, _isHovered ? 8 : 4),
                   ),

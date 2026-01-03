@@ -2,6 +2,17 @@ const express = require('express');
 const router = express.Router();
 const PageContent = require('../models/PageContent');
 
+// Get all page content entries
+router.get('/', async (req, res) => {
+    try {
+        const pages = await PageContent.find({}, 'pageName updatedAt');
+        res.json(pages);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+
 // Get content for a specific page
 router.get('/:pageName', async (req, res) => {
     try {

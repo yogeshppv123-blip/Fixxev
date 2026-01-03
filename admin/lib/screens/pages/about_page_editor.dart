@@ -3,6 +3,7 @@ import 'package:fixxev_admin/core/theme/app_colors.dart';
 import 'package:fixxev_admin/core/theme/app_text_styles.dart';
 import 'package:fixxev_admin/widgets/sidebar.dart';
 import 'package:fixxev_admin/core/services/api_service.dart';
+import 'package:file_picker/file_picker.dart';
 
 class AboutPageEditor extends StatefulWidget {
   const AboutPageEditor({super.key});
@@ -16,164 +17,200 @@ class _AboutPageEditorState extends State<AboutPageEditor> {
   bool _isLoading = true;
   bool _isSaving = false;
 
-  final _titleController = TextEditingController();
-  final _desc1Controller = TextEditingController();
-  final _desc2Controller = TextEditingController();
+  // --- Hero Section ---
+  final _heroTaglineController = TextEditingController();
+  final _heroTitleController = TextEditingController();
+  final _heroDesc1Controller = TextEditingController();
+  final _heroDesc2Controller = TextEditingController();
+  final _heroImageController = TextEditingController();
+  final _heroBtnTextController = TextEditingController();
+  final _heroBadgeTextController = TextEditingController();
+  bool _heroIsRed = false;
 
-  final _missionTitleController = TextEditingController();
-  final _missionDescController = TextEditingController();
-  
-  final _visionTitleController = TextEditingController();
-  final _visionDescController = TextEditingController();
+  // --- Stats Section ---
+  final List<Map<String, TextEditingController>> _stats = List.generate(4, (_) => {
+    'value': TextEditingController(),
+    'label': TextEditingController(),
+  });
 
-  final _csrTitleController = TextEditingController();
-  final _csrDescController = TextEditingController();
+  // --- ZigZag Sections ---
+  final List<Map<String, dynamic>> _zigzagSections = [];
 
-  final _futureTitleController = TextEditingController();
-  final _futureDescController = TextEditingController();
-
-  // Building
-  final _buildingLabelController = TextEditingController();
-  final _buildingTitleController = TextEditingController();
-  final _buildingDescController = TextEditingController();
-  final _buildingItemsController = TextEditingController();
-  
-  // Tech
-  final _techLabelController = TextEditingController();
-  final _techTitleController = TextEditingController();
-  final _techDescController = TextEditingController();
-
-  // Franchise
-  final _franchiseLabelController = TextEditingController();
-  final _franchiseTitleController = TextEditingController();
-  final _franchiseDescController = TextEditingController();
-  final _franchiseItemsController = TextEditingController();
-
-  // Impact
-  final _impactLabelController = TextEditingController();
-  final _impactTitleController = TextEditingController();
-  final _impactDescController = TextEditingController();
-
-  // Invest
-  final _investLabelController = TextEditingController();
-  final _investTitleController = TextEditingController();
-  final _investDescController = TextEditingController();
-  final _investItemsController = TextEditingController();
-
-  // AboutJoin
-  final _aboutJoinLabelController = TextEditingController();
-  final _aboutJoinTitleController = TextEditingController();
-  final _aboutJoinDescController = TextEditingController();
+  // --- CTA Section ---
+  final _ctaTitleController = TextEditingController();
+  final _ctaSubtitleController = TextEditingController();
+  final _ctaBtnTextController = TextEditingController();
+  bool _ctaIsRed = false;
 
   @override
   void initState() {
     super.initState();
+    _heroImageController.addListener(() => setState(() {}));
     _loadContent();
+  }
+
+  @override
+  void dispose() {
+    _heroImageController.dispose();
+    for (var s in _zigzagSections) {
+      (s['imageUrl'] as TextEditingController).dispose();
+    }
+    super.dispose();
+  }
+
+  void _addSection({String? label, String? title, String? subtitle, String? desc, String? desc2, String? image, List<String>? items}) {
+    final imageController = TextEditingController(text: image ?? '');
+    // Add listener for real-time preview
+    imageController.addListener(() => setState(() {}));
+    
+    setState(() {
+      _zigzagSections.add({
+        'label': TextEditingController(text: label ?? ''),
+        'title': TextEditingController(text: title ?? ''),
+        'subtitle': TextEditingController(text: subtitle ?? ''),
+        'description': TextEditingController(text: desc ?? ''),
+        'description2': TextEditingController(text: desc2 ?? ''),
+        'imageUrl': imageController,
+        'items': TextEditingController(text: (items ?? []).join('\n')),
+      });
+    });
   }
 
   Future<void> _loadContent() async {
     try {
       final data = await _apiService.getPageContent('about');
       final content = data['content'] ?? {};
-      
+
       setState(() {
-        _titleController.text = content['title'] ?? 'The Hub of Multi-Brand EV Ecosystem';
-        _desc1Controller.text = content['desc1'] ?? 'At FIXXEV, we are committed to revolutionizing the electric vehicle (EV) service industry.';
-        _desc2Controller.text = content['desc2'] ?? 'As the demand for sustainable mobility grows, FIXXEV stands at the forefront of after-sales service.';
-        
-        _missionTitleController.text = content['missionTitle'] ?? 'Our Core Values';
-        _missionDescController.text = content['missionDesc'] ?? 'At FIXXEV, we are driven by integrity, excellence, and a deep commitment to the environment.';
-        
-        _visionTitleController.text = content['visionTitle'] ?? 'Our Goal';
-        _visionDescController.text = content['visionDesc'] ?? 'Our goal is to build India\'s most reliable EV support ecosystem.';
-        
-        _csrTitleController.text = content['csrTitle'] ?? 'Corporate Social Responsibility (CSR)';
-        _csrDescController.text = content['csrDesc'] ?? 'FIXXEV is committed to making a positive impact on the environment and society.';
-        
-        _futureTitleController.text = content['futureTitle'] ?? 'Future Plans & Expansion';
-        _futureDescController.text = content['futureDesc'] ?? 'We are rapidly expanding our footprint across India.';
+        _heroTaglineController.text = content['heroTagline'] ?? 'LAUNCH ANNOUNCEMENT';
+        _heroTitleController.text = content['heroTitle'] ?? 'Driving India’s EV Future 🔋';
+        _heroDesc1Controller.text = content['heroDesc1'] ?? 'Fixx EV Technologies Pvt. Ltd. is on a mission to solve one of the biggest barriers to electric vehicle adoption in India.';
+        _heroDesc2Controller.text = content['heroDesc2'] ?? 'As India rapidly moves towards electric mobility, the service ecosystem has remained fragmented.';
+        _heroImageController.text = content['heroImage'] ?? 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e';
+        _heroBtnTextController.text = content['heroBtnText'] ?? 'GET IN TOUCH →';
+        _heroBadgeTextController.text = content['heroBadgeText'] ?? 'LAUNCH ANNOUNCEMENT';
+        _heroIsRed = content['heroIsRed'] ?? false;
 
-        _buildingLabelController.text = content['buildingLabel'] ?? '// INFRASTRUCTURE';
-        _buildingTitleController.text = content['buildingTitle'] ?? 'What We Are Building';
-        _buildingDescController.text = content['buildingDesc'] ?? ''; 
-        _buildingItemsController.text = content['buildingItems'] ?? 'A pan-India network of 500+ EV service centres\nOEM-certified spares & standardized service processes\nSkilled, trained technicians supported by Fixx EV\nCentralized quality control & supply chain';
+        for (int i = 0; i < 4; i++) {
+          _stats[i]['value']!.text = content['stat${i+1}Value'] ?? (['20+', '500+', '50+', '10+'][i]);
+          _stats[i]['label']!.text = content['stat${i+1}Label'] ?? (['Years Experience', 'Vehicles Serviced', 'Trained Technicians', 'Cities Covered'][i]);
+        }
 
-        _techLabelController.text = content['techLabel'] ?? '// INNOVATION';
-        // ...
-        
-        _franchiseLabelController.text = content['franchiseLabel'] ?? '// GROWTH';
-        _franchiseTitleController.text = content['franchiseTitle'] ?? 'Franchise-Led Growth Model';
-        _franchiseDescController.text = content['franchiseDesc'] ?? 'Fixx EV follows a capital-light...';
-        _franchiseItemsController.text = content['franchiseItems'] ?? 'Branding & onboarding support\nTechnical training & SOPs\nOEM-approved parts access\nDigital tools & customer acquisition';
+        final sections = content['zigzagSections'] as List?;
+        _zigzagSections.clear();
+        if (sections != null && sections.isNotEmpty) {
+          for (var s in sections) {
+            _addSection(
+              label: s['label'],
+              title: s['title'],
+              subtitle: s['subtitle'],
+              desc: s['description'],
+              desc2: s['description2'],
+              image: s['imageUrl'],
+              items: (s['items'] as List?)?.cast<String>(),
+            );
+          }
+        } else {
+          // Migration Logic: Check if there are old individual sections
+          _migrateOldSections();
+        }
 
-        _impactLabelController.text = content['impactLabel'] ?? '// IMPACT';
-        // ...
-        
-        _investLabelController.text = content['investLabel'] ?? '// OPPORTUNITY';
-        _investTitleController.text = content['investTitle'] ?? 'Investment Opportunity';
-        _investDescController.text = content['investDesc'] ?? 'Fixx EV presents a high-impact opportunity...';
-        _investItemsController.text = content['investItems'] ?? 'Strategic investor partnerships\nFranchise network expansion\nLargest EV service ecosystem in India';
+        _ctaTitleController.text = content['ctaTitle'] ?? 'Ready to Join the EV Revolution?';
+        _ctaSubtitleController.text = content['ctaSubtitle'] ?? 'Partner with FIXXEV for reliable EV servicing and support.';
+        _ctaBtnTextController.text = content['ctaBtnText'] ?? 'CONTACT US';
+        _ctaIsRed = content['ctaIsRed'] ?? false;
 
-        _aboutJoinLabelController.text = content['aboutJoinLabel'] ?? '// COLLABORATION';
-        _aboutJoinTitleController.text = content['aboutJoinTitle'] ?? 'Join the Mission';
-        _aboutJoinDescController.text = content['aboutJoinDesc'] ?? 'We are now inviting strategic investors...';
-        
         _isLoading = false;
       });
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error loading content: $e')));
-        setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _migrateOldSections() async {
+    try {
+      final oldSections = await _apiService.getAboutSections();
+      if (oldSections.isNotEmpty) {
+        setState(() => _zigzagSections.clear());
+        for (var s in oldSections) {
+          if (s['isActive'] == true) {
+            _addSection(
+              label: s['label'],
+              title: s['title'],
+              desc: s['description'],
+              image: s['imageUrl'],
+              items: (s['items'] as List?)?.cast<String>(),
+            );
+          }
+        }
+      } else {
+        // Fallback to defaults if truly nothing exists
+        _addSection(
+          label: '// INFRASTRUCTURE', 
+          title: 'What We Are Building', 
+          subtitle: 'EV Spares Hub – Powering India’s EV Ecosystem',
+          desc: 'A nationwide, standardized EV after-sales network.', 
+          image: 'https://images.unsplash.com/photo-1587352324982-d49d44f80877?auto=format&fit=crop&q=80&w=2000',
+          items: ['Branding & onboarding support', 'Technical training', 'OEM-approved parts access', 'Digital tools']
+        );
+        _addSection(
+          label: '// INNOVATION', 
+          title: 'Technology as the Backbone', 
+          image: 'https://images.unsplash.com/photo-1556155092-490a1ba16284?auto=format&fit=crop&q=80&w=2000',
+          desc: 'Our mobile application connects EV owners to authorized service centres.'
+        );
       }
+    } catch (e) {
+      // If migration fails, just show the defaults
+      _addSection(
+        label: '// INFRASTRUCTURE', 
+        title: 'What We Are Building', 
+        image: 'https://images.unsplash.com/photo-1587352324982-d49d44f80877?auto=format&fit=crop&q=80&w=2000',
+        desc: 'A nationwide, standardized EV after-sales network.'
+      );
     }
   }
 
   Future<void> _saveContent() async {
     setState(() => _isSaving = true);
     try {
-      final content = {
-        'title': _titleController.text,
-        'desc1': _desc1Controller.text,
-        'desc2': _desc2Controller.text,
-        'missionTitle': _missionTitleController.text,
-        'missionDesc': _missionDescController.text,
-        'visionTitle': _visionTitleController.text,
-        'visionDesc': _visionDescController.text,
-        'csrTitle': _csrTitleController.text,
-        'csrDesc': _csrDescController.text,
-        'futureTitle': _futureTitleController.text,
-        'futureDesc': _futureDescController.text,
-        'buildingLabel': _buildingLabelController.text,
-        'buildingTitle': _buildingTitleController.text,
-        'buildingDesc': _buildingDescController.text,
-        'buildingItems': _buildingItemsController.text,
-        'techLabel': _techLabelController.text,
-        'techTitle': _techTitleController.text,
-        'techDesc': _techDescController.text,
-        'franchiseLabel': _franchiseLabelController.text,
-        'franchiseTitle': _franchiseTitleController.text,
-        'franchiseDesc': _franchiseDescController.text,
-        'franchiseItems': _franchiseItemsController.text,
-        'impactLabel': _impactLabelController.text,
-        'impactTitle': _impactTitleController.text,
-        'impactDesc': _impactDescController.text,
-        'investLabel': _investLabelController.text,
-        'investTitle': _investTitleController.text,
-        'investDesc': _investDescController.text,
-        'investItems': _investItemsController.text,
-        'aboutJoinLabel': _aboutJoinLabelController.text,
-        'aboutJoinTitle': _aboutJoinTitleController.text,
-        'aboutJoinDesc': _aboutJoinDescController.text,
-      };
-      
+      final Map<String, dynamic> content = {};
+
+      content['heroTagline'] = _heroTaglineController.text;
+      content['heroTitle'] = _heroTitleController.text;
+      content['heroDesc1'] = _heroDesc1Controller.text;
+      content['heroDesc2'] = _heroDesc2Controller.text;
+      content['heroImage'] = _heroImageController.text;
+      content['heroBtnText'] = _heroBtnTextController.text;
+      content['heroBadgeText'] = _heroBadgeTextController.text;
+      content['heroIsRed'] = _heroIsRed;
+
+      for (int i = 0; i < 4; i++) {
+        content['stat${i+1}Value'] = _stats[i]['value']!.text;
+        content['stat${i+1}Label'] = _stats[i]['label']!.text;
+      }
+
+      content['zigzagSections'] = _zigzagSections.map((s) => {
+        'label': (s['label'] as TextEditingController).text,
+        'title': (s['title'] as TextEditingController).text,
+        'subtitle': (s['subtitle'] as TextEditingController).text,
+        'description': (s['description'] as TextEditingController).text,
+        'description2': (s['description2'] as TextEditingController).text,
+        'imageUrl': (s['imageUrl'] as TextEditingController).text,
+        'items': (s['items'] as TextEditingController).text.split('\n').where((e) => e.trim().isNotEmpty).toList(),
+      }).toList();
+
+      content['ctaTitle'] = _ctaTitleController.text;
+      content['ctaSubtitle'] = _ctaSubtitleController.text;
+      content['ctaBtnText'] = _ctaBtnTextController.text;
+      content['ctaIsRed'] = _ctaIsRed;
+
       await _apiService.updatePageContent('about', content);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('About page content updated!')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('About page fully updated!')));
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error saving content: $e')));
-      }
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error saving: $e')));
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
@@ -197,73 +234,18 @@ class _AboutPageEditorState extends State<AboutPageEditor> {
                         padding: const EdgeInsets.all(32),
                         child: Column(
                           children: [
-                            _buildSectionCard(
-                              title: 'Overview (Hero)',
-                              icon: Icons.info_outline,
-                              children: [
-                                _buildTextField('Page Heading', _titleController, maxLines: 2),
-                                const SizedBox(height: 16),
-                                _buildTextField('Description Paragraph 1', _desc1Controller, maxLines: 3),
-                                const SizedBox(height: 16),
-                                _buildTextField('Description Paragraph 2', _desc2Controller, maxLines: 3),
-                              ],
-                            ),
+                            _buildHeroSection(),
                             const SizedBox(height: 32),
-                            _buildSectionCard(
-                              title: 'Core Values',
-                              icon: Icons.lightbulb_outline,
-                              children: [
-                                _buildTextField('Values Title', _missionTitleController),
-                                const SizedBox(height: 16),
-                                _buildTextField('Values Description', _missionDescController, maxLines: 3),
-                              ],
-                            ),
+                            _buildStatsSection(),
                             const SizedBox(height: 32),
-                            _buildSectionCard(
-                              title: 'Our Goal',
-                              icon: Icons.flag_outlined,
-                              children: [
-                                _buildTextField('Goal Title', _visionTitleController),
-                                const SizedBox(height: 16),
-                                _buildTextField('Goal Description', _visionDescController, maxLines: 3),
-                              ],
-                            ),
+                            _buildZigZagSections(),
                             const SizedBox(height: 32),
-                            _buildSectionCard(
-                              title: 'CSR Section',
-                              icon: Icons.favorite_outline,
-                              children: [
-                                _buildTextField('CSR Title', _csrTitleController),
-                                const SizedBox(height: 16),
-                                _buildTextField('CSR Description', _csrDescController, maxLines: 3),
-                              ],
-                            ),
-                            const SizedBox(height: 32),
-                            _buildSectionCard(
-                              title: 'Expansion Section',
-                              icon: Icons.trending_up,
-                              children: [
-                                _buildTextField('Future Plans Title', _futureTitleController),
-                                const SizedBox(height: 16),
-                                _buildTextField('Future Plans Description', _futureDescController, maxLines: 3),
-                              ],
-                            ),
-                        const SizedBox(height: 32),
-                        _buildDynamicSection('Infrastructure', Icons.apartment, _buildingLabelController, _buildingTitleController, _buildingDescController, itemsC: _buildingItemsController),
-                        const SizedBox(height: 32),
-                        _buildDynamicSection('Technology', Icons.phone_android, _techLabelController, _techTitleController, _techDescController),
-                        const SizedBox(height: 32),
-                        _buildDynamicSection('Franchise Model', Icons.store, _franchiseLabelController, _franchiseTitleController, _franchiseDescController, itemsC: _franchiseItemsController),
-                        const SizedBox(height: 32),
-                        _buildDynamicSection('Impact', Icons.eco, _impactLabelController, _impactTitleController, _impactDescController),
-                        const SizedBox(height: 32),
-                        _buildDynamicSection('Investment', Icons.attach_money, _investLabelController, _investTitleController, _investDescController, itemsC: _investItemsController),
-                        const SizedBox(height: 32),
-                        _buildDynamicSection('Join Mission', Icons.handshake, _aboutJoinLabelController, _aboutJoinTitleController, _aboutJoinDescController),
-                      ],
+                            _buildCTASection(),
+                            const SizedBox(height: 100),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                ),
                   ],
                 ),
           ),
@@ -286,7 +268,7 @@ class _AboutPageEditorState extends State<AboutPageEditor> {
             children: [
               IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back, color: Colors.white)),
               const SizedBox(width: 16),
-              Text('Edit About Page', style: AppTextStyles.heading2),
+              Text('About Page Editor', style: AppTextStyles.heading2),
             ],
           ),
           ElevatedButton.icon(
@@ -294,7 +276,8 @@ class _AboutPageEditorState extends State<AboutPageEditor> {
             icon: _isSaving 
               ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
               : const Icon(Icons.save),
-            label: Text(_isSaving ? 'Saving...' : 'Save Changes'),
+            label: Text(_isSaving ? 'Saving...' : 'Save All Changes'),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.accentBlue, padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16)),
           ),
         ],
       ),
@@ -303,63 +286,223 @@ class _AboutPageEditorState extends State<AboutPageEditor> {
 
   Widget _buildSectionCard({required String title, required IconData icon, required List<Widget> children}) {
     return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AppColors.cardDark,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.sidebarDark),
-      ),
+      width: double.infinity,
+      padding: const EdgeInsets.all(28),
+      decoration: BoxDecoration(color: AppColors.cardDark, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.sidebarDark)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, color: AppColors.accentBlue, size: 20),
-              const SizedBox(width: 12),
-              Text(title, style: AppTextStyles.heading3),
+              Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppColors.accentBlue.withOpacity(0.1), borderRadius: BorderRadius.circular(8)), child: Icon(icon, color: AppColors.accentBlue, size: 22)),
+              const SizedBox(width: 16),
+              Text(title, style: AppTextStyles.heading3.copyWith(fontSize: 20)),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
           ...children,
         ],
       ),
     );
   }
 
-  Widget _buildDynamicSection(String title, IconData icon, TextEditingController labelC, TextEditingController titleC, TextEditingController descC, {TextEditingController? itemsC}) {
-    return _buildSectionCard(
-      title: title,
-      icon: icon,
-      children: [
-        _buildTextField('Section Label', labelC),
-        const SizedBox(height: 16),
-        _buildTextField('Section Title', titleC),
-        const SizedBox(height: 16),
-        _buildTextField('Description', descC, maxLines: 5),
-        if (itemsC != null) ...[
-           const SizedBox(height: 16),
-           _buildTextField('Items List (One item per line)', itemsC, maxLines: 4),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildTextField(String label, TextEditingController controller, {int maxLines = 1}) {
+  Widget _buildTextField(String label, TextEditingController controller, {int maxLines = 1, bool isImage = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTextStyles.label.copyWith(color: AppColors.textGrey)),
+        Text(label, style: const TextStyle(color: AppColors.textGrey, fontSize: 12, fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
         TextField(
           controller: controller,
           maxLines: maxLines,
-          style: AppTextStyles.bodyLarge,
+          style: const TextStyle(color: Colors.white, fontSize: 14),
           decoration: InputDecoration(
             filled: true,
             fillColor: AppColors.sidebarDark,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+            suffixIcon: isImage ? IconButton(icon: const Icon(Icons.upload_file, color: AppColors.accentBlue), onPressed: () => _pickAndUploadImage(controller)) : null,
           ),
         ),
+      ],
+    );
+  }
+
+  Future<void> _pickAndUploadImage(TextEditingController controller) async {
+    try {
+      final result = await FilePicker.platform.pickFiles(type: FileType.image, allowMultiple: false, withData: true);
+      if (result != null && result.files.isNotEmpty) {
+        final file = result.files.first;
+        if (file.bytes != null) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Uploading image...')));
+          final url = await _apiService.uploadImage(file.bytes!, file.name);
+          setState(() => controller.text = url);
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Image uploaded successfully!')));
+        }
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
+    }
+  }
+
+  Widget _buildHeroSection() {
+    return _buildSectionCard(
+      title: '1. About Hero Section',
+      icon: Icons.info_outline,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 150, height: 150,
+              decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white.withOpacity(0.1))),
+              child: _heroImageController.text.isNotEmpty
+                  ? ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(_heroImageController.text, fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.white24)))
+                  : const Icon(Icons.image_outlined, color: Colors.white24),
+            ),
+            const SizedBox(width: 24),
+            Expanded(
+              child: Column(
+                children: [
+                   _buildTextField('Tagline', _heroTaglineController),
+                   const SizedBox(height: 16),
+                   _buildTextField('Image URL', _heroImageController, isImage: true),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+        _buildTextField('Main Heading', _heroTitleController),
+        const SizedBox(height: 16),
+        _buildTextField('Paragraph 1', _heroDesc1Controller, maxLines: 3),
+        const SizedBox(height: 16),
+        _buildTextField('Paragraph 2', _heroDesc2Controller, maxLines: 3),
+        const SizedBox(height: 16),
+        _buildTextField('Hero Button Text', _heroBtnTextController),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(child: _buildTextField('Badge Text (Launch Announcement)', _heroBadgeTextController)),
+            const SizedBox(width: 24),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Red Theme', style: TextStyle(color: AppColors.textGrey, fontSize: 12)),
+                Switch(value: _heroIsRed, onChanged: (v) => setState(() => _heroIsRed = v), activeColor: Colors.redAccent),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatsSection() {
+    return _buildSectionCard(
+      title: '2. Impact Stats Bar',
+      icon: Icons.analytics_outlined,
+      children: [
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 20, mainAxisSpacing: 10, childAspectRatio: 4.5),
+          itemCount: 4,
+          itemBuilder: (context, i) => Row(children: [
+            Expanded(child: _buildTextField('Value', _stats[i]['value']!)),
+            const SizedBox(width: 12),
+            Expanded(child: _buildTextField('Label', _stats[i]['label']!)),
+          ]),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildZigZagSections() {
+    return _buildSectionCard(
+      title: '3. Story ZigZag Blocks',
+      icon: Icons.view_headline,
+      children: [
+        ...List.generate(_zigzagSections.length, (index) {
+          final s = _zigzagSections[index];
+          return Container(
+            margin: const EdgeInsets.only(bottom: 24),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(color: Colors.white.withOpacity(0.03), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white.withOpacity(0.05))),
+            child: Column(
+              children: [
+                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                  Text('Block #${index+1}', style: const TextStyle(color: AppColors.accentBlue, fontWeight: FontWeight.bold)),
+                  IconButton(onPressed: () => setState(() => _zigzagSections.removeAt(index)), icon: const Icon(Icons.delete_outline, color: Colors.redAccent)),
+                ]),
+                const SizedBox(height: 16),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 100, height: 100,
+                      decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.white.withOpacity(0.1))),
+                      child: s['imageUrl']!.text.isNotEmpty
+                          ? ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.network(s['imageUrl']!.text, fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.white24)))
+                          : const Icon(Icons.image_outlined, color: Colors.white24),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(children: [
+                        _buildTextField('Label (Small text above title)', s['label']!),
+                        const SizedBox(height: 12),
+                        _buildTextField('Image URL', s['imageUrl']!, isImage: true),
+                      ]),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(child: _buildTextField('Heading Title', s['title']!)),
+                    const SizedBox(width: 16),
+                    Expanded(child: _buildTextField('Subheading (Optional)', s['subtitle']!)),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _buildTextField('Description Paragraph 1', s['description']!, maxLines: 3),
+                const SizedBox(height: 16),
+                _buildTextField('Description Paragraph 2 (Optional)', s['description2']!, maxLines: 3),
+                const SizedBox(height: 16),
+                _buildTextField('Checklist Items (One per line)', s['items']!, maxLines: 4),
+              ],
+            ),
+          );
+        }),
+        Center(
+          child: OutlinedButton.icon(onPressed: () => _addSection(), icon: const Icon(Icons.add), label: const Text('Add ZigZag Block')),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCTASection() {
+    return _buildSectionCard(
+      title: '4. Join CTA Section',
+      icon: Icons.campaign_outlined,
+      children: [
+        Row(
+          children: [
+            Expanded(child: _buildTextField('CTA Title', _ctaTitleController)),
+            const SizedBox(width: 24),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Red Theme', style: TextStyle(color: AppColors.textGrey, fontSize: 12)),
+                Switch(value: _ctaIsRed, onChanged: (v) => setState(() => _ctaIsRed = v), activeColor: Colors.redAccent),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _buildTextField('CTA Subtitle', _ctaSubtitleController, maxLines: 2),
+        const SizedBox(height: 16),
+        _buildTextField('Button Text', _ctaBtnTextController),
       ],
     );
   }

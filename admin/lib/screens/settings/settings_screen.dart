@@ -69,6 +69,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -77,19 +79,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
         body: Center(child: CircularProgressIndicator()),
       );
     }
+    
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 900;
+
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: AppColors.backgroundDark,
+      drawer: isMobile ? const Drawer(child: AdminSidebar(currentRoute: '/settings')) : null,
+      appBar: isMobile ? AppBar(
+        backgroundColor: AppColors.sidebarDark,
+        leading: IconButton(
+          icon: const Icon(Icons.menu, color: Colors.white),
+          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+        ),
+        title: Text('Settings', style: AppTextStyles.heading3),
+        actions: [
+          IconButton(
+            onPressed: _saveSettings,
+            icon: const Icon(Icons.save, color: Colors.white),
+          ),
+        ],
+      ) : null,
       body: Row(
         children: [
-          const AdminSidebar(currentRoute: '/settings'),
+          if (!isMobile) const AdminSidebar(currentRoute: '/settings'),
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(32),
+              padding: EdgeInsets.all(isMobile ? 16 : 32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Settings', style: AppTextStyles.heading1),
-                  const SizedBox(height: 32),
+                  if (!isMobile) ...[
+                    Text('Settings', style: AppTextStyles.heading1),
+                    const SizedBox(height: 32),
+                  ],
                   
                   // General Settings Section
                   _buildSectionCard(
@@ -97,14 +121,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     icon: Icons.settings,
                     children: [
                       _buildTextField('Site Name', _siteNameController),
-                      const SizedBox(height: 24),
-                      Row(
-                        children: [
-                          Expanded(child: _buildTextField('Support Email', _emailController)),
-                          const SizedBox(width: 24),
-                          Expanded(child: _buildTextField('Support Phone', _phoneController)),
-                        ],
-                      ),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -135,15 +151,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   const SizedBox(height: 32),
                   
-                  // Save Button
-                  SizedBox(
-                    width: 200,
-                    child: ElevatedButton.icon(
-                      onPressed: _saveSettings,
-                      icon: const Icon(Icons.save),
-                      label: const Text('Save Changes'),
+                  // Save Button (Desktop)
+                  if (!isMobile)
+                    SizedBox(
+                      width: 200,
+                      child: ElevatedButton.icon(
+                        onPressed: _saveSettings,
+                        icon: const Icon(Icons.save),
+                        label: const Text('Save Changes'),
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),

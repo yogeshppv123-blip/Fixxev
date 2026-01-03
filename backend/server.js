@@ -9,10 +9,11 @@ const PORT = process.env.PORT || 5001; // Port 5000 is often taken by AirPlay on
 // Middleware
 app.use(cors({
     origin: '*', // Allow all origins
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
+app.use('/uploads', express.static('uploads'));
 
 // Request logger
 app.use((req, res, next) => {
@@ -43,6 +44,34 @@ app.use('/api/leads', require('./routes/leads'));
 app.use('/api/about-sections', require('./routes/aboutSections'));
 app.use('/api/franchise-types', require('./routes/franchiseTypes'));
 app.use('/api/ckd-features', require('./routes/ckdFeatures'));
+app.use('/api/upload', require('./routes/upload'));
+app.use('/api/auth', require('./routes/auth'));
+
+// Seed Default Admin
+const Admin = require('./models/Admin');
+const seedAdmin = async () => {
+    try {
+        let admin = await Admin.findOne({ email: 'admin@fixxev.com' });
+        if (!admin) {
+            admin = new Admin({
+                name: 'Admin',
+                email: 'admin@fixxev.com',
+                password: 'Fixxev@456'
+            });
+            await admin.save();
+            console.log('Default Admin seeded with new password');
+        } else {
+            // Force update to the requested password and ensure hashing
+            admin.password = 'Fixxev@456';
+            admin.markModified('password');
+            await admin.save();
+            console.log('Default Admin password updated to Fixxev@456 and hashed');
+        }
+    } catch (e) {
+        console.log('Error seeding admin:', e);
+    }
+};
+seedAdmin();
 
 app.get('/', (req, res) => {
     res.send('Fixxev Backend API');

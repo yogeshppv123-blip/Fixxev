@@ -79,8 +79,8 @@ class _WhatWeDoSectionState extends State<WhatWeDoSection>
               children: [
                 // Section header with animation
                 SectionHeader(
-                  label: (widget.content['whatWeDoLabel'] ?? 'FRANCHISE-LED GROWTH').toString().replaceAll('//', '').trim(),
-                  title: widget.content['whatWeDoTitle'] ?? 'BUILDING INDIA\'S LARGEST\nEV SERVICE NETWORK',
+                  label: (widget.content['wwdTagline'] ?? 'FRANCHISE-LED GROWTH').toString().replaceAll('//', '').trim(),
+                  title: widget.content['wwdTitle'] ?? 'BUILDING INDIA\'S LARGEST\nEV SERVICE NETWORK',
                 ),
                 const SizedBox(height: 60),
                 // Experience cards with staggered animation
@@ -88,8 +88,8 @@ class _WhatWeDoSectionState extends State<WhatWeDoSection>
                     ? Column(
                         children: [
                           _AnimatedExperienceCard(
-                            title: '500+ SERVICE CENTRES',
-                            description: 'A pan-India network of 500+ EV service centres across key cities and towns.',
+                            title: widget.content['wwdCard1Title'] ?? '500+ SERVICE CENTRES',
+                            description: widget.content['wwdCard1Desc'] ?? 'A pan-India network of 500+ EV service centres across key cities and towns.',
                             icon: Icons.hub,
                             delay: 0,
                             startAnimation: _hasStartedAnimation,
@@ -97,8 +97,8 @@ class _WhatWeDoSectionState extends State<WhatWeDoSection>
                           ),
                           const SizedBox(height: 24),
                           _AnimatedExperienceCard(
-                            title: 'CERTIFIED SPARES',
-                            description: 'Access to OEM-certified spares and standardized service processes nationwide.',
+                            title: widget.content['wwdCard2Title'] ?? 'CERTIFIED SPARES',
+                            description: widget.content['wwdCard2Desc'] ?? 'Access to OEM-certified spares and standardized service processes nationwide.',
                             icon: Icons.verified,
                             delay: 100,
                             startAnimation: _hasStartedAnimation,
@@ -106,8 +106,8 @@ class _WhatWeDoSectionState extends State<WhatWeDoSection>
                           ),
                           const SizedBox(height: 24),
                           _AnimatedExperienceCard(
-                            title: 'SKILLED TECHNICIANS',
-                            description: 'Expertly trained technicians supported by Fixx EV for centralized quality control.',
+                            title: widget.content['wwdCard3Title'] ?? 'SKILLED TECHNICIANS',
+                            description: widget.content['wwdCard3Desc'] ?? 'Expertly trained technicians supported by Fixx EV for centralized quality control.',
                             icon: Icons.engineering,
                             delay: 200,
                             startAnimation: _hasStartedAnimation,
@@ -119,8 +119,8 @@ class _WhatWeDoSectionState extends State<WhatWeDoSection>
                         children: [
                           Expanded(
                             child: _AnimatedExperienceCard(
-                                title: '500+ SERVICE CENTRES',
-                                description: 'Building a pan-India network of 500+ EV service centres across key cities and towns.',
+                                title: widget.content['wwdCard1Title'] ?? '500+ SERVICE CENTRES',
+                                description: widget.content['wwdCard1Desc'] ?? 'Building a pan-India network of 500+ EV service centres across key cities and towns.',
                                 icon: Icons.hub,
                                 delay: 0,
                                 startAnimation: _hasStartedAnimation,
@@ -130,8 +130,8 @@ class _WhatWeDoSectionState extends State<WhatWeDoSection>
                             const SizedBox(width: 24),
                             Expanded(
                               child: _AnimatedExperienceCard(
-                                title: 'CERTIFIED & STANDARDIZED',
-                                description: 'OEM-certified spares and standardized service processes backed by a centralized supply chain.',
+                                title: widget.content['wwdCard2Title'] ?? 'CERTIFIED & STANDARDIZED',
+                                description: widget.content['wwdCard2Desc'] ?? 'OEM-certified spares and standardized service processes backed by a centralized supply chain.',
                                 icon: Icons.verified,
                                 delay: 150,
                                 startAnimation: _hasStartedAnimation,
@@ -141,8 +141,8 @@ class _WhatWeDoSectionState extends State<WhatWeDoSection>
                             const SizedBox(width: 24),
                             Expanded(
                               child: _AnimatedExperienceCard(
-                                title: 'EXPERT CARE',
-                                description: 'Skilled, trained technicians supported by Fixx EV for consistent quality and diagnostics.',
+                                title: widget.content['wwdCard3Title'] ?? 'EXPERT CARE',
+                                description: widget.content['wwdCard3Desc'] ?? 'Skilled, trained technicians supported by Fixx EV for consistent quality and diagnostics.',
                                 icon: Icons.engineering,
                                 delay: 300,
                                 startAnimation: _hasStartedAnimation,

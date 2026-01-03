@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fixxev_admin/core/theme/app_colors.dart';
 import 'package:fixxev_admin/core/theme/app_text_styles.dart';
+import 'package:fixxev_admin/core/services/api_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -24,6 +25,8 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  final ApiService _apiService = ApiService();
+
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -32,21 +35,18 @@ class _LoginScreenState extends State<LoginScreen> {
       _errorMessage = null;
     });
 
-    // TODO: Implement Firebase Auth login
-    await Future.delayed(const Duration(seconds: 1));
-
-    // For now, simple validation (replace with Firebase)
-    if (_emailController.text == 'admin@fixxev.com' && 
-        _passwordController.text == 'admin123') {
-      // Navigate to dashboard
+    try {
+      await _apiService.login(_emailController.text.trim(), _passwordController.text);
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/dashboard');
       }
-    } else {
-      setState(() {
-        _errorMessage = 'Invalid email or password';
-        _isLoading = false;
-      });
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString().replaceFirst('Exception: ', '');
+          _isLoading = false;
+        });
+      }
     }
   }
 

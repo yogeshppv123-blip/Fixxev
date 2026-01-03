@@ -54,55 +54,63 @@ class _TeamScreenState extends State<TeamScreen> {
             controller: _scrollController,
             child: Column(
               children: [
-                // Premium SubPage Hero
-                const SubPageHero(
-                  title: 'Meet Our Experts',
-                  tagline: 'Technical Leadership',
-                  imageUrl: 'https://images.unsplash.com/photo-1560958089-b8a1929cea89?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&h=1440&q=80',
-                ),
-                
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
-                  color: Colors.white,
-                  child: Column(
-                    children: [
-                      const SectionHeader(
-                        title: 'Technical Specialists',
-                        subtitle: 'Certified engineers dedicated to your EV',
-                        centered: true,
-                      ),
-                      const SizedBox(height: 60),
-                      FutureBuilder<List<dynamic>>(
-                        future: _teamFuture,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return const Center(child: CircularProgressIndicator());
-                          }
-                          if (snapshot.hasError) {
-                            return Center(child: Text('Error: ${snapshot.error}'));
-                          }
+                      FutureBuilder<Map<String, dynamic>>(
+                        future: _apiService.getPageContent('team'),
+                        builder: (context, contentSnapshot) {
+                          final content = contentSnapshot.data?['content'] ?? {};
+                          return Column(
+                            children: [
+                              SubPageHero(
+                                title: content['heroTitle'] ?? 'Meet Our Experts',
+                                tagline: content['heroTagline'] ?? 'Technical Leadership',
+                                imageUrl: content['heroImage'] ?? 'https://images.unsplash.com/photo-1560958089-b8a1929cea89?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&h=1440&q=80',
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
+                                color: Colors.white,
+                                child: Column(
+                                  children: [
+                                    SectionHeader(
+                                      title: content['sectionTitle'] ?? 'Technical Specialists',
+                                      subtitle: content['sectionSubtitle'] ?? 'Certified engineers dedicated to your EV',
+                                      centered: true,
+                                    ),
+                                    const SizedBox(height: 60),
+                                    FutureBuilder<List<dynamic>>(
+                                      future: _teamFuture,
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState == ConnectionState.waiting) {
+                                          return const Center(child: CircularProgressIndicator());
+                                        }
+                                        if (snapshot.hasError) {
+                                          return Center(child: Text('Error: ${snapshot.error}'));
+                                        }
 
-                          final members = snapshot.data ?? [];
+                                        final members = snapshot.data ?? [];
 
-                          if (members.isEmpty) {
-                            return const Text('No team members found.');
-                          }
+                                        if (members.isEmpty) {
+                                          return const Text('No team members found.');
+                                        }
 
-                          return Wrap(
-                            spacing: 40,
-                            runSpacing: 40,
-                            alignment: WrapAlignment.center,
-                            children: members.map((m) => _TeamMemberCard(
-                              name: m['name'] ?? '',
-                              role: m['role'] ?? '',
-                              image: m['image'],
-                            )).toList(),
+                                        return Wrap(
+                                          spacing: 40,
+                                          runSpacing: 40,
+                                          alignment: WrapAlignment.center,
+                                          children: members.map((m) => _TeamMemberCard(
+                                            name: m['name'] ?? '',
+                                            role: m['role'] ?? '',
+                                            image: m['image'],
+                                          )).toList(),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           );
-                        },
+                        }
                       ),
-                    ],
-                  ),
-                ),
                 
                 const FooterWidget(),
               ],

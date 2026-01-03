@@ -108,46 +108,72 @@ class _MediaScreenState extends State<MediaScreen> {
     );
   }
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 900;
+
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: AppColors.backgroundDark,
+      drawer: isMobile ? const Drawer(child: AdminSidebar(currentRoute: '/media')) : null,
+      appBar: isMobile ? AppBar(
+        backgroundColor: AppColors.sidebarDark,
+        leading: IconButton(
+          icon: const Icon(Icons.menu, color: Colors.white),
+          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+        ),
+        title: Text('Media Library', style: AppTextStyles.heading3),
+        actions: [
+          IconButton(
+            onPressed: _isUploading ? null : _uploadMedia,
+            icon: _isUploading 
+                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                : const Icon(Icons.upload_file),
+          ),
+        ],
+      ) : null,
       body: Row(
         children: [
-          const AdminSidebar(currentRoute: '/media'),
+          if (!isMobile) const AdminSidebar(currentRoute: '/media'),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
-                Padding(
-                  padding: const EdgeInsets.all(32),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Media Library', style: AppTextStyles.heading1),
-                          const SizedBox(height: 4),
-                          Text('Manage your images and assets', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textGrey)),
-                        ],
-                      ),
-                      ElevatedButton.icon(
-                        onPressed: _isUploading ? null : _uploadMedia,
-                        icon: _isUploading 
-                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                          : const Icon(Icons.upload_file),
-                        label: Text(_isUploading ? 'Uploading...' : 'Upload New'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.accentRed,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                // Header (Desktop only)
+                if (!isMobile)
+                  Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Media Library', style: AppTextStyles.heading1),
+                            const SizedBox(height: 4),
+                            Text('Manage your images and assets', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textGrey)),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                ),
+                        ElevatedButton.icon(
+                          onPressed: _isUploading ? null : _uploadMedia,
+                          icon: _isUploading 
+                            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                            : const Icon(Icons.upload_file),
+                          label: Text(_isUploading ? 'Uploading...' : 'Upload New'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.accentRed,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  const SizedBox(height: 16),
                 
                 // Media Grid
                 Expanded(
@@ -179,9 +205,12 @@ class _MediaScreenState extends State<MediaScreen> {
                       }
 
                       return GridView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 0),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 5,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isMobile ? 16 : 32,
+                          vertical: isMobile ? 16 : 0,
+                        ),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: isMobile ? 2 : _calculateCrossAxisCount(screenWidth),
                           crossAxisSpacing: 24,
                           mainAxisSpacing: 24,
                           childAspectRatio: 1,
@@ -205,6 +234,12 @@ class _MediaScreenState extends State<MediaScreen> {
         ],
       ),
     );
+  }
+
+  int _calculateCrossAxisCount(double width) {
+    final availableWidth = width - 250 - 64; // Approx sidebar and padding
+    int count = (availableWidth / 150).floor(); // 150px min card width
+    return count < 2 ? 2 : count;
   }
 }
 

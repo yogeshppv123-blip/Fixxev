@@ -3,6 +3,7 @@ import 'package:fixxev_admin/core/theme/app_colors.dart';
 import 'package:fixxev_admin/core/theme/app_text_styles.dart';
 import 'package:fixxev_admin/widgets/sidebar.dart';
 import 'package:fixxev_admin/core/services/api_service.dart';
+import 'package:file_picker/file_picker.dart';
 
 class CKDContainerPageEditor extends StatefulWidget {
   const CKDContainerPageEditor({super.key});
@@ -21,6 +22,7 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
   final _heroSubtitleController = TextEditingController();
   final _heroTaglineController = TextEditingController();
   final _heroImageController = TextEditingController();
+  bool _heroIsRed = false;
 
   // Join Community Section
   final _communityTitleController = TextEditingController();
@@ -28,6 +30,7 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
   final _communityItemsController = TextEditingController();
   final _communityConclusionController = TextEditingController();
   final _communityImageController = TextEditingController();
+  bool _joinIsRed = false;
 
   // Why Choose Section (unused - keeping for compatibility)
   final _whyTitleController = TextEditingController();
@@ -43,6 +46,7 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
   final _smarterDescController = TextEditingController();
   final _smarterItemsController = TextEditingController();
   final _smarterImageController = TextEditingController();
+  bool _smarterIsRed = false;
 
   // Stats Section (unused currently)
   final _stat1ValController = TextEditingController();
@@ -68,6 +72,7 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
   final _processTaglineController = TextEditingController();
   final _processSloganController = TextEditingController();
   final _processCtaController = TextEditingController();
+  bool _ctaIsRed = false;
 
   // Network Section
   final _networkTitleController = TextEditingController();
@@ -88,12 +93,91 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
   final _whyFixxConclusionController = TextEditingController();
   final _missionLabelController = TextEditingController();
   final _missionTextController = TextEditingController();
-  final _scalableImageController = TextEditingController(); // Maps to whyImage
+  final _scalableImageController = TextEditingController();
+  bool _scalableIsRed = false;
+  
+  // Model Models
+  final _model1NameController = TextEditingController();
+  final _model1ImageController = TextEditingController();
+  final _model2NameController = TextEditingController();
+  final _model2ImageController = TextEditingController();
+  final _model3NameController = TextEditingController();
+  final _model3ImageController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    _heroImageController.addListener(() => setState(() {}));
+    _communityImageController.addListener(() => setState(() {}));
+    _smarterImageController.addListener(() => setState(() {}));
+    _scalableImageController.addListener(() => setState(() {}));
+    _model1ImageController.addListener(() => setState(() {}));
+    _model2ImageController.addListener(() => setState(() {}));
+    _model3ImageController.addListener(() => setState(() {}));
     _loadContent();
+  }
+
+  @override
+  void dispose() {
+    _heroTitleController.dispose();
+    _heroSubtitleController.dispose();
+    _heroTaglineController.dispose();
+    _heroImageController.dispose();
+    _communityTitleController.dispose();
+    _communityDescController.dispose();
+    _communityItemsController.dispose();
+    _communityConclusionController.dispose();
+    _communityImageController.dispose();
+    _smarterTitleController.dispose();
+    _smarterSubtitleController.dispose();
+    _smarterDescController.dispose();
+    _smarterItemsController.dispose();
+    _smarterImageController.dispose();
+    _nextDispose();
+    super.dispose();
+  }
+
+  void _nextDispose() {
+     _whyTitleController.dispose();
+     _whySubtitleController.dispose();
+     _whyItem1Controller.dispose();
+     _whyItem2Controller.dispose();
+     _whyItem3Controller.dispose();
+     _whyItem4Controller.dispose();
+     _processTitleController.dispose();
+     _processDescController.dispose();
+     _step1TitleController.dispose();
+     _step1DescController.dispose();
+     _step2TitleController.dispose();
+     _step2DescController.dispose();
+     _step3TitleController.dispose();
+     _step3DescController.dispose();
+     _step4TitleController.dispose();
+     _step4DescController.dispose();
+     _processTaglineController.dispose();
+     _processSloganController.dispose();
+     _processCtaController.dispose();
+     _networkTitleController.dispose();
+     _networkDescController.dispose();
+     _networkDesc2Controller.dispose();
+     _networkBulletTitleController.dispose();
+     _networkItemsController.dispose();
+     _networkConclusionController.dispose();
+     _endToEndTitleController.dispose();
+     _endToEndDescController.dispose();
+     _whyFixxTitleController.dispose();
+     _whyFixxSubtitleController.dispose();
+     _whyFixxChipsController.dispose();
+     _whyFixxConclusionController.dispose();
+     _missionLabelController.dispose();
+     _missionTextController.dispose();
+     _scalableImageController.dispose();
+     _model1NameController.dispose();
+     _model1ImageController.dispose();
+     _model2NameController.dispose();
+     _model2ImageController.dispose();
+     _model3NameController.dispose();
+     _model3ImageController.dispose();
   }
 
   Future<void> _loadContent() async {
@@ -103,78 +187,97 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
       
       setState(() {
         // Hero
-        _heroTitleController.text = content['heroTitle'] ?? 'Build Your Own EV Brand with Fixx EV';
-        _heroTaglineController.text = content['heroTagline'] ?? 'START OR SCALE';
-        _heroSubtitleController.text = content['heroSubtitle'] ?? 'At Fixx EV, we don\'t just service electric vehicles — we help create EV brands.';
-        _heroImageController.text = content['heroImage'] ?? '';
+        String getVal(dynamic val, String fallback) {
+          if (val == null) return fallback;
+          final s = val.toString();
+          return s.isEmpty ? fallback : s;
+        }
+
+        _heroTitleController.text = getVal(content['heroTitle'], 'Build Your Own EV Brand with Fixx EV');
+        _heroTaglineController.text = getVal(content['heroTagline'], 'START OR SCALE');
+        _heroSubtitleController.text = getVal(content['heroSubtitle'], 'At Fixx EV, we don\'t just service electric vehicles — we help create EV brands.');
+        _heroImageController.text = getVal(content['heroImage'], 'http://127.0.0.1:5001/uploads/1767433414306-758152587.jpg');
+        _heroIsRed = content['heroIsRed'] ?? false;
 
         // Community
-        _communityTitleController.text = content['communityTitle'] ?? 'CKD Import & Assembly Solutions';
-        _communityDescController.text = content['communityDesc'] ?? 'Fixx EV offers complete CKD (Completely Knocked Down) import solutions for both low-speed and high speed electric scooters.';
-        _communityItemsController.text = content['communityItems'] ?? 'Launch your own EV brand\nControl product quality\nImprove margins\nBuild long-term market presence';
-        _communityConclusionController.text = content['communityConclusion'] ?? 'We handle everything — from factory sourcing in China to assembly, testing and go-to-market support in India.';
-        _communityImageController.text = content['communityImage'] ?? '';
+        _communityTitleController.text = getVal(content['communityTitle'], 'CKD Import & Assembly Solutions');
+        _communityDescController.text = getVal(content['communityDesc'], 'Fixx EV offers complete CKD (Completely Knocked Down) import solutions for both low-speed and high speed electric scooters.');
+        _communityItemsController.text = getVal(content['communityItems'], 'Launch your own EV brand\nControl product quality\nImprove margins\nBuild long-term market presence');
+        _communityConclusionController.text = getVal(content['communityConclusion'], 'We handle everything — from factory sourcing in China to assembly, testing and go-to-market support in India.');
+        _communityImageController.text = getVal(content['communityImage'], 'http://127.0.0.1:5001/uploads/1767433442237-739399020.png');
+        _joinIsRed = content['joinIsRed'] ?? false;
 
-        // Why Choose (legacy - keeping for compatibility)
-        _whyTitleController.text = content['whyTitle'] ?? 'Why Choose CKD Containers?';
-        _whySubtitleController.text = content['whySubtitle'] ?? 'The smart way to start your EV business';
-        _whyItem1Controller.text = content['whyItem1'] ?? 'Quick 30-day deployment';
-        _whyItem2Controller.text = content['whyItem2'] ?? 'Pre-fabricated infrastructure';
-        _whyItem3Controller.text = content['whyItem3'] ?? 'Cost-effective solution';
-        _whyItem4Controller.text = content['whyItem4'] ?? 'Fully customizable design';
+        // Why Choose (legacy)
+        _whyTitleController.text = getVal(content['whyTitle'], 'Why Choose CKD Containers?');
+        _whySubtitleController.text = getVal(content['whySubtitle'], 'We provide end-to-end support for your EV brand.');
+        _whyItem1Controller.text = getVal(content['whyItem1'], 'Quick 30-day deployment');
+        _whyItem2Controller.text = getVal(content['whyItem2'], 'Pre-fabricated infrastructure');
+        _whyItem3Controller.text = getVal(content['whyItem3'], 'Cost-effective solution');
+        _whyItem4Controller.text = getVal(content['whyItem4'], 'Fully customizable design');
 
         // Smarter Showrooms (Sales, Service & Spare Parts)
-        _smarterTitleController.text = content['smarterTitle'] ?? 'Sales, Service & Spare Parts Support';
-        _smarterSubtitleController.text = content['smarterSubtitle'] ?? 'Smarter Showrooms, Built for Performance.';
-        _smarterDescController.text = content['smarterDesc'] ?? 'Launching a brand is not just about selling — it\'s about supporting customers after sale.';
-        _smarterItemsController.text = content['smarterItems'] ?? 'Service infrastructure\nGenuine spare parts\nTrained technicians\nWarranty support\nNationwide coverage';
-        _smarterImageController.text = content['smarterImage'] ?? '';
+        _smarterTitleController.text = getVal(content['smarterTitle'], 'Sales, Service & Spare Parts Support');
+        _smarterSubtitleController.text = getVal(content['smarterSubtitle'], 'Smarter Electric Scooters, Built for Performance.');
+        _smarterDescController.text = getVal(content['smarterDesc'], 'Launching a brand is not just about selling — it\'s about supporting customers after sale.');
+        _smarterItemsController.text = getVal(content['smarterItems'], 'Service infrastructure\nGenuine spare parts\nTrained technicians\nWarranty support\nNationwide coverage');
+        _smarterImageController.text = getVal(content['smarterImage'], 'http://127.0.0.1:5001/uploads/1767433442244-156836670.png');
+        _smarterIsRed = content['smarterIsRed'] ?? false;
 
         // Stats (unused currently)
-        _stat1ValController.text = content['stat1Value'] ?? '30';
-        _stat1LabController.text = content['stat1Label'] ?? 'Days Setup';
-        _stat2ValController.text = content['stat2Value'] ?? '500+';
-        _stat2LabController.text = content['stat2Label'] ?? 'Sq Ft Space';
-        _stat3ValController.text = content['stat3Value'] ?? '100%';
-        _stat3LabController.text = content['stat3Label'] ?? 'Customizable';
-        _stat4ValController.text = content['stat4Value'] ?? '50+';
-        _stat4LabController.text = content['stat4Label'] ?? 'Cities Ready';
+        _stat1ValController.text = getVal(content['stat1Value'], '30');
+        _stat1LabController.text = getVal(content['stat1Label'], 'Cities');
+        _stat2ValController.text = getVal(content['stat2Value'], '500+');
+        _stat2LabController.text = getVal(content['stat2Label'], 'Scoters Daily');
+        _stat3ValController.text = getVal(content['stat3Value'], '50+');
+        _stat3LabController.text = getVal(content['stat3Label'], 'Service Centers');
+        _stat4ValController.text = getVal(content['stat4Value'], '10+');
+        _stat4LabController.text = getVal(content['stat4Label'], 'Brands');
 
         // Process Steps
-        _processTitleController.text = content['processTitle'] ?? 'From Import to Indian Roads — We Make It Simple';
-        _processDescController.text = content['processDesc'] ?? 'Fixx EV helps you go from factory to showroom to customer with one trusted partner, whether you are:';
-        _step1TitleController.text = content['step1Title'] ?? 'A Dealer';
-        _step1DescController.text = content['step1Desc'] ?? 'Wanting your own brand to improve margins.';
-        _step2TitleController.text = content['step2Title'] ?? 'A Fleet Operator';
-        _step2DescController.text = content['step2Desc'] ?? 'Looking for custom vehicles tailored to your needs.';
-        _step3TitleController.text = content['step3Title'] ?? 'A Startup';
-        _step3DescController.text = content['step3Desc'] ?? 'Building a new EV brand from scratch.';
-        _step4TitleController.text = content['step4Title'] ?? 'A Distributor';
-        _step4DescController.text = content['step4Desc'] ?? 'Seeking regional exclusivity for new products.';
-        _processTaglineController.text = content['processTagline'] ?? 'Fixx EV — Your EV Brand, Built Right';
-        _processSloganController.text = content['processSlogan'] ?? 'Import. Assemble. Brand. Sell. Service.';
-        _processCtaController.text = content['processCta'] ?? 'We do it all — so you can focus on growing your business.';
+        _processTitleController.text = getVal(content['processTitle'], 'From Import to Indian Roads — We Make It Simple');
+        _processDescController.text = getVal(content['processDesc'], 'Fixx EV helps you go from factory to showroom to customer with one trusted partner.');
+        _step1TitleController.text = getVal(content['step1Title'], 'Contact Us');
+        _step1DescController.text = getVal(content['step1Desc'], 'Get in touch with our team to discuss your EV business goals.');
+        _step2TitleController.text = getVal(content['step2Title'], 'Share Requirements');
+        _step2DescController.text = getVal(content['step2Desc'], 'Tell us about your target market and preferred volume.');
+        _step3TitleController.text = getVal(content['step3Title'], 'Order Placement');
+        _step3DescController.text = getVal(content['step3Desc'], 'Place your orders through our secure portal.');
+        _step4TitleController.text = getVal(content['step4Title'], 'Delivery Support');
+        _step4DescController.text = getVal(content['step4Desc'], 'We deliver your CKD containers on time to your facility.');
+        _processTaglineController.text = getVal(content['processTagline'], 'Fixx EV — Your EV Brand, Built Right');
+        _processSloganController.text = getVal(content['processSlogan'], 'Import. Assemble. Brand. Sell. Service.');
+        _processCtaController.text = getVal(content['processCta'], 'We do it all — so you can focus on growing your business.');
+        _ctaIsRed = content['ctaIsRed'] ?? false;
 
         // Network
-        _networkTitleController.text = content['networkTitle'] ?? 'We are reaching every corner of India';
-        _networkDescController.text = content['networkDesc'] ?? 'At Fixx EV, our vision is to make clean mobility accessible everywhere—not just in big cities.';
-        _networkDesc2Controller.text = content['networkDesc2'] ?? 'From metros like Mumbai, Delhi, and Bengaluru, to fast-growing Tier-2 and Tier-3 cities.';
-        _networkBulletTitleController.text = content['networkBulletTitle'] ?? 'Our dealer-first model ensures every partner gets:';
-        _networkItemsController.text = content['networkItems'] ?? 'Exclusive territory rights\nFaster installation timelines\nAffordable infrastructure\nReliable supply and service support';
-        _networkConclusionController.text = content['networkConclusion'] ?? 'This PAN-India strategy gives dealers a powerful competitive edge.';
+        _networkTitleController.text = getVal(content['networkTitle'], 'We are reaching every corner of India');
+        _networkDescController.text = getVal(content['networkDesc'], 'At Fixx EV, our vision is to make clean mobility accessible everywhere.');
+        _networkDesc2Controller.text = getVal(content['networkDesc2'], 'From metros to Tier-2 cities.');
+        _networkBulletTitleController.text = getVal(content['networkBulletTitle'], 'Our dealer-first model ensures:');
+        _networkItemsController.text = getVal(content['networkItems'], 'Exclusive territory rights\nFaster installation timelines\nAffordable infrastructure\nReliable supply and service support');
+        _networkConclusionController.text = getVal(content['networkConclusion'], 'This PAN-India strategy gives dealers a powerful competitive edge.');
 
         // End to End
-        _endToEndTitleController.text = content['endToEndTitle'] ?? 'End-to-End EV Brand Launch Support';
-        _endToEndDescController.text = content['endToEndDesc'] ?? 'When you partner with Fixx EV, you get a full-stack EV business solution:';
+        _endToEndTitleController.text = getVal(content['endToEndTitle'], 'End-to-End EV Brand Launch Support');
+        _endToEndDescController.text = getVal(content['endToEndDesc'], 'When you partner with Fixx EV, you get a full-stack EV business solution.');
         
         // Why Fixx / Scalable Future
-        _whyFixxTitleController.text = content['whyFixxTitle'] ?? 'Why Fixx EV?';
-        _whyFixxSubtitleController.text = content['whyFixxSubtitle'] ?? 'With 10+ years of EV industry experience, Fixx EV has worked across:';
-        _whyFixxChipsController.text = content['whyFixxChips'] ?? 'Manufacturing\nImport & sourcing\nSales & distribution\nService & spare parts\nFleet operations';
-        _whyFixxConclusionController.text = content['whyFixxConclusion'] ?? 'We know what works — and what fails — in the Indian EV market.';
-        _missionLabelController.text = content['missionLabel'] ?? 'OUR MISSION';
-        _missionTextController.text = content['missionText'] ?? 'Help 100s of entrepreneurs build profitable, sustainable EV brands — without burning money or time.';
-        _scalableImageController.text = content['whyImage'] ?? '';
+        _whyFixxTitleController.text = getVal(content['whyFixxTitle'], 'Why Fixx EV?');
+        _whyFixxSubtitleController.text = getVal(content['whyFixxSubtitle'], 'With 10+ years of EV industry experience.');
+        _whyFixxChipsController.text = getVal(content['whyFixxChips'], 'Manufacturing\nImport & sourcing\nSales & distribution\nService & spare parts\nFleet operations');
+        _whyFixxConclusionController.text = getVal(content['whyFixxConclusion'], 'We know what works — and what fails — in the Indian EV market.');
+        _missionLabelController.text = getVal(content['missionLabel'], 'OUR MISSION');
+        _missionTextController.text = getVal(content['missionText'], 'Help 100s of entrepreneurs build profitable, sustainable EV brands.');
+        _scalableImageController.text = getVal(content['whyImage'], 'http://127.0.0.1:5001/uploads/1767433442254-188363033.png');
+        _scalableIsRed = content['whyIsRed'] ?? false;
+        
+        // Models
+        _model1NameController.text = getVal(content['model1Name'], 'Vector X');
+        _model1ImageController.text = getVal(content['model1Image'], 'http://127.0.0.1:5001/uploads/1767433466429-104872347.png');
+        _model2NameController.text = getVal(content['model2Name'], 'Urban S');
+        _model2ImageController.text = getVal(content['model2Image'], 'http://127.0.0.1:5001/uploads/1767433466436-466069146.png');
+        _model3NameController.text = getVal(content['model3Name'], 'Metro Glide');
+        _model3ImageController.text = getVal(content['model3Image'], 'http://127.0.0.1:5001/uploads/1767433466442-920385781.png');
 
         _isLoading = false;
       });
@@ -195,6 +298,7 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
         'heroTagline': _heroTaglineController.text,
         'heroSubtitle': _heroSubtitleController.text,
         'heroImage': _heroImageController.text,
+        'heroIsRed': _heroIsRed,
         
         // Community
         'communityTitle': _communityTitleController.text,
@@ -202,6 +306,7 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
         'communityItems': _communityItemsController.text,
         'communityConclusion': _communityConclusionController.text,
         'communityImage': _communityImageController.text,
+        'joinIsRed': _joinIsRed,
         
         // Why Choose (legacy)
         'whyTitle': _whyTitleController.text,
@@ -217,6 +322,7 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
         'smarterDesc': _smarterDescController.text,
         'smarterItems': _smarterItemsController.text,
         'smarterImage': _smarterImageController.text,
+        'smarterIsRed': _smarterIsRed,
         
         // Stats
         'stat1Value': _stat1ValController.text,
@@ -242,6 +348,7 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
         'processTagline': _processTaglineController.text,
         'processSlogan': _processSloganController.text,
         'processCta': _processCtaController.text,
+        'ctaIsRed': _ctaIsRed,
         
         // Network Section
         'networkTitle': _networkTitleController.text,
@@ -263,6 +370,15 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
         'missionLabel': _missionLabelController.text,
         'missionText': _missionTextController.text,
         'whyImage': _scalableImageController.text,
+        'whyIsRed': _scalableIsRed,
+
+        // Models
+        'model1Name': _model1NameController.text,
+        'model1Image': _model1ImageController.text,
+        'model2Name': _model2NameController.text,
+        'model2Image': _model2ImageController.text,
+        'model3Name': _model3NameController.text,
+        'model3Image': _model3ImageController.text,
       };
       
       await _apiService.updatePageContent('ckd-container', content);
@@ -309,6 +425,8 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
                             const SizedBox(height: 32),
                             _buildScalableSection(),
                             const SizedBox(height: 32),
+                            _buildModelsSection(),
+                            const SizedBox(height: 32),
                             _buildStatsSection(),
                             const SizedBox(height: 32),
                             _buildProcessSection(),
@@ -343,12 +461,22 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
               Text('Edit CKD Container Page', style: AppTextStyles.heading2),
             ],
           ),
-          ElevatedButton.icon(
-            onPressed: _isSaving ? null : _saveContent,
-            icon: _isSaving 
-              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-              : const Icon(Icons.save),
-            label: Text(_isSaving ? 'Saving...' : 'Save Changes'),
+          Row(
+            children: [
+              TextButton.icon(
+                onPressed: () => _loadContent(), // This will reload with defaults if empty
+                icon: const Icon(Icons.sync, color: AppColors.textGrey, size: 18),
+                label: const Text('Restore Defaults', style: TextStyle(color: AppColors.textGrey)),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton.icon(
+                onPressed: _isSaving ? null : _saveContent,
+                icon: _isSaving 
+                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  : const Icon(Icons.save),
+                label: Text(_isSaving ? 'Saving...' : 'Save Changes'),
+              ),
+            ],
           ),
         ],
       ),
@@ -360,13 +488,44 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
       title: 'Hero Section',
       icon: Icons.title,
       children: [
-        _buildTextField('Hero Tagline', _heroTaglineController),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 120, height: 120,
+              decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white.withOpacity(0.1))),
+              child: _heroImageController.text.isNotEmpty
+                  ? ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(_heroImageController.text, fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.white24)))
+                  : const Icon(Icons.image_outlined, color: Colors.white24, size: 40),
+            ),
+            const SizedBox(width: 24),
+            Expanded(
+              child: Column(
+                children: [
+                  _buildTextField('Hero Tagline', _heroTaglineController),
+                  const SizedBox(height: 16),
+                  _buildTextField('Background Image URL', _heroImageController, isImage: true),
+                ],
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 16),
         _buildTextField('Hero Title', _heroTitleController),
         const SizedBox(height: 16),
-        _buildTextField('Hero Subtitle', _heroSubtitleController, maxLines: 2),
-        const SizedBox(height: 16),
-        _buildTextField('Background Image URL', _heroImageController),
+        Row(
+          children: [
+            Expanded(child: _buildTextField('Hero Subtitle', _heroSubtitleController, maxLines: 2)),
+            const SizedBox(width: 24),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Red Theme', style: TextStyle(color: AppColors.textGrey, fontSize: 12)),
+                Switch(value: _heroIsRed, onChanged: (v) => setState(() => _heroIsRed = v), activeColor: Colors.redAccent),
+              ],
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -376,15 +535,46 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
       title: 'CKD Import & Assembly Section',
       icon: Icons.people_outline,
       children: [
-        _buildTextField('Section Title', _communityTitleController, maxLines: 2),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 100, height: 100,
+              decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white.withOpacity(0.1))),
+              child: _communityImageController.text.isNotEmpty
+                  ? ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(_communityImageController.text, fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.white24)))
+                  : const Icon(Icons.image_outlined, color: Colors.white24, size: 30),
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                children: [
+                  _buildTextField('Section Title', _communityTitleController, maxLines: 2),
+                  const SizedBox(height: 12),
+                  _buildTextField('Image URL', _communityImageController, isImage: true),
+                ],
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 16),
         _buildTextField('Description', _communityDescController, maxLines: 3),
         const SizedBox(height: 16),
         _buildTextField('Bullet Items (One per line)', _communityItemsController, maxLines: 5),
         const SizedBox(height: 16),
-        _buildTextField('Conclusion Text', _communityConclusionController, maxLines: 2),
-        const SizedBox(height: 16),
-        _buildTextField('Image URL', _communityImageController),
+        Row(
+          children: [
+            Expanded(child: _buildTextField('Conclusion Text', _communityConclusionController, maxLines: 2)),
+            const SizedBox(width: 24),
+             Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Red Theme', style: TextStyle(color: AppColors.textGrey, fontSize: 12)),
+                Switch(value: _joinIsRed, onChanged: (v) => setState(() => _joinIsRed = v), activeColor: Colors.redAccent),
+              ],
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -416,15 +606,46 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
       title: 'Smarter Showrooms Section',
       icon: Icons.business,
       children: [
-        _buildTextField('Title', _smarterTitleController),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 100, height: 100,
+              decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white.withOpacity(0.1))),
+              child: _smarterImageController.text.isNotEmpty
+                  ? ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(_smarterImageController.text, fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.white24)))
+                  : const Icon(Icons.image_outlined, color: Colors.white24, size: 30),
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                children: [
+                  _buildTextField('Title', _smarterTitleController),
+                  const SizedBox(height: 12),
+                  _buildTextField('Image URL', _smarterImageController, isImage: true),
+                ],
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 16),
         _buildTextField('Subtitle', _smarterSubtitleController),
         const SizedBox(height: 16),
         _buildTextField('Description', _smarterDescController, maxLines: 3),
         const SizedBox(height: 16),
-        _buildTextField('Checklist Items (One per line)', _smarterItemsController, maxLines: 6),
-        const SizedBox(height: 16),
-        _buildTextField('Image URL', _smarterImageController),
+        Row(
+          children: [
+            Expanded(child: _buildTextField('Checklist Items (One per line)', _smarterItemsController, maxLines: 6)),
+            const SizedBox(width: 24),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Red Theme', style: TextStyle(color: AppColors.textGrey, fontSize: 12)),
+                Switch(value: _smarterIsRed, onChanged: (v) => setState(() => _smarterIsRed = v), activeColor: Colors.redAccent),
+              ],
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -494,7 +715,19 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
         const SizedBox(height: 16),
         _buildTextField('Slogan', _processSloganController),
         const SizedBox(height: 16),
-        _buildTextField('CTA Text', _processCtaController),
+        Row(
+          children: [
+            Expanded(child: _buildTextField('CTA Text', _processCtaController)),
+             const SizedBox(width: 24),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Red Theme', style: TextStyle(color: AppColors.textGrey, fontSize: 12)),
+                Switch(value: _ctaIsRed, onChanged: (v) => setState(() => _ctaIsRed = v), activeColor: Colors.redAccent),
+              ],
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -536,22 +769,104 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
       title: 'Why Fixx EV Section',
       icon: Icons.trending_up,
       children: [
-        _buildTextField('Section Title', _whyFixxTitleController),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+             Container(
+              width: 100, height: 100,
+              decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white.withOpacity(0.1))),
+              child: _scalableImageController.text.isNotEmpty
+                  ? ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(_scalableImageController.text, fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.white24)))
+                  : const Icon(Icons.image_outlined, color: Colors.white24, size: 30),
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                children: [
+                  _buildTextField('Section Title', _whyFixxTitleController),
+                  const SizedBox(height: 12),
+                  _buildTextField('Section Image URL', _scalableImageController, isImage: true),
+                ],
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 16),
         _buildTextField('Subtitle / Experience Text', _whyFixxSubtitleController, maxLines: 2),
         const SizedBox(height: 16),
         _buildTextField('Expertise Chips (One per line)', _whyFixxChipsController, maxLines: 6),
         const SizedBox(height: 16),
-        _buildTextField('Conclusion / Expertise Statement', _whyFixxConclusionController, maxLines: 2),
+        Row(
+          children: [
+            Expanded(child: _buildTextField('Conclusion / Expertise Statement', _whyFixxConclusionController, maxLines: 2)),
+            const SizedBox(width: 24),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Red Theme', style: TextStyle(color: AppColors.textGrey, fontSize: 12)),
+                Switch(value: _scalableIsRed, onChanged: (v) => setState(() => _scalableIsRed = v), activeColor: Colors.redAccent),
+              ],
+            ),
+          ],
+        ),
         const SizedBox(height: 24),
         const Text('Mission Box', style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
         _buildTextField('Mission Label', _missionLabelController),
         const SizedBox(height: 16),
         _buildTextField('Mission Text', _missionTextController, maxLines: 3),
-        const SizedBox(height: 16),
-        _buildTextField('Section Image URL', _scalableImageController),
       ],
+    );
+  }
+
+  Widget _buildModelsSection() {
+    return _buildSectionCard(
+      title: 'Our CKD Container Models',
+      icon: Icons.electric_scooter,
+      children: [
+        Row(
+          children: [
+            Expanded(child: _buildSingleModelEdit('Model 1', _model1NameController, _model1ImageController)),
+            const SizedBox(width: 20),
+            Expanded(child: _buildSingleModelEdit('Model 2', _model2NameController, _model2ImageController)),
+            const SizedBox(width: 20),
+            Expanded(child: _buildSingleModelEdit('Model 3', _model3NameController, _model3ImageController)),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSingleModelEdit(String label, TextEditingController nameC, TextEditingController imageC) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.03),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withOpacity(0.05)),
+      ),
+      child: Column(
+        children: [
+          Container(
+            height: 120,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: imageC.text.isNotEmpty
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(imageC.text, fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.white24)),
+                  )
+                : const Icon(Icons.image_outlined, color: Colors.white24, size: 40),
+          ),
+          const SizedBox(height: 16),
+          _buildTextField('Model Name', nameC),
+          const SizedBox(height: 12),
+          _buildTextField('Image URL', imageC, isImage: true),
+        ],
+      ),
     );
   }
 
@@ -597,11 +912,11 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, {int maxLines = 1}) {
+  Widget _buildTextField(String label, TextEditingController controller, {int maxLines = 1, bool isImage = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTextStyles.label.copyWith(color: AppColors.textGrey)),
+        Text(label, style: AppTextStyles.label.copyWith(color: AppColors.textGrey, fontSize: 12)),
         const SizedBox(height: 8),
         TextField(
           controller: controller,
@@ -610,10 +925,29 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
           decoration: InputDecoration(
             filled: true,
             fillColor: AppColors.sidebarDark,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+            suffixIcon: isImage ? IconButton(icon: const Icon(Icons.upload_file, color: AppColors.accentBlue), onPressed: () => _pickAndUploadImage(controller)) : null,
           ),
         ),
       ],
     );
+  }
+
+  Future<void> _pickAndUploadImage(TextEditingController controller) async {
+    try {
+      final result = await FilePicker.platform.pickFiles(type: FileType.image, allowMultiple: false, withData: true);
+      if (result != null && result.files.isNotEmpty) {
+        final file = result.files.first;
+        if (file.bytes != null) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Uploading image...')));
+          final url = await _apiService.uploadImage(file.bytes!, file.name);
+          setState(() => controller.text = url);
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Image uploaded successfully!')));
+        }
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
+    }
   }
 }

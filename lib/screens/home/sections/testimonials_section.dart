@@ -40,26 +40,34 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 768;
 
-    final testimonials = [
-      {
-        'name': 'Rahul Sharma',
-        'role': 'Tesla Owner',
-        'content': 'The AIOT diagnostics at FIXXEV saved me from a major battery failure. The real-time monitoring is mind-blowing!',
-        'rating': 5,
-      },
-      {
-        'name': 'Ananya Patel',
-        'role': 'Nexon EV User',
-        'content': 'Top-notch service! The technicians really know their way around electric vehicles. Highly recommended for EV owners.',
-        'rating': 5,
-      },
-      {
-        'name': 'Vikram Singh',
-        'role': 'Fleet Manager',
-        'content': 'We moved our entire EV fleet maintenance to FIXXEV. Their proactive support has increased our vehicle uptime by 40%.',
-        'rating': 4,
-      },
-    ];
+    final dynamic dynamicTestimonials = widget.content['testimonials'];
+    final List<Map<String, dynamic>> testimonials = (dynamicTestimonials != null && dynamicTestimonials is List && dynamicTestimonials.isNotEmpty)
+        ? dynamicTestimonials.map((t) => {
+            'name': (t['name'] ?? '').toString(),
+            'role': (t['role'] ?? '').toString(),
+            'content': (t['content'] ?? '').toString(),
+            'rating': int.tryParse(t['rating']?.toString() ?? '5') ?? 5,
+          }).toList()
+        : [
+            {
+              'name': 'Rahul Sharma',
+              'role': 'Tesla Owner',
+              'content': 'The AIOT diagnostics at FIXXEV saved me from a major battery failure. The real-time monitoring is mind-blowing!',
+              'rating': 5,
+            },
+            {
+              'name': 'Ananya Patel',
+              'role': 'Nexon EV User',
+              'content': 'Top-notch service! The technicians really know their way around electric vehicles. Highly recommended for EV owners.',
+              'rating': 5,
+            },
+            {
+              'name': 'Vikram Singh',
+              'role': 'Fleet Manager',
+              'content': 'We moved our entire EV fleet maintenance to FIXXEV. Their proactive support has increased our vehicle uptime by 40%.',
+              'rating': 4,
+            },
+          ];
 
     return Container(
       width: double.infinity,

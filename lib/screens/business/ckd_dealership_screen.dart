@@ -20,7 +20,7 @@ class _CKDealershipScreenState extends State<CKDealershipScreen> {
   final ApiService _apiService = ApiService();
   bool _isScrolled = false;
   Map<String, dynamic> _content = {};
-  List<dynamic> _franchiseTypes = [];
+
 
   @override
   void initState() {
@@ -32,11 +32,9 @@ class _CKDealershipScreenState extends State<CKDealershipScreen> {
   Future<void> _loadContent() async {
     try {
       final data = await _apiService.getPageContent('franchise');
-      final franchiseTypes = await _apiService.getFranchiseTypes();
       if (mounted) {
         setState(() {
           _content = data;
-          _franchiseTypes = franchiseTypes.where((f) => f['isActive'] == true).toList();
         });
       }
     } catch (e) {
@@ -75,7 +73,7 @@ class _CKDealershipScreenState extends State<CKDealershipScreen> {
                 _WhatWeDoSection(content: _content),
 
                 // 3. Franchise Options (Cards)
-                _FranchiseOptionsSection(content: _content, franchiseTypes: _franchiseTypes),
+                _FranchiseOptionsSection(content: _content),
 
                 // 4. Why Partner With Us
                 _WhyPartnerSection(content: _content),
@@ -124,14 +122,16 @@ class _FranchiseHero extends StatelessWidget {
         horizontal: isMobile ? 24 : 80,
         vertical: 120,
       ),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
           colors: [AppColors.primaryNavy, Color(0xFF1B3A5C)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         image: DecorationImage(
-          image: NetworkImage('https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=1600'),
+          image: (content['heroImage'] != null && content['heroImage'].toString().isNotEmpty)
+              ? NetworkImage(content['heroImage'])
+              : const NetworkImage('https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=1600') as ImageProvider,
           fit: BoxFit.cover,
           opacity: 0.15,
         ),
@@ -140,7 +140,7 @@ class _FranchiseHero extends StatelessWidget {
         children: [
           const SizedBox(height: 60),
           Text(
-            'BE THE PART OF',
+            content['heroTagline'] ?? 'BE THE PART OF',
             style: AppTextStyles.sectionLabel.copyWith(
               color: AppColors.accentTeal,
               letterSpacing: 4,
@@ -188,9 +188,9 @@ class _WhatWeDoSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 900;
     
-    // Parse features from comma-separated string
-    String featuresStr = content['missionFeatures'] ?? 'Multi-brand EV servicing and repairs, Genuine spare parts distribution, Battery diagnostics and refurbishment, 24/7 roadside assistance network, Pan-India service coverage';
-    List<String> features = featuresStr.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+    // Parse features from multiline/comma string
+    String featuresStr = content['missionFeatures'] ?? 'Multi-brand EV servicing and repairs\nGenuine spare parts distribution\nBattery diagnostics and refurbishment\n24/7 roadside assistance network\nPan-India service coverage';
+    List<String> features = featuresStr.split(RegExp(r'[\n,]')).map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
 
     return Container(
       padding: EdgeInsets.symmetric(
@@ -204,14 +204,14 @@ class _WhatWeDoSection extends StatelessWidget {
           child: isMobile
               ? Column(
                   children: [
-                    _buildImage(),
+                    _buildImage(content['missionImage']),
                     const SizedBox(height: 40),
                     _buildContent(isMobile, features),
                   ],
                 )
               : Row(
                   children: [
-                    Expanded(child: _buildImage()),
+                    Expanded(child: _buildImage(content['missionImage'])),
                     const SizedBox(width: 80),
                     Expanded(child: _buildContent(isMobile, features)),
                   ],
@@ -221,13 +221,15 @@ class _WhatWeDoSection extends StatelessWidget {
     );
   }
 
-  Widget _buildImage() {
+  Widget _buildImage(String? imageUrl) {
     return Container(
       height: 450,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        image: const DecorationImage(
-          image: NetworkImage('https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=800'),
+        image: DecorationImage(
+          image: (imageUrl != null && imageUrl.isNotEmpty)
+              ? NetworkImage(imageUrl)
+              : const NetworkImage('https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=800'),
           fit: BoxFit.cover,
         ),
         boxShadow: [
@@ -246,7 +248,7 @@ class _WhatWeDoSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '// OUR MISSION',
+          content['missionLabel'] ?? '// OUR MISSION',
           style: AppTextStyles.sectionLabel.copyWith(
             color: AppColors.accentBlue,
             letterSpacing: 2,
@@ -308,16 +310,12 @@ class _WhatWeDoSection extends StatelessWidget {
 // 3. Franchise Options Section
 class _FranchiseOptionsSection extends StatelessWidget {
   final Map<String, dynamic> content;
-  final List<dynamic> franchiseTypes;
-  const _FranchiseOptionsSection({required this.content, required this.franchiseTypes});
+  const _FranchiseOptionsSection({required this.content});
 
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 900;
     
-    // Use dynamic franchise types if available, otherwise fallback to content
-    final hasTypes = franchiseTypes.isNotEmpty;
-
     return Container(
       padding: EdgeInsets.symmetric(
         vertical: 100,
@@ -327,7 +325,7 @@ class _FranchiseOptionsSection extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            '// FRANCHISE OPTIONS',
+            content['optionsLabel'] ?? '// FRANCHISE OPTIONS',
             style: AppTextStyles.sectionLabel.copyWith(
               color: AppColors.accentBlue,
               letterSpacing: 2,
@@ -335,78 +333,27 @@ class _FranchiseOptionsSection extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Choose Your Partnership Model',
+            content['optionsTitle'] ?? 'Choose Your Partnership Model',
             style: AppTextStyles.sectionTitle.copyWith(
               fontSize: isMobile ? 28 : 36,
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 60),
-          if (hasTypes)
-            _buildDynamicCards(context, isMobile)
-          else
-            _buildStaticCards(context, isMobile),
+          _buildStaticCards(context, isMobile),
         ],
       ),
     );
   }
 
-  Widget _buildDynamicCards(BuildContext context, bool isMobile) {
-    if (isMobile) {
-      return Column(
-        children: franchiseTypes.asMap().entries.map((entry) {
-          final type = entry.value as Map<String, dynamic>;
-          return Padding(
-            padding: EdgeInsets.only(bottom: entry.key < franchiseTypes.length - 1 ? 40 : 0),
-            child: _buildFranchiseCard(
-              context,
-              title: type['title'] ?? 'Franchise Type',
-              description: type['description'] ?? '',
-              imageUrl: type['imageUrl']?.isNotEmpty == true 
-                  ? type['imageUrl'] 
-                  : (type['type'] == 'Spare Parts' 
-                      ? 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800'
-                      : 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800'),
-              benefits: (type['benefits'] as List?)?.cast<String>() ?? [],
-              icon: type['type'] == 'Spare Parts' ? Icons.inventory_2 : Icons.build_circle,
-            ),
-          );
-        }).toList(),
-      );
-    }
-    
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: franchiseTypes.asMap().entries.map((entry) {
-        final type = entry.value as Map<String, dynamic>;
-        return Expanded(
-          child: Padding(
-            padding: EdgeInsets.only(left: entry.key > 0 ? 20 : 0, right: entry.key < franchiseTypes.length - 1 ? 20 : 0),
-            child: _buildFranchiseCard(
-              context,
-              title: type['title'] ?? 'Franchise Type',
-              description: type['description'] ?? '',
-              imageUrl: type['imageUrl']?.isNotEmpty == true 
-                  ? type['imageUrl'] 
-                  : (type['type'] == 'Spare Parts' 
-                      ? 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800'
-                      : 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800'),
-              benefits: (type['benefits'] as List?)?.cast<String>() ?? [],
-              icon: type['type'] == 'Spare Parts' ? Icons.inventory_2 : Icons.build_circle,
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
 
   Widget _buildStaticCards(BuildContext context, bool isMobile) {
     // Fallback to old static content
-    String sparePartsBenefitsStr = content['sparePartsBenefits'] ?? 'Direct OEM partnerships, Competitive wholesale pricing, Inventory management support, Marketing & branding assistance, Training on EV components';
-    List<String> sparePartsBenefits = sparePartsBenefitsStr.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+    String sparePartsBenefitsStr = content['sparePartsBenefits'] ?? 'Direct OEM partnerships\nCompetitive wholesale pricing\nInventory management support\nMarketing & branding assistance\nTraining on EV components';
+    List<String> sparePartsBenefits = sparePartsBenefitsStr.split(RegExp(r'[\n,]')).map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
     
-    String serviceCenterBenefitsStr = content['serviceCenterBenefits'] ?? 'Complete center setup support, AIOT diagnostic tools access, Certified technician training, Lead generation support, Fleet management contracts';
-    List<String> serviceCenterBenefits = serviceCenterBenefitsStr.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+    String serviceCenterBenefitsStr = content['serviceCenterBenefits'] ?? 'Complete center setup support\nAIOT diagnostic tools access\nCertified technician training\nLead generation support\nFleet management contracts';
+    List<String> serviceCenterBenefits = serviceCenterBenefitsStr.split(RegExp(r'[\n,]')).map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
 
     if (isMobile) {
       return Column(
@@ -415,7 +362,7 @@ class _FranchiseOptionsSection extends StatelessWidget {
             context,
             title: content['sparePartsTitle'] ?? 'Spare Parts Dealer',
             description: content['sparePartsDesc'] ?? 'Become an authorized FIXXEV spare parts distributor.',
-            imageUrl: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800',
+            imageUrl: content['sparePartsImage'] ?? 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800',
             benefits: sparePartsBenefits,
             icon: Icons.inventory_2,
           ),
@@ -424,7 +371,7 @@ class _FranchiseOptionsSection extends StatelessWidget {
             context,
             title: content['serviceCenterTitle'] ?? 'Service Center Dealer',
             description: content['serviceCenterDesc'] ?? 'Open an authorized FIXXEV service center.',
-            imageUrl: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800',
+            imageUrl: content['serviceCenterImage'] ?? 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800',
             benefits: serviceCenterBenefits,
             icon: Icons.build_circle,
           ),
@@ -440,7 +387,7 @@ class _FranchiseOptionsSection extends StatelessWidget {
             context,
             title: content['sparePartsTitle'] ?? 'Spare Parts Dealer',
             description: content['sparePartsDesc'] ?? 'Become an authorized FIXXEV spare parts distributor.',
-            imageUrl: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800',
+            imageUrl: content['sparePartsImage'] ?? 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800',
             benefits: sparePartsBenefits,
             icon: Icons.inventory_2,
           ),
@@ -451,7 +398,7 @@ class _FranchiseOptionsSection extends StatelessWidget {
             context,
             title: content['serviceCenterTitle'] ?? 'Service Center Dealer',
             description: content['serviceCenterDesc'] ?? 'Open an authorized FIXXEV service center.',
-            imageUrl: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800',
+            imageUrl: content['serviceCenterImage'] ?? 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800',
             benefits: serviceCenterBenefits,
             icon: Icons.build_circle,
           ),
@@ -603,7 +550,7 @@ class _WhyPartnerSection extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            '// WHY CHOOSE US',
+            content['whyPartnerLabel'] ?? '// WHY CHOOSE US',
             style: AppTextStyles.sectionLabel.copyWith(
               color: AppColors.accentTeal,
               letterSpacing: 2,
@@ -623,10 +570,10 @@ class _WhyPartnerSection extends StatelessWidget {
             runSpacing: 30,
             alignment: WrapAlignment.center,
             children: [
-              _buildStatCard('20+', 'Years Combined Experience'),
-              _buildStatCard('50+', 'Cities Covered'),
-              _buildStatCard('5000+', 'Happy Customers'),
-              _buildStatCard('24/7', 'Support Available'),
+              _buildStatCard(content['stat1Value'] ?? '20+', content['stat1Label'] ?? 'Years Combined Experience'),
+              _buildStatCard(content['stat2Value'] ?? '50+', content['stat2Label'] ?? 'Cities Covered'),
+              _buildStatCard(content['stat3Value'] ?? '5000+', content['stat3Label'] ?? 'Happy Customers'),
+              _buildStatCard(content['stat4Value'] ?? '24/7', content['stat4Label'] ?? 'Support Available'),
             ],
           ),
           const SizedBox(height: 60),
@@ -662,7 +609,7 @@ class _WhyPartnerSection extends StatelessWidget {
             value,
             style: AppTextStyles.sectionTitle.copyWith(
               fontSize: 40,
-              color: AppColors.accentBlue,
+              color: AppColors.accentTeal,
             ),
           ),
           const SizedBox(height: 8),

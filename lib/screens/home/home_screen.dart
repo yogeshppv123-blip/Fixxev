@@ -91,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         if (MediaQuery.of(context).size.width < 768) {
                           return const SizedBox.shrink();
                         }
-                        return const ServicesSection();
+                        return ServicesSection(content: content);
                       },
                     ),
                     

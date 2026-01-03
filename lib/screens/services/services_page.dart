@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/footer_widget.dart';
 import '../home/sections/services_section.dart';
@@ -22,13 +23,16 @@ class _ServicesPageState extends State<ServicesPage> {
   final ScrollController _scrollController = ScrollController();
   final ApiService _apiService = ApiService();
   late Future<List<dynamic>> _servicesFuture;
+  late Future<Map<String, dynamic>> _pageContentFuture;
   bool _isScrolled = false;
+  Map<String, dynamic> _pageContent = {};
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
     _servicesFuture = _apiService.getServices();
+    _pageContentFuture = _apiService.getPageContent('services');
   }
 
   void _onScroll() {
@@ -53,7 +57,10 @@ class _ServicesPageState extends State<ServicesPage> {
       body: Stack(
         children: [
           FutureBuilder<List<dynamic>>(
-            future: _servicesFuture,
+            future: Future.wait([_servicesFuture, _pageContentFuture]).then((val) {
+               _pageContent = (val[1] as Map<String, dynamic>);
+               return val[0] as List<dynamic>;
+            }),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -65,42 +72,58 @@ class _ServicesPageState extends State<ServicesPage> {
               final allServices = snapshot.data ?? [];
               final services = allServices.where((s) => s['status'] == 'Active').toList();
 
+              final contentBlocks = _pageContent['serviceBlocks'] as List?;
+              final hasContentBlocks = contentBlocks != null && contentBlocks.isNotEmpty;
+
               return SingleChildScrollView(
                 controller: _scrollController,
                 child: Column(
                   children: [
                     // 1. LIGHT HERO
                     _ServiceHeroLight(
-                      title: 'Advanced Multi-Brand\nEV Solutions',
-                      tagline: 'SERVICE EXCELLENCE',
-                      imageUrl: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7',
+                      title: _pageContent['heroTitle'] ?? 'Advanced Multi-Brand\nEV Solutions',
+                      tagline: _pageContent['heroTagline'] ?? 'SERVICE EXCELLENCE',
+                      imageUrl: _pageContent['heroImage'] ?? 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7',
+                      buttonText: _pageContent['heroBtnText'] ?? 'CONTACT US',
+                      isRed: _pageContent['heroIsRed'] ?? false,
                     ),
 
-                    if (services.isEmpty)
+                    if (!hasContentBlocks)
                       const Padding(
                         padding: EdgeInsets.all(100),
                         child: Text('No services available at the moment.'),
                       )
                     else
-                      ...List.generate(services.length, (index) {
-                        final service = services[index];
+                      ...List.generate(contentBlocks.length, (index) {
+                        final service = contentBlocks[index];
                         return _ZigZagServiceBlock(
-                          image: (service['image'] != null && service['image'].toString().isNotEmpty) 
-                              ? service['image'] 
-                              : _getServiceImage(index),
+                          image: service['imageUrl'] ?? _getServiceImage(index),
                           title: service['title'] ?? '',
-                          label: '// ${service['category']?.toUpperCase() ?? 'SERVICE'}',
+                          label: service['label'] ?? '// SERVICE',
                           description: service['description'] ?? '',
-                          items: const ['Professional Service', 'Certified Experts', 'Quality Parts'], // Placeholder features if not in DB
+                          items: (service['items'] as List?)?.cast<String>() ?? ['Professional Service', 'Certified Experts', 'Quality Parts'],
                           isReversed: index % 2 != 0,
                         );
                       }),
 
                     // 8. WHY CHOOSE FIXXEV
-                    _WhyChooseServiceSection(),
+                    _WhyChooseServiceSection(
+                      title: _pageContent['whyChooseTitle'] ?? 'Why Choose FIXXEV?',
+                      label: _pageContent['whyChooseLabel'] ?? '// THE ADVANTAGE',
+                      points: (_pageContent['whyChoosePoints'] as List?)?.cast<String>() ?? [
+                        'Specialized for 2W, L3 and L5 Multi-brand electric vehicles.',
+                        'High-end diagnostics for CAN Bus and LIN protocols.',
+                        'ISO-certified workshops ensuring dust-free environments.',
+                        'National network of 100+ stores for cross-city warranty support.',
+                      ],
+                    ),
 
                     // 9. CTA SECTION
-                    _ServiceCTASection(),
+                    _ServiceCTASection(
+                      title: _pageContent['ctaTitle'] ?? 'Optimize Your EV’s Performance\nWith Precision Engineering',
+                      buttonText: _pageContent['ctaBtnText'] ?? 'BOOK AN APPOINTMENT',
+                      isRed: _pageContent['ctaIsRed'] ?? false,
+                    ),
 
                     const FooterWidget(),
                   ],
@@ -187,7 +210,10 @@ class _ZigZagServiceBlock extends StatelessWidget {
       children: [
         Text(
           label,
-          style: AppTextStyles.sectionLabel.copyWith(color: AppColors.accentRed, letterSpacing: 2),
+          style: AppTextStyles.sectionLabel.copyWith(
+            color: label.toLowerCase().contains('service') ? AppColors.accentBlue : AppColors.accentRed, 
+            letterSpacing: 2
+          ),
         ),
         const SizedBox(height: 16),
         Text(
@@ -198,7 +224,7 @@ class _ZigZagServiceBlock extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        Container(width: 40, height: 3, color: AppColors.accentRed),
+        Container(width: 40, height: 3, color: label.toLowerCase().contains('service') ? AppColors.accentBlue : AppColors.accentRed),
         const SizedBox(height: 24),
         _buildRichText(description),
         const SizedBox(height: 32),
@@ -206,7 +232,7 @@ class _ZigZagServiceBlock extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 12),
           child: Row(
             children: [
-              const Icon(Icons.check_circle, color: AppColors.accentRed, size: 20),
+              const Icon(Icons.check_circle, color: AppColors.accentTeal, size: 20),
               const SizedBox(width: 12),
               Text(item, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
             ],
@@ -272,8 +298,16 @@ class _ServiceHeroLight extends StatelessWidget {
   final String title;
   final String tagline;
   final String imageUrl;
+  final String buttonText;
+  final bool isRed;
 
-  const _ServiceHeroLight({required this.title, required this.tagline, required this.imageUrl});
+  const _ServiceHeroLight({
+    required this.title, 
+    required this.tagline, 
+    required this.imageUrl,
+    required this.buttonText,
+    required this.isRed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -299,7 +333,10 @@ class _ServiceHeroLight extends StatelessWidget {
                       const SizedBox(height: 60),
                       Text(
                         tagline.toUpperCase(),
-                        style: AppTextStyles.sectionLabel.copyWith(color: AppColors.accentRed, letterSpacing: 4),
+                        style: AppTextStyles.sectionLabel.copyWith(
+                          color: isRed ? Colors.redAccent : AppColors.accentBlue, 
+                          letterSpacing: 4
+                        ),
                       ),
                       const SizedBox(height: 20),
                       Text(
@@ -311,7 +348,13 @@ class _ServiceHeroLight extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      Container(width: 80, height: 4, color: AppColors.accentRed),
+                      Container(width: 80, height: 4, color: isRed ? Colors.redAccent : AppColors.accentBlue),
+                      const SizedBox(height: 32),
+                      PrimaryButton(
+                        text: buttonText,
+                        backgroundColor: isRed ? Colors.redAccent : null,
+                        onPressed: () => context.push('/contact'),
+                      ),
                     ],
                   ),
                 ),
@@ -348,6 +391,16 @@ class _SlantedClipper extends CustomClipper<Path> {
 }
 
 class _WhyChooseServiceSection extends StatelessWidget {
+  final String title;
+  final String label;
+  final List<String> points;
+
+  const _WhyChooseServiceSection({
+    required this.title, 
+    required this.label, 
+    required this.points
+  });
+
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 900;
@@ -367,9 +420,9 @@ class _WhyChooseServiceSection extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SectionHeader(
-                title: 'Why Choose FIXXEV?',
-                label: '// THE ADVANTAGE',
+              SectionHeader(
+                title: title,
+                label: label,
                 isLight: true,
                 centered: false,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -378,12 +431,7 @@ class _WhyChooseServiceSection extends StatelessWidget {
               Wrap(
                 spacing: 40,
                 runSpacing: 40,
-                children: [
-                  _WhyPoint(text: 'Specialized for 2W, L3 and L5 Multi-brand electric vehicles.'),
-                  _WhyPoint(text: 'High-end diagnostics for CAN Bus and LIN protocols.'),
-                  _WhyPoint(text: 'ISO-certified workshops ensuring dust-free environments.'),
-                  _WhyPoint(text: 'National network of 100+ stores for cross-city warranty support.'),
-                ],
+                children: points.map((p) => _WhyPoint(text: p)).toList(),
               ),
             ],
           ),
@@ -418,22 +466,35 @@ class _WhyPoint extends StatelessWidget {
 }
 
 class _ServiceCTASection extends StatelessWidget {
+  final String title;
+  final String buttonText;
+  final bool isRed;
+
+  const _ServiceCTASection({
+    required this.title, 
+    required this.buttonText,
+    required this.isRed,
+  });
+
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
-      color: Colors.white,
+      color: isRed ? Colors.redAccent.withOpacity(0.9) : Colors.white,
       child: Column(
         children: [
           Text(
-            'Optimize Your EV’s Performance\nWith Precision Engineering',
+            title,
             textAlign: TextAlign.center,
-            style: AppTextStyles.sectionTitle.copyWith(color: AppColors.primaryNavy),
+            style: AppTextStyles.sectionTitle.copyWith(
+              color: isRed ? Colors.white : AppColors.primaryNavy
+            ),
           ),
           const SizedBox(height: 48),
           PrimaryButton(
-            text: 'BOOK AN APPOINTMENT',
-            onPressed: () {},
+            text: buttonText,
+            backgroundColor: isRed ? Colors.white : null,
+            onPressed: () => context.push('/contact'),
             icon: Icons.calendar_month,
           ),
         ],

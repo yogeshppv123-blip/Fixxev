@@ -7,6 +7,7 @@ import 'package:fixxev_admin/screens/blog/blog_list_screen.dart';
 import 'package:fixxev_admin/screens/products/products_screen.dart';
 import 'package:fixxev_admin/screens/media/media_screen.dart';
 import 'package:fixxev_admin/screens/settings/settings_screen.dart';
+import 'package:fixxev_admin/screens/settings/theme_settings_screen.dart';
 import 'package:fixxev_admin/screens/services/services_list_screen.dart';
 import 'package:fixxev_admin/screens/team/team_list_screen.dart';
 import 'package:fixxev_admin/screens/blog/blog_edit_screen.dart';
@@ -16,21 +17,29 @@ import 'package:fixxev_admin/screens/team/member_edit_screen.dart';
 import 'package:fixxev_admin/screens/pages/home_page_editor.dart';
 import 'package:fixxev_admin/screens/pages/about_page_editor.dart';
 import 'package:fixxev_admin/screens/pages/contact_page_editor.dart';
-import 'package:fixxev_admin/screens/pages/dealership_page_editor.dart';
+import 'package:fixxev_admin/screens/pages/franchise_page_editor.dart';
 import 'package:fixxev_admin/screens/pages/blog_page_editor.dart';
 import 'package:fixxev_admin/screens/pages/products_page_editor.dart';
 import 'package:fixxev_admin/screens/pages/ckd_container_page_editor.dart';
 import 'package:fixxev_admin/screens/pages/services_page_editor.dart';
+import 'package:fixxev_admin/screens/pages/team_page_editor.dart';
+import 'package:fixxev_admin/screens/pages/footer_editor.dart';
+import 'package:fixxev_admin/screens/pages/navbar_editor.dart';
 import 'package:fixxev_admin/screens/about/about_list_screen.dart';
 import 'package:fixxev_admin/screens/about/about_edit_screen.dart';
 import 'package:fixxev_admin/screens/franchise/franchise_list_screen.dart';
 import 'package:fixxev_admin/screens/franchise/franchise_edit_screen.dart';
 import 'package:fixxev_admin/screens/ckd/ckd_list_screen.dart';
 import 'package:fixxev_admin/screens/ckd/ckd_edit_screen.dart';
+import 'package:fixxev_admin/screens/profile/profile_screen.dart';
 import 'package:fixxev_admin/core/theme/app_colors.dart';
 import 'package:fixxev_admin/widgets/sidebar.dart';
 
-void main() {
+import 'package:fixxev_admin/core/services/api_service.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await ApiService.init();
   runApp(const FixxevAdminApp());
 }
 
@@ -85,12 +94,14 @@ class FixxevAdminApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginScreen(),
         '/dashboard': (context) => const DashboardScreen(),
+        '/profile': (context) => const ProfileScreen(),
         '/pages': (context) => const PagesListScreen(),
         '/leads': (context) => const LeadsScreen(),
         '/blog': (context) => const BlogListScreen(),
         '/products': (context) => const ProductsScreen(),
         '/media': (context) => const MediaScreen(),
         '/settings': (context) => const SettingsScreen(),
+        '/theme-settings': (context) => const ThemeSettingsScreen(),
         // New Sections
         '/services': (context) => const ServicesListScreen(),
         '/team': (context) => const TeamListScreen(),
@@ -101,10 +112,13 @@ class FixxevAdminApp extends StatelessWidget {
         '/pages/products': (context) => const ProductsPageEditor(),
         '/pages/blog': (context) => const BlogPageEditor(),
         '/pages/contact': (context) => const ContactPageEditor(),
-        '/pages/dealership': (context) => const DealershipPageEditor(),
-        '/pages/franchise': (context) => const DealershipPageEditor(), // Reuses dealership editor for franchise
+        '/pages/dealership': (context) => const FranchisePageEditor(),
+        '/pages/franchise': (context) => const FranchisePageEditor(), // Reuses dealership editor for franchise
         '/pages/services': (context) => const ServicesPageEditor(),
         '/pages/ckd-container': (context) => const CKDContainerPageEditor(),
+        '/pages/team': (context) => const TeamPageEditor(),
+        '/pages/footer': (context) => const FooterEditor(),
+        '/pages/navbar': (context) => const NavbarEditor(),
         '/blog/new': (context) => const BlogEditScreen(),
         '/blog/edit': (context) {
           final blog = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
@@ -124,13 +138,6 @@ class FixxevAdminApp extends StatelessWidget {
         '/team/edit': (context) {
           final member = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
           return MemberEditScreen(member: member);
-        },
-        // About Sections
-        '/about': (context) => const AboutListScreen(),
-        '/about/new': (context) => const AboutEditScreen(),
-        '/about/edit': (context) {
-          final section = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
-          return AboutEditScreen(section: section);
         },
         // Franchise Types
         '/franchise': (context) => const FranchiseListScreen(),

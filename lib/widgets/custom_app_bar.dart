@@ -3,10 +3,14 @@ import 'package:fixxev/core/theme/app_colors.dart';
 import 'package:fixxev/core/theme/app_text_styles.dart';
 import 'package:fixxev/core/constants/app_constants.dart';
 import 'package:fixxev/widgets/buttons/primary_button.dart';
+import 'package:fixxev/core/services/api_service.dart';
+import 'package:fixxev/core/providers/theme_provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:provider/provider.dart';
 
-/// Custom App Bar with dark navy theme
-class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+/// Custom App Bar with dynamic content from Admin
+class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final bool isTransparent;
   final Color? backgroundColor;
   final bool useLightText;
@@ -23,117 +27,239 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
-  Size get preferredSize => const Size.fromHeight(80);
+  Size get preferredSize => const Size.fromHeight(80); // Standard navbar height
+
+  @override
+  State<CustomAppBar> createState() => _CustomAppBarState();
+}
+
+class _CustomAppBarState extends State<CustomAppBar> {
+  final ApiService _apiService = ApiService();
+  Map<String, dynamic> _navbarData = {};
+  Map<String, dynamic> _settingsData = {};
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAllData();
+  }
+
+  Future<void> _loadAllData() async {
+    try {
+      final results = await Future.wait([
+        _apiService.getPageContent('navbar'),
+        _apiService.getSettings(),
+      ]);
+      if (mounted) {
+        setState(() {
+          _navbarData = results[0];
+          _settingsData = results[1];
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri)) {
+      debugPrint('Could not launch $url');
+    }
+  }
+
+  Color _getBackgroundColor() {
+    if (widget.backgroundColor != null) return widget.backgroundColor!;
+    if (widget.isTransparent) return Colors.transparent;
+    
+    final hexStr = _navbarData['bgColor'] as String?;
+    if (hexStr != null && hexStr.startsWith('0x')) {
+      try {
+        return Color(int.parse(hexStr));
+      } catch (e) {
+        // Use theme primary color as fallback
+        final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+        return themeProvider.primaryColor;
+      }
+    }
+    return AppColors.white;
+  }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 768;
+    final bgColor = _getBackgroundColor();
+    final isDarkBg = bgColor.computeLuminance() < 0.5;
+    final bool lightText = widget.isTransparent || widget.useLightText || isDarkBg;
+
+    return Column(
+      children: [
+        // Top Bar removed per user request
+        // if (!isMobile) _buildTopBar(lightText),
+        
+        Container(
+          height: 80,
+          padding: EdgeInsets.symmetric(
+            horizontal: isMobile ? 16 : 60,
+          ),
+          decoration: BoxDecoration(
+            color: bgColor,
+            boxShadow: (widget.isTransparent || widget.backgroundColor != null || isDarkBg)
+                ? null
+                : [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(15),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Logo
+              InkWell(
+                 onTap: () => context.go('/'),
+                child: _buildLogo(lightText),
+              ),
+              // Navigation or Menu
+              if (isMobile)
+                IconButton(
+                  onPressed: widget.onMenuPressed,
+                  icon: Icon(
+                    Icons.menu,
+                    color: lightText ? AppColors.textLight : AppColors.textDark,
+                    size: 28,
+                  ),
+                )
+              else
+                _buildNavigationLinks(context, lightText),
+              // CTA Button
+              if (!isMobile)
+                PrimaryButton(
+                  text: _navbarData['ctaText'] ?? 'GET A QUOTE',
+                  icon: Icons.arrow_forward,
+                  onPressed: () => context.go('/contact'),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTopBar(bool lightText) {
+    final email = _settingsData['contactEmail'] ?? AppConstants.email;
+    final phone = _settingsData['contactPhone'] ?? AppConstants.phoneNumber;
 
     return Container(
-      height: 80,
-      padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 16 : 60,
-      ),
+      width: double.infinity,
+      height: 35,
+      padding: const EdgeInsets.symmetric(horizontal: 60),
       decoration: BoxDecoration(
-        color: backgroundColor ?? (isTransparent
-            ? Colors.transparent
-            : AppColors.white),
-        boxShadow: (isTransparent || backgroundColor != null)
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withAlpha(15),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+        color: lightText ? Colors.white.withAlpha(20) : AppColors.primaryNavy,
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          // Logo
-          InkWell(
-             onTap: () => context.go('/'),
-            child: _buildLogo(isTransparent || useLightText),
+          _buildTopBarItem(
+            icon: Icons.alternate_email,
+            label: email,
+            onTap: () => _launchUrl('mailto:$email'),
           ),
-          // Navigation or Menu
-          if (isMobile)
-            IconButton(
-              onPressed: onMenuPressed,
-              icon: Icon(
-                Icons.menu,
-                color: (isTransparent || useLightText) ? AppColors.textLight : AppColors.textDark,
-                size: 28,
-              ),
-            )
-          else
-            _buildNavigationLinks(context, isTransparent || useLightText),
-          // CTA Button (desktop only)
-          if (!isMobile)
-            PrimaryButton(
-              text: 'GET A QUOTE',
-              icon: Icons.arrow_forward,
-              onPressed: () => context.go('/contact'),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            ),
+          const SizedBox(width: 24),
+          _buildTopBarItem(
+            icon: Icons.phone_in_talk,
+            label: phone,
+            onTap: () => _launchUrl('tel:$phone'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTopBarItem({required IconData icon, required String label, required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: Colors.white, size: 14),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w400),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildLogo(bool isLight) {
+    final logoUrl = _navbarData['logoUrl'] as String?;
+
     return Container(
-      height: 55, // Increased size
+      height: 55,
       padding: const EdgeInsets.symmetric(vertical: 4),
       constraints: const BoxConstraints(maxWidth: 180),
       child: Image.network(
-        'logo.png', 
+        (logoUrl != null && logoUrl.isNotEmpty) ? logoUrl : 'logo.png',
         fit: BoxFit.contain,
-        // If !isLight (i.e. we are on a white background), we color the logo Navy to make it visible
-        // This assumes the source logo has transparency and white text/graphics.
-        color: !isLight ? AppColors.primaryNavy : null,
-        colorBlendMode: !isLight ? BlendMode.srcIn : null,
-        errorBuilder: (context, error, stackTrace) {
-           return Row(
+        // Apply color filter ONLY if we are using the default 'logo.png' and on a white background
+        color: (!isLight && (logoUrl == null || logoUrl.isEmpty)) ? AppColors.primaryNavy : null,
+        colorBlendMode: (!isLight && (logoUrl == null || logoUrl.isEmpty)) ? BlendMode.srcIn : null,
+        errorBuilder: (context, error, stackTrace) => _buildDefaultLogo(isLight),
+      ),
+    );
+  }
+
+  Widget _buildDefaultLogo(bool isLight) {
+    return Row(
+      children: [
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: AppColors.accentBlue,
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: const Center(
+            child: Text(
+              'F',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        RichText(
+          text: TextSpan(
             children: [
-              Container(
-                width: 44, height: 44,
-                decoration: BoxDecoration(
-                  color: AppColors.accentBlue,
-                  borderRadius: BorderRadius.circular(6),
+              TextSpan(
+                text: 'FIXX',
+                style: (isLight ? AppTextStyles.navLinkLight : AppTextStyles.navLink).copyWith(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1,
+                  color: isLight ? AppColors.textLight : AppColors.primaryNavy,
                 ),
-                child: const Center(child: Text('F', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white))),
               ),
-              const SizedBox(width: 10),
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'FIXX',
-                      style: (isLight ? AppTextStyles.navLinkLight : AppTextStyles.navLink).copyWith(
-                        fontSize: 24, 
-                        fontWeight: FontWeight.w800, 
-                        letterSpacing: 1,
-                        color: isLight ? AppColors.textLight : AppColors.primaryNavy,
-                      ),
-                    ),
-                    TextSpan(
-                      text: 'EV',
-                      style: (isLight ? AppTextStyles.navLinkLight : AppTextStyles.navLink).copyWith(
-                        fontSize: 24, 
-                        fontWeight: FontWeight.w800, 
-                        letterSpacing: 1,
-                        color: AppColors.accentTeal, // Mint Green EV
-                      ),
-                    ),
-                  ],
+              TextSpan(
+                text: 'EV',
+                style: (isLight ? AppTextStyles.navLinkLight : AppTextStyles.navLink).copyWith(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1,
+                  color: AppColors.accentTeal,
                 ),
               ),
             ],
-          );
-        },
-      ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -156,7 +282,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       children: navItems.map((item) {
         final isActive = currentPath == item['path'];
         return _NavItem(
-          label: item['label']!, 
+          label: item['label']!,
           isLight: isLight,
           isActive: isActive,
           onTap: () => context.go(item['path']!),
@@ -196,14 +322,11 @@ class _NavItemState extends State<_NavItem> {
             children: [
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 200),
-                style: (widget.isLight
-                        ? AppTextStyles.navLinkLight
-                        : AppTextStyles.navLink)
-                    .copyWith(
+                style: (widget.isLight ? AppTextStyles.navLinkLight : AppTextStyles.navLink).copyWith(
                   fontSize: 13,
                   fontWeight: (_isHovered || widget.isActive) ? FontWeight.w700 : FontWeight.w500,
                   color: (_isHovered || widget.isActive)
-                      ? AppColors.accentTeal // Green for active/hover state
+                      ? AppColors.accentTeal
                       : (widget.isLight ? AppColors.textLight : AppColors.textDark),
                   letterSpacing: 0.5,
                 ),
@@ -215,7 +338,7 @@ class _NavItemState extends State<_NavItem> {
                 height: 2,
                 width: (_isHovered || widget.isActive) ? 20 : 0,
                 decoration: BoxDecoration(
-                  color: AppColors.accentTeal, // Green underline
+                  color: AppColors.accentTeal,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -227,9 +350,36 @@ class _NavItemState extends State<_NavItem> {
   }
 }
 
-/// Mobile navigation drawer
-class MobileDrawer extends StatelessWidget {
+class MobileDrawer extends StatefulWidget {
   const MobileDrawer({super.key});
+
+  @override
+  State<MobileDrawer> createState() => _MobileDrawerState();
+}
+
+class _MobileDrawerState extends State<MobileDrawer> {
+  final ApiService _apiService = ApiService();
+  Map<String, dynamic> _navbarData = {};
+  Map<String, dynamic> _settingsData = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAllData();
+  }
+
+  Future<void> _loadAllData() async {
+    final results = await Future.wait([
+      _apiService.getPageContent('navbar'),
+      _apiService.getSettings(),
+    ]);
+    if (mounted) {
+      setState(() {
+        _navbarData = results[0];
+        _settingsData = results[1];
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -244,6 +394,10 @@ class MobileDrawer extends StatelessWidget {
       {'label': 'CONTACT', 'path': '/contact'},
     ];
 
+    final logoUrl = _navbarData['logoUrl'] as String?;
+    final email = _settingsData['contactEmail'] ?? AppConstants.email;
+    final phone = _settingsData['contactPhone'] ?? AppConstants.phoneNumber;
+
     return Drawer(
       child: Container(
         color: AppColors.primaryNavy,
@@ -251,7 +405,6 @@ class MobileDrawer extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
               Padding(
                 padding: const EdgeInsets.all(24),
                 child: Row(
@@ -260,8 +413,14 @@ class MobileDrawer extends StatelessWidget {
                       height: 50,
                       constraints: const BoxConstraints(maxWidth: 160),
                       child: Image.network(
-                        'logo.png',
+                        (logoUrl != null && logoUrl.isNotEmpty) ? logoUrl : 'logo.png',
                         fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) => const Center(
+                          child: Text(
+                            'FIXXEV',
+                            style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -271,14 +430,13 @@ class MobileDrawer extends StatelessWidget {
                 height: 1,
                 color: AppColors.textLight.withAlpha(30),
               ),
-              // Navigation links
+              // Contact info removed per user request
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
                   children: navItems.map((item) {
                     return ListTile(
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 24),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 24),
                       title: Text(
                         item['label']!.toUpperCase(),
                         style: AppTextStyles.navLinkLight.copyWith(
@@ -299,11 +457,10 @@ class MobileDrawer extends StatelessWidget {
                   }).toList(),
                 ),
               ),
-              // Contact button
               Padding(
                 padding: const EdgeInsets.all(24),
                 child: PrimaryButton(
-                  text: 'GET A QUOTE',
+                  text: _navbarData['ctaText'] ?? 'GET A QUOTE',
                   icon: Icons.arrow_forward,
                   width: double.infinity,
                   onPressed: () {
@@ -315,6 +472,22 @@ class MobileDrawer extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildDrawerContactItem(IconData icon, String label, String url) {
+    return InkWell(
+      onTap: () async {
+        final uri = Uri.parse(url);
+        if (await canLaunchUrl(uri)) await launchUrl(uri);
+      },
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.white70, size: 14),
+          const SizedBox(width: 8),
+          Text(label, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+        ],
       ),
     );
   }

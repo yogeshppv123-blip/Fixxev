@@ -20,6 +20,26 @@ class _ContactPageEditorState extends State<ContactPageEditor> {
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _mapUrlController = TextEditingController();
+  
+  final _heroTitleController = TextEditingController();
+  final _heroTaglineController = TextEditingController();
+  final _heroImageController = TextEditingController();
+  
+  final _sectionTitleController = TextEditingController();
+  final _sectionSubtitleController = TextEditingController();
+  final _workingHoursController = TextEditingController();
+  final _mapImageController = TextEditingController();
+  
+  final _facebookController = TextEditingController();
+  final _instagramController = TextEditingController();
+  final _twitterController = TextEditingController();
+  final _linkedinController = TextEditingController();
+  
+  final _addressTitleController = TextEditingController();
+  final _phoneTitleController = TextEditingController();
+  final _workingHoursTitleController = TextEditingController();
+  final _emailTitleController = TextEditingController();
+  final _mapButtonTextController = TextEditingController();
 
   @override
   void initState() {
@@ -37,6 +57,27 @@ class _ContactPageEditorState extends State<ContactPageEditor> {
         _emailController.text = content['email'] ?? 'support@fixxev.com';
         _phoneController.text = content['phone'] ?? '+91 9876543210';
         _mapUrlController.text = content['mapUrl'] ?? '';
+        
+        _heroTitleController.text = content['heroTitle'] ?? 'Contact Us';
+        _heroTaglineController.text = content['heroTagline'] ?? 'Get In Touch';
+        _heroImageController.text = content['heroImage'] ?? 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&h=1440&q=80';
+        
+        _sectionTitleController.text = content['sectionTitle'] ?? 'Ready to Fix Your EV?';
+        _sectionSubtitleController.text = content['sectionSubtitle'] ?? 'Visit our center or send us a message';
+        _workingHoursController.text = content['workingHours'] ?? 'Mon - Sat: 9:00 AM - 8:00 PM';
+        _mapImageController.text = content['mapImage'] ?? 'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&q=80';
+        
+        _facebookController.text = content['facebook'] ?? '';
+        _instagramController.text = content['instagram'] ?? '';
+        _twitterController.text = content['twitter'] ?? '';
+        _linkedinController.text = content['linkedin'] ?? '';
+        
+        _addressTitleController.text = content['addressTitle'] ?? 'Visit Our HQ';
+        _phoneTitleController.text = content['phoneTitle'] ?? 'Direct Support';
+        _workingHoursTitleController.text = content['workingHoursTitle'] ?? 'Working Hours';
+        _emailTitleController.text = content['emailTitle'] ?? 'Email Inquiry';
+        _mapButtonTextController.text = content['mapButtonText'] ?? 'OPEN IN GOOGLE MAPS';
+        
         _isLoading = false;
       });
     } catch (e) {
@@ -55,6 +96,22 @@ class _ContactPageEditorState extends State<ContactPageEditor> {
         'email': _emailController.text,
         'phone': _phoneController.text,
         'mapUrl': _mapUrlController.text,
+        'heroTitle': _heroTitleController.text,
+        'heroTagline': _heroTaglineController.text,
+        'heroImage': _heroImageController.text,
+        'sectionTitle': _sectionTitleController.text,
+        'sectionSubtitle': _sectionSubtitleController.text,
+        'workingHours': _workingHoursController.text,
+        'mapImage': _mapImageController.text,
+        'facebook': _facebookController.text,
+        'instagram': _instagramController.text,
+        'twitter': _twitterController.text,
+        'linkedin': _linkedinController.text,
+        'addressTitle': _addressTitleController.text,
+        'phoneTitle': _phoneTitleController.text,
+        'workingHoursTitle': _workingHoursTitleController.text,
+        'emailTitle': _emailTitleController.text,
+        'mapButtonText': _mapButtonTextController.text,
       };
       
       await _apiService.updatePageContent('contact', content);
@@ -89,16 +146,82 @@ class _ContactPageEditorState extends State<ContactPageEditor> {
                         child: Column(
                           children: [
                             _buildSectionCard(
+                              title: 'Hero Section',
+                              icon: Icons.image_outlined,
+                              children: [
+                                _buildTextField('Hero Title', _heroTitleController),
+                                const SizedBox(height: 16),
+                                _buildTextField('Hero Tagline', _heroTaglineController),
+                                const SizedBox(height: 16),
+                                _buildTextField('Hero Image URL', _heroImageController),
+                              ],
+                            ),
+                            const SizedBox(height: 32),
+                            _buildSectionCard(
+                              title: 'Section Header',
+                              icon: Icons.text_fields,
+                              children: [
+                                _buildTextField('Main Title', _sectionTitleController),
+                                const SizedBox(height: 16),
+                                _buildTextField('Subtitle/Description', _sectionSubtitleController),
+                              ],
+                            ),
+                            const SizedBox(height: 32),
+                            _buildSectionCard(
                               title: 'Contact Information',
                               icon: Icons.contact_page_outlined,
                               children: [
-                                _buildTextField('Office Address', _addressController, maxLines: 2),
+                                Row(
+                                  children: [
+                                    Expanded(child: _buildTextField('Address Section Title', _addressTitleController)),
+                                    const SizedBox(width: 16),
+                                    Expanded(child: _buildTextField('Office Address', _addressController, maxLines: 2)),
+                                  ],
+                                ),
                                 const SizedBox(height: 16),
-                                _buildTextField('Support Email', _emailController),
+                                Row(
+                                  children: [
+                                    Expanded(child: _buildTextField('Phone Section Title', _phoneTitleController)),
+                                    const SizedBox(width: 16),
+                                    Expanded(child: _buildTextField('Phone Number', _phoneController)),
+                                  ],
+                                ),
                                 const SizedBox(height: 16),
-                                _buildTextField('Phone Number', _phoneController),
+                                Row(
+                                  children: [
+                                    Expanded(child: _buildTextField('Email Section Title', _emailTitleController)),
+                                    const SizedBox(width: 16),
+                                    Expanded(child: _buildTextField('Support Email', _emailController)),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                Row(
+                                  children: [
+                                    Expanded(child: _buildTextField('Working Hours Title', _workingHoursTitleController)),
+                                    const SizedBox(width: 16),
+                                    Expanded(child: _buildTextField('Working Hours', _workingHoursController)),
+                                  ],
+                                ),
                                 const SizedBox(height: 24),
-                                _buildTextField('Google Maps Embed URL', _mapUrlController, maxLines: 2),
+                                _buildTextField('Google Maps Link', _mapUrlController, maxLines: 2),
+                                const SizedBox(height: 16),
+                                _buildTextField('Map Button Text', _mapButtonTextController),
+                                const SizedBox(height: 16),
+                                _buildTextField('Map Section Background Image URL', _mapImageController),
+                              ],
+                            ),
+                            const SizedBox(height: 32),
+                            _buildSectionCard(
+                              title: 'Social Media Links',
+                              icon: Icons.share_outlined,
+                              children: [
+                                _buildTextField('Facebook URL', _facebookController),
+                                const SizedBox(height: 16),
+                                _buildTextField('Instagram URL', _instagramController),
+                                const SizedBox(height: 16),
+                                _buildTextField('Twitter/X URL', _twitterController),
+                                const SizedBox(height: 16),
+                                _buildTextField('LinkedIn URL', _linkedinController),
                               ],
                             ),
                           ],

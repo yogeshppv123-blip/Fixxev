@@ -8,6 +8,7 @@ import '../../widgets/buttons/primary_button.dart';
 import '../../widgets/subpage_hero.dart';
 import '../../widgets/section_header.dart';
 import '../../core/constants/app_constants.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/services/api_service.dart';
 
@@ -82,9 +83,13 @@ class _ContactScreenState extends State<ContactScreen> {
     super.dispose();
   }
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: const MobileDrawer(),
       extendBodyBehindAppBar: true,
       body: FutureBuilder<Map<String, dynamic>>(
         future: _contactContentFuture,
@@ -97,10 +102,10 @@ class _ContactScreenState extends State<ContactScreen> {
                 child: Column(
                   children: [
                     // Premium SubPage Hero
-                    const SubPageHero(
-                      title: 'Contact Us',
-                      tagline: 'Get In Touch',
-                      imageUrl: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&h=1440&q=80',
+                    SubPageHero(
+                      title: content['heroTitle'] ?? 'Contact Us',
+                      tagline: content['heroTagline'] ?? 'Get In Touch',
+                      imageUrl: content['heroImage'] ?? 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&h=1440&q=80',
                     ),
                     
                     Container(
@@ -114,9 +119,9 @@ class _ContactScreenState extends State<ContactScreen> {
                           constraints: const BoxConstraints(maxWidth: 1200),
                           child: Column(
                             children: [
-                              const SectionHeader(
-                                title: 'Ready to Fix Your EV?',
-                                subtitle: 'Visit our center or send us a message',
+                              SectionHeader(
+                                title: content['sectionTitle'] ?? 'Ready to Fix Your EV?',
+                                subtitle: content['sectionSubtitle'] ?? 'Visit our center or send us a message',
                                 centered: true,
                               ),
                               const SizedBox(height: 60),
@@ -183,7 +188,7 @@ class _ContactScreenState extends State<ContactScreen> {
                       child: Stack(
                         children: [
                           Image.network(
-                            'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&q=80',
+                            content['mapImage'] ?? 'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&q=80',
                             width: double.infinity,
                             height: 400,
                             fit: BoxFit.cover,
@@ -196,8 +201,16 @@ class _ContactScreenState extends State<ContactScreen> {
                                 const Icon(Icons.location_on, color: AppColors.accentRed, size: 60),
                                 const SizedBox(height: 20),
                                 PrimaryButton(
-                                  text: 'OPEN IN GOOGLE MAPS',
-                                  onPressed: () {},
+                                  text: content['mapButtonText'] ?? 'OPEN IN GOOGLE MAPS',
+                                  onPressed: () async {
+                                    final url = content['mapUrl'];
+                                    if (url != null && url.isNotEmpty) {
+                                      final uri = Uri.parse(url);
+                                      if (await canLaunchUrl(uri)) {
+                                        await launchUrl(uri);
+                                      }
+                                    }
+                                  },
                                   icon: Icons.map,
                                 ),
                               ],
@@ -220,7 +233,7 @@ class _ContactScreenState extends State<ContactScreen> {
                   isTransparent: !_isScrolled,
                   backgroundColor: _isScrolled ? AppColors.navDark : null,
                   useLightText: true,
-                  onMenuPressed: () {},
+                  onMenuPressed: () => _scaffoldKey.currentState?.openDrawer(),
                   onContactPressed: () {},
                 ),
               ),
@@ -239,25 +252,25 @@ class _ContactScreenState extends State<ContactScreen> {
       children: [
         _ContactInfoItem(
           icon: Icons.location_on,
-          title: 'Visit Our HQ',
+          title: content['addressTitle'] ?? 'Visit Our HQ',
           detail: content['address'] ?? AppConstants.address,
         ),
         const SizedBox(height: 40),
         _ContactInfoItem(
           icon: Icons.phone_in_talk,
-          title: 'Direct Support',
+          title: content['phoneTitle'] ?? 'Direct Support',
           detail: content['phone'] ?? AppConstants.phoneNumber,
         ),
         const SizedBox(height: 40),
         _ContactInfoItem(
           icon: Icons.schedule,
-          title: 'Working Hours',
-          detail: 'Mon - Sat: 9:00 AM - 8:00 PM',
+          title: content['workingHoursTitle'] ?? 'Working Hours',
+          detail: content['workingHours'] ?? 'Mon - Sat: 9:00 AM - 8:00 PM',
         ),
         const SizedBox(height: 40),
         _ContactInfoItem(
           icon: Icons.email_outlined,
-          title: 'Email Inquiry',
+          title: content['emailTitle'] ?? 'Email Inquiry',
           detail: content['email'] ?? AppConstants.email,
         ),
         const SizedBox(height: 40),
@@ -270,13 +283,13 @@ class _ContactScreenState extends State<ContactScreen> {
         const SizedBox(height: 20),
         Row(
           children: [
-            _SocialIcon(Icons.facebook),
+            _SocialIcon(Icons.facebook, content['facebook']),
             const SizedBox(width: 16),
-            _SocialIcon(Icons.camera_alt), // Instagram placeholder
+            _SocialIcon(Icons.camera_alt, content['instagram']),
             const SizedBox(width: 16),
-            _SocialIcon(Icons.alternate_email), // Twitter/X placeholder
+            _SocialIcon(Icons.alternate_email, content['twitter']),
             const SizedBox(width: 16),
-            _SocialIcon(Icons.business), // LinkedIn placeholder
+            _SocialIcon(Icons.business, content['linkedin']),
           ],
         ),
         const SizedBox(height: 20),
@@ -289,14 +302,24 @@ class _ContactScreenState extends State<ContactScreen> {
   }
 
   // Helper for Social Icons
-  Widget _SocialIcon(IconData icon) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: AppColors.primaryNavy,
-        borderRadius: BorderRadius.circular(8),
+  Widget _SocialIcon(IconData icon, String? url) {
+    return GestureDetector(
+      onTap: () async {
+        if (url != null && url.isNotEmpty) {
+          final uri = Uri.parse(url);
+          if (await canLaunchUrl(uri)) {
+            await launchUrl(uri);
+          }
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: AppColors.primaryNavy,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, color: Colors.white, size: 20),
       ),
-      child: Icon(icon, color: Colors.white, size: 20),
     );
   }
 

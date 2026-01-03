@@ -4,30 +4,46 @@ const Service = require('../models/Service');
 const Product = require('../models/Product');
 const TeamMember = require('../models/TeamMember');
 const Blog = require('../models/Blog');
+const Lead = require('../models/Lead');
+
 
 router.get('/stats', async (req, res) => {
     try {
-        const [servicesCount, productsCount, teamCount, blogsCount, recentServices, recentProducts, recentBlogs] = await Promise.all([
+        const [servicesCount, productsCount, teamCount, blogsCount, recentLeads] = await Promise.all([
             Service.countDocuments(),
             Product.countDocuments(),
             TeamMember.countDocuments(),
             Blog.countDocuments(),
-            Service.find().sort({ createdAt: -1 }).limit(2),
-            Product.find().sort({ _id: -1 }).limit(2), // assuming _id for products
-            Blog.find().sort({ createdAt: -1 }).limit(2)
+            Lead.find().sort({ createdAt: -1 }).limit(5)
         ]);
 
-        const recentActivity = [];
-        recentServices.forEach(s => recentActivity.push({ type: 'Service', message: `New service: ${s.title}`, time: 'Recent' }));
-        recentProducts.forEach(p => recentActivity.push({ type: 'Product', message: `New product: ${p.name}`, time: 'Recent' }));
-        recentBlogs.forEach(b => recentActivity.push({ type: 'Blog', message: `New post: ${b.title}`, time: 'Recent' }));
+        // Calculate chart data (last 7 days)
+        const leadsChartData = [];
+        const today = new Date();
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            date.setHours(0, 0, 0, 0);
+
+            const nextDate = new Date(date);
+            nextDate.setDate(nextDate.getDate() + 1);
+
+            const count = await Lead.countDocuments({
+                createdAt: {
+                    $gte: date,
+                    $lt: nextDate
+                }
+            });
+            leadsChartData.push(count);
+        }
 
         res.json({
-            servicesCount: servicesCount,
-            productsCount: productsCount,
-            teamCount: teamCount,
-            blogsCount: blogsCount,
-            recentActivity: recentActivity.slice(0, 5)
+            servicesCount,
+            productsCount,
+            teamCount,
+            blogsCount,
+            recentLeads,
+            leadsChartData
         });
     } catch (err) {
         res.status(500).json({ message: err.message });

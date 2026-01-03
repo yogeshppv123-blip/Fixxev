@@ -18,11 +18,97 @@ class _BlogPageEditorState extends State<BlogPageEditor> {
 
   final _titleController = TextEditingController();
   final _subtitleController = TextEditingController();
+  late Future<List<dynamic>> _blogsFuture;
+
+  // Default blogs for seeding
+  final _defaultBlogs = [
+    {
+      'title': 'The Future of EV After-Sales in India',
+      'date': 'Oct 24, 2024',
+      'category': 'INDUSTRY',
+      'image': 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800',
+      'excerpt': 'Why a standardized service network is the key to unlocking mass EV adoption in the Indian market.',
+    },
+    {
+      'title': 'Fixx EV Launches 50th Service Center',
+      'date': 'Nov 12, 2024',
+      'category': 'NEWS',
+      'image': 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=800',
+      'excerpt': 'Milestone achievement as we expand our footprint across North India cities.',
+    },
+    {
+      'title': 'How Modular Showrooms are Changing Retail',
+      'date': 'Dec 05, 2024',
+      'category': 'TECHNOLOGY',
+      'image': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800',
+      'excerpt': 'Exploring the advantages of rapid deployment CKD containers for new franchisees.',
+    },
+  ];
 
   @override
   void initState() {
     super.initState();
     _loadContent();
+    _refreshBlogs();
+  }
+
+  void _refreshBlogs() {
+    setState(() {
+      _blogsFuture = _apiService.getBlogs();
+    });
+  }
+
+  Future<void> _seedData() async {
+    for (var blog in _defaultBlogs) {
+      await _apiService.createBlog(blog);
+    }
+    _refreshBlogs();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Default blog posts seeded!')));
+    }
+  }
+
+  Future<void> _navigateToEdit([dynamic blog]) async {
+    final result = await Navigator.pushNamed(
+      context, 
+      blog == null ? '/blog/new' : '/blog/edit',
+      arguments: blog,
+    );
+    if (result == true) {
+      _refreshBlogs();
+    }
+  }
+
+  void _deletePost(String id) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.cardDark,
+        title: Text('Delete Post?', style: AppTextStyles.heading3),
+        content: Text('This action cannot be undone.', style: AppTextStyles.bodyMedium),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              try {
+                await _apiService.deleteBlog(id);
+                _refreshBlogs();
+                if (mounted) Navigator.pop(context);
+              } catch (e) {
+                if (mounted) {
+                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _loadContent() async {
@@ -91,12 +177,135 @@ class _BlogPageEditorState extends State<BlogPageEditor> {
                                 _buildTextField('Subheading / Description', _subtitleController, maxLines: 3),
                               ],
                             ),
+                            const SizedBox(height: 32),
+                            _buildPostManagementSection(),
                           ],
                         ),
                       ),
                     ),
                   ],
                 ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPostManagementSection() {
+    return _buildSectionCard(
+      title: 'Individual Blog Posts',
+      icon: Icons.article_outlined,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Manage all posts displayed on the blog page.', style: AppTextStyles.bodyMedium),
+            Row(
+              children: [
+                TextButton.icon(
+                  onPressed: _seedData,
+                  icon: const Icon(Icons.cloud_upload, size: 18),
+                  label: const Text('Seed Defaults'),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton.icon(
+                  onPressed: () => _navigateToEdit(),
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('New Post'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.accentBlue,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+        FutureBuilder<List<dynamic>>(
+          future: _blogsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: Padding(
+                padding: EdgeInsets.all(32.0),
+                child: CircularProgressIndicator(),
+              ));
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}', style: const TextStyle(color: AppColors.error)));
+            }
+
+            final blogs = snapshot.data ?? [];
+
+            if (blogs.isEmpty) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(48.0),
+                  child: Column(
+                    children: [
+                      const Icon(Icons.article_outlined, size: 48, color: AppColors.textGrey),
+                      const SizedBox(height: 16),
+                      Text('No blog posts found.', style: AppTextStyles.bodyMedium),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            return Container(
+              decoration: BoxDecoration(
+                color: AppColors.sidebarDark,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: blogs.map((post) => _buildPostRow(post)).toList(),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPostRow(dynamic post) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.cardDark)),
+      ),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.network(
+              post['image'] ?? '',
+              width: 60,
+              height: 45,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                width: 60, height: 45, color: AppColors.cardDark,
+                child: const Icon(Icons.article, size: 20, color: AppColors.textMuted),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(post['title'] ?? '', style: AppTextStyles.heading3.copyWith(fontSize: 16)),
+                const SizedBox(height: 4),
+                Text('${post['category']} • ${post['date']}', style: AppTextStyles.bodySmall),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.textGrey),
+            onPressed: () => _navigateToEdit(post),
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline, size: 18, color: AppColors.error),
+            onPressed: () => _deletePost(post['_id']),
           ),
         ],
       ),

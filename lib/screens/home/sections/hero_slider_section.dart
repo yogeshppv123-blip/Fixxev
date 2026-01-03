@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:fixxev/core/theme/app_colors.dart';
 import 'package:fixxev/core/theme/app_text_styles.dart';
 import 'package:fixxev/widgets/buttons/primary_button.dart';
+import 'package:fixxev/core/providers/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 /// Hero Carousel section with high-quality 4K background images - Ken Burns Zoom Effect
 class HeroSliderSection extends StatefulWidget {
@@ -26,42 +28,43 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
   late AnimationController _zoomController;
   late Animation<double> _zoomAnimation;
 
-  final List<Map<String, String>> _slides = [
-    {
-      'image': 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
-      'tagline': 'LAUNCH ANNOUNCEMENT',
-      'title': 'Driving India’s EV Future ⚡',
-      'subtitle': 'Fixx EV is solving the biggest barriers to electric vehicle adoption in India — reliable after-sales service and spares availability.',
-      'buttonText': 'JOIN THE MISSION',
-    },
-    {
-      'image': 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
-      'tagline': 'SERVICE ECOSYSTEM',
-      'title': '500+ Authorized Service Centres',
-      'subtitle': 'We are building a nationwide, standardized EV after-sales network across key cities and towns in India.',
-      'buttonText': 'FRANCHISE OPPORTUNITY',
-    },
-    {
-      'image': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
-      'tagline': 'TECHNOLOGY BACKBONE',
-      'title': 'Seamless Ownership Experience',
-      'subtitle': 'Our mobile application connects EV owners to authorized service centres for bookings, diagnostics, and real-time support.',
-      'buttonText': 'DOWNLOAD THE APP',
-    },
-  ];
+  List<Map<String, String>> _slides = [];
+
+  void _parseSlides() {
+    final dynamic dynamicSlides = widget.content['heroSlides'];
+    if (dynamicSlides != null && dynamicSlides is List && dynamicSlides.isNotEmpty) {
+      _slides = dynamicSlides.map((s) => {
+        'image': (s['image'] ?? '').toString(),
+        'tagline': (s['tagline'] ?? '').toString(),
+        'title': (s['title'] ?? '').toString(),
+        'subtitle': (s['subtitle'] ?? '').toString(),
+        'buttonText': (s['buttonText'] ?? '').toString(),
+      }).toList();
+    } else {
+      // Fallback to defaults
+      _slides = [
+        {
+          'image': 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
+          'tagline': 'LAUNCH ANNOUNCEMENT',
+          'title': widget.content['heroTitle'] ?? 'Driving India’s EV Future ⚡',
+          'subtitle': widget.content['heroSubtitle'] ?? 'Fixx EV is solving the biggest barriers to electric vehicle adoption in India — reliable after-sales service and spares availability.',
+          'buttonText': 'JOIN THE MISSION',
+        },
+        {
+          'image': 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
+          'tagline': 'SERVICE ECOSYSTEM',
+          'title': '500+ Authorized Service Centres',
+          'subtitle': 'We are building a nationwide, standardized EV after-sales network across key cities and towns in India.',
+          'buttonText': 'FRANCHISE OPPORTUNITY',
+        },
+      ];
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    if (widget.content.containsKey('heroTitle')) {
-      _slides[0]['title'] = widget.content['heroTitle']!;
-    }
-    if (widget.content.containsKey('heroSubtitle')) {
-      _slides[0]['subtitle'] = widget.content['heroSubtitle']!;
-    }
-    if (widget.content.containsKey('heroImage') && widget.content['heroImage']!.isNotEmpty) {
-      _slides[0]['image'] = widget.content['heroImage']!;
-    }
+    _parseSlides();
     
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 600),
@@ -96,6 +99,16 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
         );
       }
     });
+  }
+
+  @override
+  void didUpdateWidget(HeroSliderSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.content != oldWidget.content) {
+      setState(() {
+        _parseSlides();
+      });
+    }
   }
 
   @override
@@ -153,19 +166,23 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
               ),
             ),
           ),
-          // Diagonal red accent
+          // Diagonal accent using theme color
           Positioned(
             bottom: 0,
             left: 0,
             right: 0,
-            child: ClipPath(
-              clipper: _DiagonalClipper(),
-              child: Container(
-                height: 120,
-                decoration: const BoxDecoration(
-                  gradient: AppColors.redGradient,
-                ),
-              ),
+            child: Consumer<ThemeProvider>(
+              builder: (context, themeProvider, child) {
+                return ClipPath(
+                  clipper: _DiagonalClipper(),
+                  child: Container(
+                    height: 120,
+                    decoration: BoxDecoration(
+                      gradient: themeProvider.primaryGradient,
+                    ),
+                  ),
+                );
+              },
             ),
           ),
           // Floating service icons (desktop only)

@@ -60,9 +60,13 @@ class _CKDContainerScreenState extends State<CKDContainerScreen> {
     super.dispose();
   }
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: const MobileDrawer(),
       backgroundColor: Colors.white,
       extendBodyBehindAppBar: true,
       body: Stack(
@@ -106,7 +110,7 @@ class _CKDContainerScreenState extends State<CKDContainerScreen> {
                     _NetworkMapSection(content: content),
                     
                     // 8. Models Grid
-                    _ModelsGridSection(),
+                    _ModelsGridSection(content: content),
                     
                     // 9. Bottom CTA Form
                     _BottomFormSection(
@@ -118,6 +122,7 @@ class _CKDContainerScreenState extends State<CKDContainerScreen> {
                       cityController: _cityController,
                       descController: _descController,
                       isSubmitting: _isSubmitting,
+                      isRed: content['ctaIsRed'] ?? false,
                       onSubmit: _submitInquiry,
                     ),
                     
@@ -136,7 +141,7 @@ class _CKDContainerScreenState extends State<CKDContainerScreen> {
               isTransparent: false,
               backgroundColor: AppColors.navDark,
               useLightText: true,
-              onMenuPressed: () {},
+              onMenuPressed: () => _scaffoldKey.currentState?.openDrawer(),
               onContactPressed: () {},
             ),
           ),
@@ -216,6 +221,8 @@ class _HeroWithFormSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 900;
+    final heroImage = content['heroImage']?.toString() ?? '';
+    final isRed = content['heroIsRed'] ?? false;
     
     return Container(
       padding: EdgeInsets.only(
@@ -227,7 +234,9 @@ class _HeroWithFormSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFF5F7FA), // Light greyish white
         image: DecorationImage(
-          image: AssetImage('assets/images/c14.jpg'),
+          image: heroImage.isNotEmpty 
+              ? NetworkImage(heroImage) 
+              : const AssetImage('assets/images/c14.jpg') as ImageProvider,
           fit: BoxFit.cover,
           opacity: 0.15,
         ),
@@ -257,13 +266,14 @@ class _HeroWithFormSection extends StatelessWidget {
   }
 
   Widget _buildHeroText() {
+    final isRed = content['heroIsRed'] ?? false;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: AppColors.accentTeal, // Updated to Green
+            color: isRed ? Colors.redAccent : AppColors.accentTeal,
             borderRadius: BorderRadius.circular(4),
           ),
           child: Text(
@@ -279,7 +289,7 @@ class _HeroWithFormSection extends StatelessWidget {
         Text(
           content['heroTitle'] ?? 'Build Your Own EV Brand\nwith Fixx EV',
           style: AppTextStyles.heroTitle.copyWith(
-            color: AppColors.primary, // Electric Blue
+            color: isRed ? Colors.redAccent : AppColors.primary, 
             fontSize: 48,
             height: 1.1,
           ),
@@ -328,6 +338,7 @@ class _HeroWithFormSection extends StatelessWidget {
           const SizedBox(height: 24),
           PrimaryButton(
             text: isSubmitting ? 'SUBMITTING...' : 'SUBMIT',
+            backgroundColor: (content['heroIsRed'] ?? false) ? Colors.redAccent : null,
             onPressed: isSubmitting ? () {} : onSubmit,
             width: double.infinity,
           ),
@@ -371,6 +382,7 @@ class _CommunitySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 900;
+    final isRed = content['joinIsRed'] ?? false;
     
     return Container(
       padding: EdgeInsets.symmetric(
@@ -381,56 +393,60 @@ class _CommunitySection extends StatelessWidget {
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 1200),
-          child: Row(
+          child: Column(
             children: [
-              Expanded(
-                flex: 5,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      content['communityTitle'] ?? 'CKD Import & Assembly\nSolutions',
-                      style: AppTextStyles.sectionTitle.copyWith(fontSize: 42, color: AppColors.primary),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      content['communityDesc'] ?? 'Fixx EV offers complete CKD (Completely Knocked Down) import solutions for both low-speed and high speed electric scooters.',
-                      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textDark, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 16),
-                    Column(
+              Row(
+                children: [
+                  Expanded(
+                    flex: 5,
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: (content['communityItems'] != null
-                          ? (content['communityItems'] as String).split('\n').where((s) => s.trim().isNotEmpty).toList()
-                          : ['Launch your own EV brand', 'Control product quality', 'Improve margins', 'Build long-term market presence'])
-                          .map((item) => _buildBullet(item.trim())).toList(),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      content['communityConclusion'] ?? 'We handle everything — from factory sourcing in China to assembly, testing and go-to-market support in India.',
-                      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey),
-                    ),
-                  ],
-                ),
-              ),
-              if (!isMobile) ...[
-                const SizedBox(width: 60),
-                Expanded(
-                  flex: 6,
-                  child: Container(
-                    height: 350,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      image: DecorationImage(
-                        image: content['communityImage'] != null && content['communityImage'].toString().isNotEmpty
-                            ? NetworkImage(content['communityImage'])
-                            : const AssetImage('assets/images/fixx_community.png') as ImageProvider,
-                        fit: BoxFit.cover,
-                      ),
+                      children: [
+                        Text(
+                          content['communityTitle'] ?? 'CKD Import & Assembly\nSolutions',
+                          style: AppTextStyles.sectionTitle.copyWith(fontSize: 42, color: isRed ? Colors.redAccent : AppColors.primary),
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          content['communityDesc'] ?? 'Fixx EV offers complete CKD (Completely Knocked Down) import solutions for both low-speed and high speed electric scooters.',
+                          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textDark, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: (content['communityItems'] != null
+                              ? (content['communityItems'] as String).split('\n').where((s) => s.trim().isNotEmpty).toList()
+                              : ['Launch your own EV brand', 'Control product quality', 'Improve margins', 'Build long-term market presence'])
+                              .map((item) => _buildBullet(item.trim())).toList(),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          content['communityConclusion'] ?? 'We handle everything — from factory sourcing in China to assembly, testing and go-to-market support in India.',
+                          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
+                  if (!isMobile) ...[
+                    const SizedBox(width: 60),
+                    Expanded(
+                      flex: 6,
+                      child: Container(
+                        height: 350,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          image: DecorationImage(
+                            image: content['communityImage'] != null && content['communityImage'].toString().isNotEmpty
+                                ? NetworkImage(content['communityImage'])
+                                : const AssetImage('assets/images/fixx_community.png') as ImageProvider,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ],
           ),
         ),
@@ -585,6 +601,7 @@ class _SmarterShowroomsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 900;
+    final isRed = content['smarterIsRed'] ?? false;
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: 100, horizontal: isMobile ? 24 : 80),
@@ -600,7 +617,7 @@ class _SmarterShowroomsSection extends StatelessWidget {
                   children: [
                     RichText(
                       text: TextSpan(
-                        style: AppTextStyles.sectionTitle.copyWith(fontSize: 36, height: 1.2, color: AppColors.primary),
+                        style: AppTextStyles.sectionTitle.copyWith(fontSize: 36, height: 1.2, color: isRed ? Colors.redAccent : AppColors.primary),
                         children: [
                           TextSpan(text: content['smarterTitle'] ?? 'Sales, Service & Spare Parts Support'),
                         ],
@@ -621,7 +638,7 @@ class _SmarterShowroomsSection extends StatelessWidget {
                             'Trained technicians',
                             'Warranty support',
                             'Nationwide coverage'
-                          ]).where((item) => item.trim().isNotEmpty).map((item) => _CheckList(text: item.trim(), boldText: '')),
+                          ]).where((item) => item.trim().isNotEmpty).map((item) => _CheckList(text: item.trim(), boldText: '', isRed: isRed)),
                     
                     const SizedBox(height: 24),
                     Text(
@@ -660,8 +677,9 @@ class _SmarterShowroomsSection extends StatelessWidget {
 class _CheckList extends StatelessWidget {
   final String text;
   final String boldText;
+  final bool isRed;
   
-  const _CheckList({required this.text, required this.boldText});
+  const _CheckList({required this.text, required this.boldText, required this.isRed});
   
   @override
   Widget build(BuildContext context) {
@@ -670,7 +688,7 @@ class _CheckList extends StatelessWidget {
     if (boldText.isNotEmpty && text.contains(boldText)) {
       final parts = text.split(boldText);
       spans.add(TextSpan(text: parts[0]));
-      spans.add(TextSpan(text: boldText, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryNavy)));
+      spans.add(TextSpan(text: boldText, style: TextStyle(fontWeight: FontWeight.bold, color: isRed ? Colors.redAccent : AppColors.primaryNavy)));
       if (parts.length > 1) spans.add(TextSpan(text: parts[1]));
     } else {
       spans.add(TextSpan(text: text));
@@ -712,6 +730,7 @@ class _ScalableFutureSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 900;
+    final isRed = content['whyIsRed'] ?? false;
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: 100, horizontal: isMobile ? 24 : 80),
@@ -745,7 +764,7 @@ class _ScalableFutureSection extends StatelessWidget {
                   children: [
                     Text(
                       content['whyFixxTitle'] ?? 'Why Fixx EV?',
-                      style: AppTextStyles.sectionTitle.copyWith(fontSize: 36, color: AppColors.primary),
+                      style: AppTextStyles.sectionTitle.copyWith(fontSize: 36, color: isRed ? Colors.redAccent : AppColors.primary),
                     ),
                     const SizedBox(height: 24),
                     Text(
@@ -777,7 +796,7 @@ class _ScalableFutureSection extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(content['missionLabel'] ?? 'OUR MISSION', style: AppTextStyles.bodySmall.copyWith(color: AppColors.accentTeal, fontWeight: FontWeight.bold)),
+                          Text(content['missionLabel'] ?? 'OUR MISSION', style: AppTextStyles.bodySmall.copyWith(color: isRed ? Colors.redAccent : AppColors.accentTeal, fontWeight: FontWeight.bold)),
                           const SizedBox(height: 8),
                           Text(
                             content['missionText'] ?? 'Help 100s of entrepreneurs build profitable, sustainable EV brands — without burning money or time.',
@@ -916,7 +935,7 @@ class _ProcessDarkSection extends StatelessWidget {
                     const SizedBox(height: 16),
                     Text(
                       content['processSlogan'] ?? 'Import. Assemble. Brand. Sell. Service.',
-                      style: AppTextStyles.bodyLarge.copyWith(color: AppColors.accentTeal, fontWeight: FontWeight.bold),
+                      style: AppTextStyles.bodyLarge.copyWith(color: (content['ctaIsRed'] ?? false) ? Colors.redAccent : AppColors.accentTeal, fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 8),
@@ -1145,7 +1164,8 @@ class _BulletPoint extends StatelessWidget {
 class _HighlightStat extends StatelessWidget {
   final String val;
   final String label;
-  const _HighlightStat(this.val, this.label);
+  final bool isRed;
+  const _HighlightStat(this.val, this.label, {this.isRed = false});
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -1157,7 +1177,7 @@ class _HighlightStat extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(val, style: AppTextStyles.cardTitle.copyWith(fontSize: 24, color: AppColors.primaryNavy)),
+            Text(val, style: AppTextStyles.cardTitle.copyWith(fontSize: 24, color: isRed ? Colors.redAccent : AppColors.primaryNavy)),
             Text(label, style: AppTextStyles.bodySmall),
           ],
         )
@@ -1168,6 +1188,9 @@ class _HighlightStat extends StatelessWidget {
 
 // 8. Models Grid Section
 class _ModelsGridSection extends StatelessWidget {
+  final Map<String, dynamic> content;
+  const _ModelsGridSection({required this.content});
+
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 900;
@@ -1182,13 +1205,23 @@ class _ModelsGridSection extends StatelessWidget {
             children: [
               Text('Our CKD Container Models', style: AppTextStyles.sectionTitle.copyWith(fontSize: 32)),
               const SizedBox(height: 50),
+              isMobile ? 
+              Column(
+                children: [
+                  _ModelCard(content['model1Image'] ?? 'assets/images/vector_x.png', content['model1Name'] ?? 'Vector X'),
+                  const SizedBox(height: 24),
+                  _ModelCard(content['model2Image'] ?? 'assets/images/urban_s.png', content['model2Name'] ?? 'Urban S'),
+                  const SizedBox(height: 24),
+                  _ModelCard(content['model3Image'] ?? 'assets/images/metro_glide.png', content['model3Name'] ?? 'Metro Glide'),
+                ],
+              ) :
               Row(
                 children: [
-                  Expanded(child: _ModelCard('assets/images/vector_x.png', 'Vector X')),
+                  Expanded(child: _ModelCard(content['model1Image'] ?? 'assets/images/vector_x.png', content['model1Name'] ?? 'Vector X')),
                   const SizedBox(width: 24),
-                  Expanded(child: _ModelCard('assets/images/urban_s.png', 'Urban S')),
+                  Expanded(child: _ModelCard(content['model2Image'] ?? 'assets/images/urban_s.png', content['model2Name'] ?? 'Urban S')),
                   const SizedBox(width: 24),
-                  Expanded(child: _ModelCard('assets/images/metro_glide.png', 'Metro Glide')),
+                  Expanded(child: _ModelCard(content['model3Image'] ?? 'assets/images/metro_glide.png', content['model3Name'] ?? 'Metro Glide')),
                 ],
               ),
             ],
@@ -1257,6 +1290,7 @@ class _BottomFormSection extends StatelessWidget {
   final TextEditingController cityController;
   final TextEditingController descController;
   final bool isSubmitting;
+  final bool isRed;
   final VoidCallback onSubmit;
 
   const _BottomFormSection({
@@ -1268,6 +1302,7 @@ class _BottomFormSection extends StatelessWidget {
     required this.cityController,
     required this.descController,
     required this.isSubmitting,
+    required this.isRed,
     required this.onSubmit,
   });
 
@@ -1305,6 +1340,7 @@ class _BottomFormSection extends StatelessWidget {
               PrimaryButton(
                 text: isSubmitting ? 'SUBMITTING...' : 'SUBMIT', 
                 width: 200, 
+                backgroundColor: isRed ? Colors.redAccent : null,
                 onPressed: isSubmitting ? () {} : onSubmit
               ),
             ],

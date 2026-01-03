@@ -22,20 +22,20 @@ class _StatsBarSectionState extends State<StatsBarSection> {
 
     final stats = [
       {
-        'value': widget.content['stat1Value'] ?? '5,000+', 
-        'label': widget.content['stat1Label'] ?? 'Total Satisfied Clients'
+        'value': widget.content['barStat1Value'] ?? '5,000+', 
+        'label': widget.content['barStat1Label'] ?? 'Service Centers'
       },
       {
-        'value': widget.content['stat2Value'] ?? '500+', 
-        'label': widget.content['stat2Label'] ?? 'Authorized Centres'
+        'value': widget.content['barStat2Value'] ?? '500+', 
+        'label': widget.content['barStat2Label'] ?? 'Partner Brands'
       },
       {
-        'value': widget.content['stat3Value'] ?? '90%', 
-        'label': widget.content['stat3Label'] ?? 'Positive Response Rate'
+        'value': widget.content['barStat3Value'] ?? '8k+', 
+        'label': widget.content['barStat3Label'] ?? 'Happy Customers'
       },
       {
-        'value': widget.content['stat4Value'] ?? '100%', 
-        'label': widget.content['stat4Label'] ?? 'Commitment To Sustainability'
+        'value': widget.content['barStat4Value'] ?? '100%', 
+        'label': widget.content['barStat4Label'] ?? 'Sustainability'
       },
     ];
 
@@ -168,6 +168,14 @@ class _StatItemState extends State<_StatItem> with SingleTickerProviderStateMixi
   @override
   void didUpdateWidget(_StatItem oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (widget.value != oldWidget.value) {
+      _parseValue();
+      _animation = Tween<double>(begin: _currentValue.toDouble(), end: _targetValue.toDouble()).animate(
+        CurvedAnimation(parent: _controller, curve: Curves.easeOutExpo),
+      );
+      if (widget.animate) _controller.forward(from: 0);
+    }
+    
     if (widget.animate && !oldWidget.animate) {
       Future.delayed(Duration(milliseconds: widget.delay), () {
         if (mounted) _controller.forward();

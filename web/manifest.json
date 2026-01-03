@@ -1,11 +1,11 @@
 {
-    "name": "fixxev",
-    "short_name": "fixxev",
+    "name": "FIXXEV - India's Leading EV Service Network",
+    "short_name": "FIXXEV",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#437BDC",
+    "theme_color": "#437BDC",
+    "description": "FIXXEV is India's premier electric vehicle service network providing EV repair, maintenance, spare parts, battery replacement, and franchise opportunities.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

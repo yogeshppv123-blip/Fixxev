@@ -49,15 +49,15 @@ class _ProductsScreenState extends State<ProductsScreen> {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
 
-          final products = snapshot.data![0] as List<dynamic>;
           final content = snapshot.data![1] as Map<String, dynamic>;
+          final productBlocks = content['productBlocks'] as List? ?? [];
 
           return SingleChildScrollView(
             child: Column(
               children: [
                 _buildProductsHero(context, isMobile, content),
                 const SizedBox(height: 80),
-                _buildProductList(context, isMobile, products),
+                _buildProductList(context, isMobile, productBlocks, content['heroIsRed'] ?? false),
                 const SizedBox(height: 100),
                 const FooterWidget(),
               ],
@@ -69,16 +69,17 @@ class _ProductsScreenState extends State<ProductsScreen> {
   }
 
   Widget _buildProductsHero(BuildContext context, bool isMobile, Map<String, dynamic> content) {
+    final isRed = content['heroIsRed'] ?? false;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
         horizontal: isMobile ? 24 : 80,
         vertical: 100,
       ),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.primaryNavy,
         image: DecorationImage(
-          image: NetworkImage('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&q=80'),
+          image: NetworkImage(content['heroImage'] ?? 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d'),
           fit: BoxFit.cover,
           opacity: 0.2,
         ),
@@ -87,31 +88,33 @@ class _ProductsScreenState extends State<ProductsScreen> {
         children: [
           const SizedBox(height: 40),
           Text(
-            content['title'] ?? 'Cutting-Edge EV Solutions',
+            (content['heroTagline'] ?? 'PREMIUM INFRASTRUCTURE').toUpperCase(),
+            style: AppTextStyles.sectionLabel.copyWith(
+              color: isRed ? Colors.redAccent : AppColors.accentBlue,
+              letterSpacing: 4,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            content['heroTitle'] ?? 'Cutting-Edge EV Solutions',
             style: AppTextStyles.heroTitle.copyWith(
               fontSize: isMobile ? 36 : 56,
               color: Colors.white,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 24),
-          SizedBox(
-            width: 800,
-            child: Text(
-              content['subtitle'] ?? 'From smart diagnostic tools to modular showroom containers, we provide the infrastructure needed for the next generation of electric mobility.',
-              style: AppTextStyles.heroSubtitle.copyWith(
-                fontSize: 18,
-                color: Colors.white.withOpacity(0.8),
-              ),
-              textAlign: TextAlign.center,
-            ),
+          const SizedBox(height: 32),
+          PrimaryButton(
+            text: content['heroBtnText'] ?? 'INQUIRE NOW',
+            backgroundColor: isRed ? Colors.redAccent : null,
+            onPressed: () => context.push('/contact'),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildProductList(BuildContext context, bool isMobile, List<dynamic> products) {
+  Widget _buildProductList(BuildContext context, bool isMobile, List<dynamic> products, bool isRed) {
     if (products.isEmpty) {
       return const Center(child: Text('No products available at the moment.'));
     }
@@ -125,26 +128,17 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
           // Map backend fields to UI expected fields
           final uiProduct = {
-            'title': product['name'] ?? '',
-            'subtitle': (product['subtitle'] != null && product['subtitle'].toString().isNotEmpty) 
-                ? product['subtitle'] 
-                : '${product['category'] ?? ''} - ${product['price'] ?? ''}',
-            'image': (product['image'] != null && product['image'].toString().isNotEmpty) 
-                ? product['image'] 
-                : _getProductImage(index),
-            'features': [
-              'Status: ${product['status'] ?? ''}',
-              'Stock: ${product['stock'] ?? ''}',
-              'Direct OEM Quality',
-              'Nationwide Support'
-            ],
+            'title': product['title'] ?? '',
+            'subtitle': product['subtitle'] ?? '',
+            'image': product['imageUrl'] ?? _getProductImage(index),
+            'features': (product['features'] as List?)?.cast<String>() ?? [],
           };
 
           if (isMobile) {
-            return _buildProductCardMobile(uiProduct);
+            return _buildProductCardMobile(uiProduct, isRed);
           }
 
-          return _buildProductCardDesktop(uiProduct, isEven);
+          return _buildProductCardDesktop(uiProduct, isEven, isRed);
         }).toList(),
       ),
     );
@@ -159,7 +153,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
     return images[index % images.length];
   }
 
-  Widget _buildProductCardDesktop(Map<String, dynamic> product, bool isEven) {
+  Widget _buildProductCardDesktop(Map<String, dynamic> product, bool isEven, bool isRed) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 80),
       child: Row(
@@ -167,10 +161,10 @@ class _ProductsScreenState extends State<ProductsScreen> {
             ? [
                 Expanded(flex: 1, child: _buildProductImage(product['image'])),
                 const SizedBox(width: 80),
-                Expanded(flex: 1, child: _buildProductInfo(product)),
+                Expanded(flex: 1, child: _buildProductInfo(product, isRed)),
               ]
             : [
-                Expanded(flex: 1, child: _buildProductInfo(product)),
+                Expanded(flex: 1, child: _buildProductInfo(product, isRed)),
                 const SizedBox(width: 80),
                 Expanded(flex: 1, child: _buildProductImage(product['image'])),
               ],
@@ -178,7 +172,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
     );
   }
 
-  Widget _buildProductCardMobile(Map<String, dynamic> product) {
+  Widget _buildProductCardMobile(Map<String, dynamic> product, bool isRed) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 60),
       child: Column(
@@ -186,7 +180,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
         children: [
           _buildProductImage(product['image']),
           const SizedBox(height: 32),
-          _buildProductInfo(product),
+          _buildProductInfo(product, isRed),
         ],
       ),
     );
@@ -219,20 +213,20 @@ class _ProductsScreenState extends State<ProductsScreen> {
     );
   }
 
-  Widget _buildProductInfo(Map<String, dynamic> product) {
+  Widget _buildProductInfo(Map<String, dynamic> product, bool isRed) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: AppColors.accentRed.withOpacity(0.1),
+            color: (isRed ? Colors.redAccent : AppColors.accentBlue).withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
             'FEATURED PRODUCT',
             style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.accentRed,
+              color: isRed ? Colors.redAccent : AppColors.accentBlue,
               fontWeight: FontWeight.bold,
               letterSpacing: 1.2,
             ),
@@ -254,7 +248,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
             padding: const EdgeInsets.only(bottom: 16),
             child: Row(
               children: [
-                const Icon(Icons.check_circle, color: AppColors.accentRed, size: 24),
+                const Icon(Icons.check_circle, color: AppColors.accentTeal, size: 24),
                 const SizedBox(width: 16),
                 Text(
                   feature,
@@ -267,7 +261,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
         const SizedBox(height: 40),
         PrimaryButton(
           text: 'INQUIRE NOW',
-          onPressed: () => context.go('/contact'),
+          backgroundColor: isRed ? Colors.redAccent : null,
+          onPressed: () => context.push('/contact'),
           icon: Icons.arrow_forward,
         ),
       ],

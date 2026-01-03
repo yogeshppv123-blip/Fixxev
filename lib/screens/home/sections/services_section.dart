@@ -7,7 +7,8 @@ import 'package:go_router/go_router.dart';
 
 /// Services section with grid layout and hover animations triggered when in view
 class ServicesSection extends StatefulWidget {
-  const ServicesSection({super.key});
+  final Map<String, dynamic> content;
+  const ServicesSection({super.key, required this.content});
 
   @override
   State<ServicesSection> createState() => _ServicesSectionState();
@@ -51,38 +52,50 @@ class _ServicesSectionState extends State<ServicesSection>
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 768;
 
-    final services = [
-      {
-        'icon': Icons.memory,
-        'title': 'Controllers & Chargers',
-        'description': 'High-performance controllers for smooth acceleration and intelligent chargers for fast energy replenishment.',
-      },
-      {
-        'icon': Icons.electrical_services,
-        'title': 'Motors & Parts',
-        'description': 'Durable BLDC and PMSM motors designed for maximum torque and efficiency across all terrains.',
-      },
-      {
-        'icon': Icons.battery_charging_full,
-        'title': 'Lithium Batteries',
-        'description': 'Long-life lithium-ion battery packs with advanced BMS for safety and reliability.',
-      },
-      {
-        'icon': Icons.sensors,
-        'title': 'Sensors & Wiring',
-        'description': 'Precision throttle sensors, brake switches, and high-grade wiring harnesses for seamless connectivity.',
-      },
-      {
-        'icon': Icons.tire_repair,
-        'title': 'Tyres & Body Parts',
-        'description': 'Rugged tyres for Indian roads and premium body panels for L3 and L5 vehicles.',
-      },
-      {
-        'icon': Icons.handyman,
-        'title': 'Consumables & Tools',
-        'description': 'Professional-grade service tools, lubricants, and essential consumables for EV workshops.',
-      },
-    ];
+    final dynamic dynamicServices = widget.content['serviceCards'];
+    final List<Map<String, dynamic>> services = (dynamicServices != null && dynamicServices is List && dynamicServices.isNotEmpty)
+        ? dynamicServices.asMap().entries.map((e) {
+            final card = e.value;
+            // Map icons based on index to keep visuals consistent
+            final icons = [Icons.memory, Icons.electrical_services, Icons.battery_charging_full, Icons.sensors,Icons.tire_repair, Icons.handyman];
+            return {
+              'icon': icons[e.key % icons.length],
+              'title': (card['title'] ?? '').toString(),
+              'description': (card['desc'] ?? '').toString(),
+            };
+          }).toList()
+        : [
+            {
+              'icon': Icons.memory,
+              'title': 'Controllers & Chargers',
+              'description': 'High-performance controllers for smooth acceleration and intelligent chargers for fast energy replenishment.',
+            },
+            {
+              'icon': Icons.electrical_services,
+              'title': 'Motors & Parts',
+              'description': 'Durable BLDC and PMSM motors designed for maximum torque and efficiency across all terrains.',
+            },
+            {
+              'icon': Icons.battery_charging_full,
+              'title': 'Lithium Batteries',
+              'description': 'Long-life lithium-ion battery packs with advanced BMS for safety and reliability.',
+            },
+            {
+              'icon': Icons.sensors,
+              'title': 'Sensors & Wiring',
+              'description': 'Precision throttle sensors, brake switches, and high-grade wiring harnesses for seamless connectivity.',
+            },
+            {
+              'icon': Icons.tire_repair,
+              'title': 'Tyres & Body Parts',
+              'description': 'Rugged tyres for Indian roads and premium body panels for L3 and L5 vehicles.',
+            },
+            {
+              'icon': Icons.handyman,
+              'title': 'Consumables & Tools',
+              'description': 'Professional-grade service tools, lubricants, and essential consumables for EV workshops.',
+            },
+          ];
 
     return VisibilityDetector(
       key: const Key('services_section'),
@@ -102,9 +115,9 @@ class _ServicesSectionState extends State<ServicesSection>
           color: AppColors.backgroundLight,
           child: Column(
             children: [
-              const SectionHeader(
-                label: '// GENUINE PARTS',
-                title: 'COMPLETE RANGE OF\nEV SPARES & TOOLS',
+              SectionHeader(
+                label: (widget.content['servicesTagline'] ?? '// GENUINE PARTS').toString().replaceAll('//', '').trim(),
+                title: widget.content['servicesTitle'] ?? 'COMPLETE RANGE OF\nEV SPARES & TOOLS',
               ),
               const SizedBox(height: 60),
               // Services grid with staggered animations

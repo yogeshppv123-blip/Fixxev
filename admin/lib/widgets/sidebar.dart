@@ -15,11 +15,17 @@ class AdminSidebar extends StatefulWidget {
 class _AdminSidebarState extends State<AdminSidebar> {
   final ApiService _apiService = ApiService();
   String _leadsCount = '...';
+  String? _logoUrl;
 
   @override
   void initState() {
     super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
     _loadLeadsCount();
+    _loadNavbarData();
   }
 
   Future<void> _loadLeadsCount() async {
@@ -39,6 +45,19 @@ class _AdminSidebarState extends State<AdminSidebar> {
     }
   }
 
+  Future<void> _loadNavbarData() async {
+    try {
+      final navbarData = await _apiService.getPageContent('navbar');
+      if (mounted && navbarData['logoUrl'] != null) {
+        setState(() {
+          _logoUrl = navbarData['logoUrl'];
+        });
+      }
+    } catch (e) {
+      // Fallback to defaults
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentRoute = widget.currentRoute;
@@ -51,25 +70,21 @@ class _AdminSidebarState extends State<AdminSidebar> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
             alignment: Alignment.centerLeft,
-            child: Image.network(
-              'logo.png',
-              height: 40, // Adjusted height for sidebar
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) {
-                return Row(
-                  children: [
-                    Container(
-                      width: 40, height: 40,
-                      decoration: BoxDecoration(color: AppColors.accentTeal, borderRadius: BorderRadius.circular(8)),
-                      child: const Center(child: Text('F', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24))),
-                    ),
-                    const SizedBox(width: 12),
-                    const Text('FIXXEV', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 1)),
-                  ],
-                );
-              },
-            ),
+            child: _logoUrl != null
+                ? Image.network(
+                    _logoUrl!,
+                    height: 40,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => _buildLogoFallback(),
+                  )
+                : Image.network(
+                    'logo.png',
+                    height: 40,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => _buildLogoFallback(),
+                  ),
           ),
+
 
           const Divider(color: AppColors.cardDark, height: 1),
 
@@ -110,55 +125,6 @@ class _AdminSidebarState extends State<AdminSidebar> {
                       isActive: currentRoute.startsWith('/pages'),
                     ),
                     _SidebarItem(
-                      icon: Icons.article_outlined,
-                      activeIcon: Icons.article,
-                      label: 'Blog Posts',
-                      route: '/blog',
-                      isActive: currentRoute.startsWith('/blog'),
-                    ),
-                    _SidebarItem(
-                      icon: Icons.inventory_2_outlined,
-                      activeIcon: Icons.inventory_2,
-                      label: 'Products',
-                      route: '/products',
-                      isActive: currentRoute.startsWith('/products'),
-                    ),
-                    _SidebarItem(
-                      icon: Icons.build_outlined, // Services Icon
-                      activeIcon: Icons.build,
-                      label: 'Services',
-                      route: '/services',
-                      isActive: currentRoute.startsWith('/services'),
-                    ),
-                    _SidebarItem(
-                      icon: Icons.people_outline, // Team Icon
-                      activeIcon: Icons.people,
-                      label: 'Team',
-                      route: '/team',
-                      isActive: currentRoute.startsWith('/team'),
-                    ),
-                    _SidebarItem(
-                      icon: Icons.info_outlined,
-                      activeIcon: Icons.info,
-                      label: 'About Page',
-                      route: '/about',
-                      isActive: currentRoute.startsWith('/about'),
-                    ),
-                    _SidebarItem(
-                      icon: Icons.handshake_outlined,
-                      activeIcon: Icons.handshake,
-                      label: 'Franchise',
-                      route: '/franchise',
-                      isActive: currentRoute.startsWith('/franchise'),
-                    ),
-                    _SidebarItem(
-                      icon: Icons.store_outlined,
-                      activeIcon: Icons.store,
-                      label: 'CKD Container',
-                      route: '/ckd-content',
-                      isActive: currentRoute.startsWith('/ckd-content'),
-                    ),
-                    _SidebarItem(
                       icon: Icons.photo_library_outlined,
                       activeIcon: Icons.photo_library,
                       label: 'Media',
@@ -172,11 +138,25 @@ class _AdminSidebarState extends State<AdminSidebar> {
                   title: 'SETTINGS',
                   items: [
                     _SidebarItem(
+                      icon: Icons.person_outline,
+                      activeIcon: Icons.person,
+                      label: 'My Profile',
+                      route: '/profile',
+                      isActive: currentRoute == '/profile',
+                    ),
+                    _SidebarItem(
                       icon: Icons.settings_outlined,
                       activeIcon: Icons.settings,
-                      label: 'Settings',
+                      label: 'General Settings',
                       route: '/settings',
                       isActive: currentRoute == '/settings',
+                    ),
+                    _SidebarItem(
+                      icon: Icons.palette_outlined,
+                      activeIcon: Icons.palette,
+                      label: 'Theme Settings',
+                      route: '/theme-settings',
+                      isActive: currentRoute == '/theme-settings',
                     ),
                   ],
                 ),
@@ -213,6 +193,20 @@ class _AdminSidebarState extends State<AdminSidebar> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildLogoFallback() {
+    return Row(
+      children: [
+        Container(
+          width: 40, height: 40,
+          decoration: BoxDecoration(color: AppColors.accentTeal, borderRadius: BorderRadius.circular(8)),
+          child: const Center(child: Text('F', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24))),
+        ),
+        const SizedBox(width: 12),
+        const Text('FIXXEV', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 1)),
+      ],
     );
   }
 }

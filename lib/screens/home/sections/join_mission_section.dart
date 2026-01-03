@@ -13,6 +13,24 @@ class JoinMissionSection extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 768;
 
+    final List<Map<String, dynamic>> opportunityCards = [
+      {
+        'icon': Icons.trending_up,
+        'title': content['joinCard1Title'] ?? 'Strategic Investors',
+        'description': 'High-impact opportunity at the intersection of EV adoption growth and asset-light franchising.',
+      },
+      {
+        'icon': Icons.handshake,
+        'title': content['joinCard2Title'] ?? 'Franchisees',
+        'description': 'Empowering entrepreneurs to become part of a trusted national brand with training and OEM parts.',
+      },
+      {
+        'icon': Icons.storefront,
+        'title': content['joinCard3Title'] ?? 'Franchise Partners',
+        'description': 'Empowering local entrepreneurs and existing workshops to become part of a trusted national brand.',
+      },
+    ];
+
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
@@ -22,14 +40,14 @@ class JoinMissionSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         image: DecorationImage(
-          image: const NetworkImage('https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&w=2000&q=80'),
+          image: NetworkImage(content['joinBgImage'] ?? 'https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&w=2000&q=80'),
           fit: BoxFit.cover,
           opacity: 0.08,
         ),
       ),
       child: Center(
         child: Container(
-          constraints: const BoxConstraints(maxWidth: 1000),
+          constraints: const BoxConstraints(maxWidth: 1200),
           child: Column(
             children: [
               Text(
@@ -56,38 +74,26 @@ class JoinMissionSection extends StatelessWidget {
               const SizedBox(height: 56),
               isMobile
                   ? Column(
-                      children: [
-                        _buildOpportunityCard(
-                          icon: Icons.trending_up,
-                          title: 'Strategic Investors',
-                          description: 'High-impact opportunity at the intersection of EV adoption growth and asset-light franchising.',
+                      children: opportunityCards.map((card) => Padding(
+                        padding: const EdgeInsets.only(bottom: 24),
+                        child: _buildOpportunityCard(
+                          icon: card['icon'],
+                          title: card['title'],
+                          description: card['description'],
                         ),
-                        const SizedBox(height: 24),
-                        _buildOpportunityCard(
-                          icon: Icons.handshake,
-                          title: 'Franchisees',
-                          description: 'Empowering entrepreneurs to become part of a trusted national brand with training and OEM parts.',
-                        ),
-                      ],
+                      )).toList(),
                     )
                   : Row(
-                      children: [
-                        Expanded(
+                      children: opportunityCards.map((card) => Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.only(right: opportunityCards.indexOf(card) == 2 ? 0 : 32),
                           child: _buildOpportunityCard(
-                            icon: Icons.trending_up,
-                            title: 'Strategic Investors',
-                            description: 'A high-impact opportunity at the intersection of EV adoption growth and technology-enabled networks.',
+                            icon: card['icon'],
+                            title: card['title'],
+                            description: card['description'],
                           ),
                         ),
-                        const SizedBox(width: 32),
-                        Expanded(
-                          child: _buildOpportunityCard(
-                            icon: Icons.storefront,
-                            title: 'Franchise Partners',
-                            description: 'Empowering local entrepreneurs and existing workshops to become part of a trusted national brand.',
-                          ),
-                        ),
-                      ],
+                      )).toList(),
                     ),
               const SizedBox(height: 64),
               PrimaryButton(

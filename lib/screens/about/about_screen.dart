@@ -31,11 +31,9 @@ class _AboutScreenState extends State<AboutScreen> {
 
   Future<void> _loadContent() async {
     try {
-      final sections = await _apiService.getAboutSections();
       final pageContent = await _apiService.getPageContent('about');
       if (mounted) {
         setState(() {
-          _sections = sections.where((s) => s['isActive'] == true).toList();
           _pageContent = pageContent;
           _isLoading = false;
         });
@@ -60,22 +58,15 @@ class _AboutScreenState extends State<AboutScreen> {
     super.dispose();
   }
 
-  Map<String, dynamic>? _getSectionByType(String type) {
-    try {
-      return _sections.firstWhere((s) => s['type'] == type) as Map<String, dynamic>;
-    } catch (e) {
-      return null;
-    }
-  }
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
-    final valuesSection = _getSectionByType('Values');
-    final csrSection = _getSectionByType('CSR');
-    final visionSection = _getSectionByType('Vision');
-    final futureSection = _getSectionByType('Future');
+    final zigzagSections = _pageContent['zigzagSections'] as List? ?? [];
 
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: const MobileDrawer(),
       backgroundColor: Colors.white,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -85,59 +76,58 @@ class _AboutScreenState extends State<AboutScreen> {
                   controller: _scrollController,
                   child: Column(
                     children: [
-                      // 1. LIGHT HERO - Launch Announcement
-                      _AboutHeroLight(
-                        title: _pageContent['title'] ?? 'Driving India’s EV Future 🔋',
-                        tagline: 'LAUNCH ANNOUNCEMENT',
-                        description1: _pageContent['desc1'] ?? 'Fixx EV Technologies Pvt. Ltd. is on a mission to solve one of the biggest barriers to electric vehicle adoption in India — reliable after-sales service and spares availability.',
-                        description2: _pageContent['desc2'] ?? 'As India rapidly moves towards electric mobility, the service ecosystem has remained fragmented. At Fixx EV we are building a nationwide, standardized EV after-sales network by appointing 500 Authorized Franchise Service Centres.',
-                        imageUrl: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&q=80&w=2000',
-                      ),
+                      // 1. HERO
+                        _AboutHeroLight(
+                          title: _pageContent['heroTitle'] ?? 'Driving India’s EV Future 🔋',
+                          tagline: _pageContent['heroBadgeText'] ?? 'LAUNCH ANNOUNCEMENT',
+                          description1: _pageContent['heroDesc1'] ?? 'Fixx EV Technologies Pvt. Ltd. is on a mission to solve one of the biggest barriers to electric vehicle adoption in India.',
+                          description2: _pageContent['heroDesc2'] ?? 'As India rapidly moves towards electric mobility, the service ecosystem has remained fragmented.',
+                          imageUrl: _pageContent['heroImage'] ?? 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e',
+                          buttonText: _pageContent['heroBtnText'] ?? 'GET IN TOUCH →',
+                          isRed: _pageContent['heroIsRed'] ?? false,
+                        ),
 
                       // 2. STATS BAR
-                      _AboutStatsBar(),
+                      _AboutStatsBar(content: _pageContent),
 
-                      // 3. SECTIONS (User Requested Content)
-                      
-                      // Dynamic Sections (Infrastructure, Franchise, Values, etc.)
-                      ..._sections
-                          .asMap()
-                          .entries
-                          .map((entry) {
+                      // 3. DYNAMIC BLOCKS
+                      ...zigzagSections.asMap().entries.map((entry) {
                         final section = entry.value;
                         return _AboutZigZagBlock(
                           image: section['imageUrl']?.isNotEmpty == true 
                               ? section['imageUrl'] 
                               : 'https://images.unsplash.com/photo-1522071820081-009f0129c71c',
                           title: section['title'] ?? '',
+                          subtitle: section['subtitle'],
                           label: section['label'] ?? '',
                           description: section['description'] ?? '',
+                          description2: section['description2'],
                           items: (section['items'] as List?)?.cast<String>() ?? const [],
                           isReversed: entry.key.isOdd,
                         );
                       }),
 
-                      // CTA Section
-                      _AboutCTASection(),
-
+                      const SizedBox(height: 40),
+                      _AboutCTASection(
+                        title: _pageContent['ctaTitle'] ?? 'Ready to Join the EV Revolution?',
+                        subtitle: _pageContent['ctaSubtitle'] ?? 'Partner with FIXXEV for reliable EV servicing and support.',
+                        buttonText: _pageContent['ctaBtnText'] ?? 'CONTACT US',
+                        isRed: _pageContent['ctaIsRed'] ?? false,
+                      ),
                       const FooterWidget(),
                     ],
                   ),
                 ),
-                
                 Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
+                  top: 0, left: 0, right: 0,
                   child: CustomAppBar(
                     isTransparent: false,
                     backgroundColor: AppColors.navDark,
                     useLightText: true,
-                    onMenuPressed: () {},
+                    onMenuPressed: () => _scaffoldKey.currentState?.openDrawer(),
                     onContactPressed: () {},
                   ),
                 ),
-                
                 FloatingConnectButtons(scrollController: _scrollController),
               ],
             ),
@@ -151,6 +141,8 @@ class _AboutHeroLight extends StatelessWidget {
   final String description1;
   final String description2;
   final String imageUrl;
+  final String buttonText;
+  final bool isRed;
 
   const _AboutHeroLight({
     required this.title,
@@ -158,6 +150,8 @@ class _AboutHeroLight extends StatelessWidget {
     required this.description1,
     required this.description2,
     required this.imageUrl,
+    required this.buttonText,
+    required this.isRed,
   });
 
   @override
@@ -182,7 +176,7 @@ class _AboutHeroLight extends StatelessWidget {
                       Text(
                         tagline.toUpperCase(),
                         style: AppTextStyles.sectionLabel.copyWith(
-                          color: AppColors.accentTeal,
+                          color: isRed ? Colors.redAccent : AppColors.accentTeal,
                           letterSpacing: 2,
                         ),
                       ),
@@ -201,7 +195,8 @@ class _AboutHeroLight extends StatelessWidget {
                       _buildRichParagraph(description2),
                       const SizedBox(height: 32),
                       PrimaryButton(
-                        text: 'GET IN TOUCH →',
+                        text: buttonText,
+                        backgroundColor: isRed ? Colors.redAccent : null,
                         onPressed: () {},
                       ),
                     ],
@@ -253,15 +248,16 @@ class _AboutHeroLight extends StatelessWidget {
 }
 
 class _AboutStatsBar extends StatelessWidget {
+  final Map<String, dynamic> content;
+  const _AboutStatsBar({required this.content});
+
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 600;
-    final stats = [
-      {'value': '20+', 'label': 'Years Experience'},
-      {'value': '500+', 'label': 'Vehicles Serviced'},
-      {'value': '50+', 'label': 'Trained Technicians'},
-      {'value': '10+', 'label': 'Cities Covered'},
-    ];
+    final stats = List.generate(4, (i) => {
+      'value': content['stat${i + 1}Value'] ?? (['20+', '500+', '50+', '10+'][i]),
+      'label': content['stat${i + 1}Label'] ?? (['Years Experience', 'Vehicles Serviced', 'Trained Technicians', 'Cities Covered'][i]),
+    });
     return Container(
       width: double.infinity,
       color: AppColors.navDark,
@@ -287,8 +283,10 @@ class _AboutStatsBar extends StatelessWidget {
 class _AboutZigZagBlock extends StatelessWidget {
   final String image;
   final String title;
+  final String? subtitle;
   final String label;
   final String description;
+  final String? description2;
   final List<String> items;
   final bool isReversed;
   final Color? backgroundColor;
@@ -296,8 +294,10 @@ class _AboutZigZagBlock extends StatelessWidget {
   const _AboutZigZagBlock({
     required this.image,
     required this.title,
+    this.subtitle,
     required this.label,
     required this.description,
+    this.description2,
     required this.items,
     required this.isReversed,
     this.backgroundColor,
@@ -328,6 +328,16 @@ class _AboutZigZagBlock extends StatelessWidget {
               fontSize: isMobile ? 24 : 32,
             ),
           ),
+          if (subtitle != null && subtitle!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              subtitle!,
+              style: AppTextStyles.heading3.copyWith(
+                color: AppColors.textGrey,
+                fontSize: isMobile ? 18 : 22,
+              ),
+            ),
+          ],
           Container(
             width: 60,
             height: 3,
@@ -335,6 +345,10 @@ class _AboutZigZagBlock extends StatelessWidget {
             color: AppColors.primary,
           ),
           _buildRichParagraph(description),
+          if (description2 != null && description2!.isNotEmpty) ...[
+             const SizedBox(height: 16),
+             _buildRichParagraph(description2!),
+          ],
           const SizedBox(height: 24),
           ...items.map((item) => Padding(
             padding: const EdgeInsets.only(bottom: 12),
@@ -411,28 +425,41 @@ class _AboutZigZagBlock extends StatelessWidget {
 }
 
 class _AboutCTASection extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final String buttonText;
+  final bool isRed;
+
+  const _AboutCTASection({
+    required this.title,
+    required this.subtitle,
+    required this.buttonText,
+    required this.isRed,
+  });
+
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
-      color: AppColors.navDark,
+      color: isRed ? Colors.redAccent.withOpacity(0.9) : AppColors.navDark,
       child: Column(
         children: [
           Text(
-            'Ready to Join the EV Revolution?',
+            title,
             style: AppTextStyles.heading2.copyWith(color: Colors.white),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
           Text(
-            'Partner with FIXXEV for reliable EV servicing and support.',
-            style: AppTextStyles.bodyLarge.copyWith(color: Colors.white70),
+            subtitle,
+            style: AppTextStyles.bodyLarge.copyWith(color: Colors.white.withOpacity(0.9)),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 32),
           PrimaryButton(
-            text: 'CONTACT US',
+            text: buttonText,
+            backgroundColor: isRed ? Colors.white : null,
             onPressed: () {},
           ),
         ],

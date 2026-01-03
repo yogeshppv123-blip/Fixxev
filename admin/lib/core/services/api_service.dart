@@ -1,18 +1,102 @@
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  /* 
-   * LOCALHOST URL:
-   * For Chrome: http://localhost:5000/api
-   * For Android Emulator: http://10.0.2.2:5000/api
-   * For iOS Simulator: http://localhost:5000/api
-   * For Production: Your hosted backend URL
-   */
-  final Dio _dio = Dio(BaseOptions(
-    baseUrl: const String.fromEnvironment('API_URL', defaultValue: 'http://127.0.0.1:5001/api'),
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  ));
+  static final ApiService _instance = ApiService._internal();
+  factory ApiService() => _instance;
+
+  late Dio _dio;
+  static String? _token;
+  static Map<String, dynamic>? _currentAdmin;
+  static SharedPreferences? _prefs;
+
+  ApiService._internal() {
+    _dio = Dio(BaseOptions(
+      baseUrl: const String.fromEnvironment('API_URL', defaultValue: 'http://127.0.0.1:5001/api'),
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
+    ));
+
+    _dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        if (_token != null) {
+          options.headers['Authorization'] = 'Bearer $_token';
+        }
+        return handler.next(options);
+      },
+    ));
+  }
+
+  static Future<void> init() async {
+    _prefs = await SharedPreferences.getInstance();
+    _token = _prefs?.getString('auth_token');
+  }
+
+  // --- Auth ---
+  Future<Map<String, dynamic>> login(String email, String password) async {
+    try {
+      final response = await _dio.post('/auth/login', data: {'email': email, 'password': password});
+      _token = response.data['token'];
+      _currentAdmin = response.data['admin'];
+      
+      if (_prefs != null && _token != null) {
+        await _prefs!.setString('auth_token', _token!);
+      }
+      
+      return response.data;
+    } catch (e) {
+      if (e is DioException && e.response != null) {
+         throw e.response?.data['error'] ?? 'Login failed';
+      }
+      throw Exception('Login failed: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> getProfile() async {
+    try {
+      final response = await _dio.get('/auth/profile');
+      _currentAdmin = response.data;
+      return response.data;
+    } catch (e) {
+      if (e is DioException && e.response?.statusCode == 401) {
+        logout(); // Clear invalid token
+      }
+      throw Exception('Failed to load profile: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> updateProfile(Map<String, dynamic> data) async {
+    try {
+      final response = await _dio.patch('/auth/profile', data: data);
+      _currentAdmin = response.data;
+      return response.data;
+    } catch (e) {
+      throw Exception('Failed to update profile: $e');
+    }
+  }
+
+  Future<void> changePassword(String oldPassword, String newPassword) async {
+    try {
+      await _dio.post('/auth/change-password', data: {
+        'oldPassword': oldPassword,
+        'newPassword': newPassword,
+      });
+    } catch (e) {
+      if (e is DioException && e.response != null) {
+        throw e.response?.data['error'] ?? 'Failed to change password';
+      }
+      throw Exception('Failed to change password: $e');
+    }
+  }
+
+  Map<String, dynamic>? get currentAdmin => _currentAdmin;
+  String? get token => _token;
+
+  void logout() {
+    _token = null;
+    _currentAdmin = null;
+    _prefs?.remove('auth_token');
+  }
 
   // --- Services ---
   Future<List<dynamic>> getServices() async {
@@ -232,6 +316,15 @@ class ApiService {
     }
   }
 
+  Future<List<dynamic>> getAllPagesContent() async {
+    try {
+      final response = await _dio.get('/page-content');
+      return response.data;
+    } catch (e) {
+      return [];
+    }
+  }
+
   Future<void> updatePageContent(String pageName, Map<String, dynamic> content) async {
     try {
       await _dio.post('/page-content/$pageName', data: {'content': content});
@@ -395,6 +488,23 @@ class ApiService {
       await _dio.post('/ckd-features/seed');
     } catch (e) {
       throw Exception('Failed to seed CKD features: $e');
+    }
+  }
+
+  // --- Upload ---
+  Future<String> uploadImage(List<int> bytes, String fileName) async {
+    try {
+      final formData = FormData.fromMap({
+        'image': MultipartFile.fromBytes(bytes, filename: fileName),
+      });
+      final response = await _dio.post('/upload', data: formData);
+      return response.data['url'];
+    } catch (e) {
+      if (e is DioException && e.response != null) {
+        final message = e.response?.data?['message'] ?? e.message;
+        throw message;
+      }
+      throw 'Failed to upload image: $e';
     }
   }
 }
