@@ -189,7 +189,7 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
           if (!isMobile)
             Positioned(
               right: 80,
-              top: screenHeight * 0.2,
+              top: screenHeight * 0.12, // Moved up from 0.2
               child: _buildFloatingIcons(),
             ),
           // Main content
@@ -216,7 +216,7 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
           if (!isMobile)
             Positioned(
               right: 80,
-              bottom: 150,
+              bottom: 110, // Moved down from 150
               child: Row(
                 children: [
                   _buildNavButton(Icons.arrow_back_ios_new, _previousSlide),
@@ -335,12 +335,15 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
         _floatingIconItem(Icons.battery_charging_full, 'Battery'),
         const SizedBox(height: 20),
         _floatingIconItem(Icons.build_circle, 'Repairs'),
+        const SizedBox(height: 20),
+        _floatingIconItem(Icons.inventory_2, 'Spare Parts'),
       ],
     );
   }
 
   Widget _floatingIconItem(IconData icon, String label) {
     return Container(
+      width: 130, // Increased width to prevent clipping
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: AppColors.white,
@@ -367,6 +370,7 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
           const SizedBox(height: 12),
           Text(
             label,
+            textAlign: TextAlign.center,
             style: AppTextStyles.bodySmall.copyWith(
               color: AppColors.textDark,
               fontWeight: FontWeight.w600,

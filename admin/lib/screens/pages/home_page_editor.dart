@@ -69,6 +69,11 @@ class _HomePageEditorState extends State<HomePageEditor> {
   // --- Partners Carousel ---
   final List<Map<String, TextEditingController>> _partnerLogos = [];
 
+  // --- Brands We Serve ---
+  final _brandsTitleController = TextEditingController();
+  final List<Map<String, TextEditingController>> _brandItems = [];
+
+
   @override
   void initState() {
     super.initState();
@@ -111,6 +116,16 @@ class _HomePageEditorState extends State<HomePageEditor> {
     setState(() {
       _partnerLogos.add({
         'name': TextEditingController(text: name ?? ''),
+        'image': TextEditingController(text: image ?? ''),
+      });
+    });
+  }
+
+  void _addBrandItem({String? title, String? desc, String? image}) {
+    setState(() {
+      _brandItems.add({
+        'title': TextEditingController(text: title ?? ''),
+        'desc': TextEditingController(text: desc ?? ''),
         'image': TextEditingController(text: image ?? ''),
       });
     });
@@ -239,6 +254,18 @@ class _HomePageEditorState extends State<HomePageEditor> {
           _addPartnerLogo(name: 'BATTERIX', image: '');
         }
 
+        // 8. Brands We Serve
+        _brandsTitleController.text = content['brandsTitle'] ?? 'BRANDS WE SERVE';
+        final brands = content['brandsCards'] as List?;
+        _brandItems.clear();
+        if (brands != null && brands.isNotEmpty) {
+          for (var b in brands) _addBrandItem(title: b['title'], desc: b['desc'], image: b['image']);
+        } else {
+          _addBrandItem(title: 'Ola Electric', desc: 'Complete diagnostics, battery health check, and motor repairs for all Ola S1 and S1 Pro models.', image: 'assets/images/brand_ola_new.png');
+          _addBrandItem(title: 'Ather Energy', desc: 'Specialized service for Ather 450X and 450 Plus, including belt tensioning and software updates.', image: 'assets/images/brand_ola_new.png');
+          _addBrandItem(title: 'TVS & More', desc: 'Expert care for TVS iQube, Bajaj Chetak, and other leading electric two-wheelers.', image: 'assets/images/brand_tvs.png');
+        }
+
         _isLoading = false;
       });
     } catch (e) {
@@ -317,6 +344,15 @@ class _HomePageEditorState extends State<HomePageEditor> {
       content['partnerLogos'] = _partnerLogos.map((p) => {
         'name': p['name']!.text,
         'image': p['image']!.text,
+      }).toList();
+
+      // Brands
+      content['brandsTitle'] = _brandsTitleController.text;
+      content['brandsCards'] = _brandItems.map((b) => {
+        'title': b['title']!.text,
+        'desc': b['desc']!.text,
+        'image': b['image']!.text,
+        'id': '0${_brandItems.indexOf(b) + 1}',
       }).toList();
 
       await _apiService.updatePageContent('home', content);
@@ -413,6 +449,8 @@ class _HomePageEditorState extends State<HomePageEditor> {
                               _buildPartnersSection(),
                               const SizedBox(height: 32),
                               _buildTestimonialsSection(),
+                              const SizedBox(height: 32),
+                              _buildBrandsSection(),
                               const SizedBox(height: 32),
                               _buildJoinSection(),
                               const SizedBox(height: 100),
@@ -773,7 +811,7 @@ class _HomePageEditorState extends State<HomePageEditor> {
 
   Widget _buildJoinSection() {
     return _buildSectionCard(
-      title: '9. Join The Mission Footer',
+      title: '10. Join The Mission Footer',
       icon: Icons.campaign_outlined,
       children: [
         _buildTextField('Title', _joinTitleController),
@@ -797,6 +835,54 @@ class _HomePageEditorState extends State<HomePageEditor> {
         ),
         const SizedBox(height: 24),
         Row(children: List.generate(3, (i) => Expanded(child: Padding(padding: EdgeInsets.only(right: i==2?0:16), child: _buildTextField('Card ${i+1} Title', _joinCardControllers[i]['title']!))))),
+      ],
+    );
+  }
+
+  Widget _buildBrandsSection() {
+    return _buildSectionCard(
+      title: '9. Brands We Serve (Cards)',
+      icon: Icons.electric_bike_outlined,
+      children: [
+        _buildTextField('Section Title', _brandsTitleController),
+        const SizedBox(height: 24),
+        ...List.generate(_brandItems.length, (index) {
+          final b = _brandItems[index];
+          return Container(
+            margin: const EdgeInsets.only(bottom: 24),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(color: Colors.white.withOpacity(0.03), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white.withOpacity(0.05))),
+            child: Column(
+              children: [
+                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                  Text('Brand #${index+1}', style: const TextStyle(color: AppColors.accentBlue, fontWeight: FontWeight.bold)),
+                  IconButton(onPressed: () => setState(() => _brandItems.removeAt(index)), icon: const Icon(Icons.delete_outline, color: Colors.redAccent)),
+                ]),
+                const SizedBox(height: 16),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white.withOpacity(0.1))),
+                      child: b['image']!.text.isNotEmpty
+                          ? ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(b['image']!.text, fit: BoxFit.contain, errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.white24)))
+                          : const Icon(Icons.image_outlined, color: Colors.white24),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(child: _buildTextField('Logo/Image URL', b['image']!, isImage: true)),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _buildTextField('Brand Name', b['title']!),
+                const SizedBox(height: 16),
+                _buildTextField('Description', b['desc']!, maxLines: 2),
+              ],
+            ),
+          );
+        }),
+        OutlinedButton.icon(onPressed: () => _addBrandItem(), icon: const Icon(Icons.add), label: const Text('Add Brand Card')),
       ],
     );
   }

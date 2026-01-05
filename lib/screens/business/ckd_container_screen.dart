@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'dart:html' as html;
 import 'dart:ui_web' as ui_web;
 import 'package:fixxev/core/theme/app_colors.dart';
@@ -1187,9 +1188,59 @@ class _HighlightStat extends StatelessWidget {
 }
 
 // 8. Models Grid Section
-class _ModelsGridSection extends StatelessWidget {
+class _ModelsGridSection extends StatefulWidget {
   final Map<String, dynamic> content;
   const _ModelsGridSection({required this.content});
+
+  @override
+  State<_ModelsGridSection> createState() => _ModelsGridSectionState();
+}
+
+class _ModelsGridSectionState extends State<_ModelsGridSection> {
+  final ScrollController _scrollController = ScrollController();
+  Timer? _autoScrollTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startAutoScroll());
+  }
+
+  @override
+  void dispose() {
+    _autoScrollTimer?.cancel();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _startAutoScroll() {
+    _autoScrollTimer?.cancel();
+    _autoScrollTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      if (_scrollController.hasClients) {
+        final maxScroll = _scrollController.position.maxScrollExtent;
+        final currentScroll = _scrollController.offset;
+        final scrollAmount = 374.0; // 350 + 24 spacing
+        double target = currentScroll + scrollAmount;
+        
+        if (target > maxScroll + 10) { // +10 tolerance
+          _scrollController.animateTo(0, duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
+        } else {
+          _scrollController.animateTo(target, duration: const Duration(milliseconds: 800), curve: Curves.easeInOut);
+        }
+      }
+    });
+  }
+
+  void _scroll(bool right) {
+     _autoScrollTimer?.cancel();
+     if (_scrollController.hasClients) {
+        final current = _scrollController.offset;
+        final scrollAmount = 374.0;
+        final target = right ? current + scrollAmount : current - scrollAmount;
+        _scrollController.animateTo(target.clamp(0.0, _scrollController.position.maxScrollExtent), duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+     }
+     Future.delayed(const Duration(seconds: 5), _startAutoScroll);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1207,16 +1258,14 @@ class _ModelsGridSection extends StatelessWidget {
               const SizedBox(height: 50),
               Builder(
                 builder: (context) {
-                  // Support dynamic list 'ckdModels' OR legacy hardcoded fields
                   List<dynamic> models = [];
-                  if (content['ckdModels'] != null && (content['ckdModels'] as List).isNotEmpty) {
-                    models = content['ckdModels'];
+                  if (widget.content['ckdModels'] != null && (widget.content['ckdModels'] as List).isNotEmpty) {
+                    models = widget.content['ckdModels'];
                   } else {
-                    // Fallback to legacy fields
                     models = [
-                      {'name': content['model1Name'] ?? 'Vector X', 'image': content['model1Image'] ?? 'assets/images/vector_x.png'},
-                      {'name': content['model2Name'] ?? 'Urban S', 'image': content['model2Image'] ?? 'assets/images/urban_s.png'},
-                      {'name': content['model3Name'] ?? 'Metro Glide', 'image': content['model3Image'] ?? 'assets/images/metro_glide.png'},
+                      {'name': widget.content['model1Name'] ?? 'Vector X', 'image': widget.content['model1Image'] ?? 'assets/images/vector_x.png'},
+                      {'name': widget.content['model2Name'] ?? 'Urban S', 'image': widget.content['model2Image'] ?? 'assets/images/urban_s.png'},
+                      {'name': widget.content['model3Name'] ?? 'Metro Glide', 'image': widget.content['model3Image'] ?? 'assets/images/metro_glide.png'},
                     ];
                   }
 
@@ -1228,14 +1277,34 @@ class _ModelsGridSection extends StatelessWidget {
                       )).toList(),
                     );
                   } else {
-                    return Wrap(
-                      spacing: 24,
-                      runSpacing: 24,
-                      alignment: WrapAlignment.center,
-                      children: models.map((m) => SizedBox(
-                        width: 350, // Fixed width for wrap items
-                        child: _ModelCard(m['image'] ?? '', m['name'] ?? ''),
-                      )).toList(),
+                    return Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        SingleChildScrollView(
+                          controller: _scrollController,
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
+                          child: Row(
+                            children: models.map((m) => Padding(
+                              padding: const EdgeInsets.only(right: 24),
+                              child: SizedBox(
+                                width: 350,
+                                child: _ModelCard(m['image'] ?? '', m['name'] ?? ''),
+                              ),
+                            )).toList(),
+                          ),
+                        ),
+                        if (models.length > 0) ...[
+                          Positioned(
+                            left: 0,
+                            child: _buildScrollButton(Icons.arrow_back_ios_new, () => _scroll(false)),
+                          ),
+                          Positioned(
+                            right: 0,
+                            child: _buildScrollButton(Icons.arrow_forward_ios, () => _scroll(true)),
+                          ),
+                        ],
+                      ],
                     );
                   }
                 }
@@ -1243,6 +1312,21 @@ class _ModelsGridSection extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildScrollButton(IconData icon, VoidCallback onPressed) {
+    return Container(
+      width: 44, height: 44,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 4))],
+      ),
+      child: IconButton(
+        icon: Icon(icon, color: AppColors.primaryNavy, size: 20),
+        onPressed: onPressed,
       ),
     );
   }

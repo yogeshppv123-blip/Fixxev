@@ -10,6 +10,7 @@ import 'sections/about_us_section.dart';
 import 'sections/services_section.dart';
 import 'sections/testimonials_section.dart';
 import 'sections/partners_carousel_section.dart';
+import 'sections/spares_tools_section.dart';
 import 'sections/join_mission_section.dart';
 
 import 'package:fixxev/widgets/floating_connect_buttons.dart';
@@ -97,9 +98,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     
                     // 5. Partners (Auto-scrolling logos)
                     PartnersCarouselSection(content: content),
+
+
                     
                     // 6. Testimonials (Animated Feedback Cards)
                     TestimonialsSection(content: content),
+
+                    // 6.5 Brands We Serve
+                    BrandsCardSection(content: content),
                     
                     // 7. Join the Mission (Opportunity Section)
                     JoinMissionSection(content: content),
