@@ -1205,24 +1205,40 @@ class _ModelsGridSection extends StatelessWidget {
             children: [
               Text('Our CKD Container Models', style: AppTextStyles.sectionTitle.copyWith(fontSize: 32)),
               const SizedBox(height: 50),
-              isMobile ? 
-              Column(
-                children: [
-                  _ModelCard(content['model1Image'] ?? 'assets/images/vector_x.png', content['model1Name'] ?? 'Vector X'),
-                  const SizedBox(height: 24),
-                  _ModelCard(content['model2Image'] ?? 'assets/images/urban_s.png', content['model2Name'] ?? 'Urban S'),
-                  const SizedBox(height: 24),
-                  _ModelCard(content['model3Image'] ?? 'assets/images/metro_glide.png', content['model3Name'] ?? 'Metro Glide'),
-                ],
-              ) :
-              Row(
-                children: [
-                  Expanded(child: _ModelCard(content['model1Image'] ?? 'assets/images/vector_x.png', content['model1Name'] ?? 'Vector X')),
-                  const SizedBox(width: 24),
-                  Expanded(child: _ModelCard(content['model2Image'] ?? 'assets/images/urban_s.png', content['model2Name'] ?? 'Urban S')),
-                  const SizedBox(width: 24),
-                  Expanded(child: _ModelCard(content['model3Image'] ?? 'assets/images/metro_glide.png', content['model3Name'] ?? 'Metro Glide')),
-                ],
+              Builder(
+                builder: (context) {
+                  // Support dynamic list 'ckdModels' OR legacy hardcoded fields
+                  List<dynamic> models = [];
+                  if (content['ckdModels'] != null && (content['ckdModels'] as List).isNotEmpty) {
+                    models = content['ckdModels'];
+                  } else {
+                    // Fallback to legacy fields
+                    models = [
+                      {'name': content['model1Name'] ?? 'Vector X', 'image': content['model1Image'] ?? 'assets/images/vector_x.png'},
+                      {'name': content['model2Name'] ?? 'Urban S', 'image': content['model2Image'] ?? 'assets/images/urban_s.png'},
+                      {'name': content['model3Name'] ?? 'Metro Glide', 'image': content['model3Image'] ?? 'assets/images/metro_glide.png'},
+                    ];
+                  }
+
+                  if (isMobile) {
+                    return Column(
+                      children: models.map((m) => Padding(
+                        padding: const EdgeInsets.only(bottom: 24),
+                        child: _ModelCard(m['image'] ?? '', m['name'] ?? ''),
+                      )).toList(),
+                    );
+                  } else {
+                    return Wrap(
+                      spacing: 24,
+                      runSpacing: 24,
+                      alignment: WrapAlignment.center,
+                      children: models.map((m) => SizedBox(
+                        width: 350, // Fixed width for wrap items
+                        child: _ModelCard(m['image'] ?? '', m['name'] ?? ''),
+                      )).toList(),
+                    );
+                  }
+                }
               ),
             ],
           ),
@@ -1249,7 +1265,7 @@ class _ModelCard extends StatelessWidget {
             child: img.startsWith('assets')
                 ? Image.asset(
                     img,
-                    fit: BoxFit.cover,
+                    fit: BoxFit.contain,
                     errorBuilder: (context, error, stackTrace) {
                       return Center(
                         child: Column(
@@ -1268,7 +1284,7 @@ class _ModelCard extends StatelessWidget {
                   )
                 : Image.network(
                     img,
-                    fit: BoxFit.cover,
+                    fit: BoxFit.contain,
                     errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image),
                   ),
           ),

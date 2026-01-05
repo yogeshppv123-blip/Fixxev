@@ -104,6 +104,28 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
   final _model3NameController = TextEditingController();
   final _model3ImageController = TextEditingController();
 
+  // Dynamic Models List
+  List<Map<String, TextEditingController>> _ckdModelControllers = [];
+  
+  void _addModel([String? name, String? image]) {
+    setState(() {
+      final imgC = TextEditingController(text: image ?? '');
+      imgC.addListener(() => setState(() {})); // Rebuild for preview
+      _ckdModelControllers.add({
+        'name': TextEditingController(text: name ?? ''),
+        'image': imgC,
+      });
+    });
+  }
+
+  void _removeModel(int index) {
+    setState(() {
+      _ckdModelControllers[index]['name']?.dispose();
+      _ckdModelControllers[index]['image']?.dispose();
+      _ckdModelControllers.removeAt(index);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -178,6 +200,11 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
      _model2ImageController.dispose();
      _model3NameController.dispose();
      _model3ImageController.dispose();
+     
+     for (var c in _ckdModelControllers) {
+       c['name']?.dispose();
+       c['image']?.dispose();
+     }
   }
 
   Future<void> _loadContent() async {
@@ -279,6 +306,19 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
         _model3NameController.text = getVal(content['model3Name'], 'Metro Glide');
         _model3ImageController.text = getVal(content['model3Image'], 'http://127.0.0.1:5001/uploads/1767433466442-920385781.png');
 
+        // Dynamic Models
+        _ckdModelControllers.clear();
+        if (content['ckdModels'] != null && (content['ckdModels'] as List).isNotEmpty) {
+           for (var m in (content['ckdModels'] as List)) {
+             _addModel(getVal(m['name'], ''), getVal(m['image'], ''));
+           }
+        } else {
+           // Initialize with legacy if dynamic is empty
+           _addModel(_model1NameController.text, _model1ImageController.text);
+           _addModel(_model2NameController.text, _model2ImageController.text);
+           _addModel(_model3NameController.text, _model3ImageController.text);
+        }
+
         _isLoading = false;
       });
     } catch (e) {
@@ -379,6 +419,10 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
         'model2Image': _model2ImageController.text,
         'model3Name': _model3NameController.text,
         'model3Image': _model3ImageController.text,
+        'ckdModels': _ckdModelControllers.map((c) => {
+          'name': c['name']!.text,
+          'image': c['image']!.text,
+        }).toList(),
       };
       
       await _apiService.updatePageContent('ckd-container', content);
@@ -821,16 +865,58 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
 
   Widget _buildModelsSection() {
     return _buildSectionCard(
-      title: 'Our CKD Container Models',
+      title: 'Our CKD Container Models (Dynamic)',
       icon: Icons.electric_scooter,
       children: [
-        Row(
+        Wrap(
+          spacing: 20,
+          runSpacing: 20,
           children: [
-            Expanded(child: _buildSingleModelEdit('Model 1', _model1NameController, _model1ImageController)),
-            const SizedBox(width: 20),
-            Expanded(child: _buildSingleModelEdit('Model 2', _model2NameController, _model2ImageController)),
-            const SizedBox(width: 20),
-            Expanded(child: _buildSingleModelEdit('Model 3', _model3NameController, _model3ImageController)),
+            ..._ckdModelControllers.asMap().entries.map((entry) {
+              final index = entry.key;
+              final map = entry.value;
+              return Container(
+                width: 300,
+                child: Stack(
+                  children: [
+                    _buildSingleModelEdit(
+                      'Model ${index + 1}', 
+                      map['name']!, 
+                      map['image']!
+                    ),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.redAccent, size: 20),
+                        onPressed: () => _removeModel(index),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+            Container(
+              width: 300,
+              height: 360,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.white24, style: BorderStyle.dashed),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: InkWell(
+                onTap: () => _addModel(),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.add_circle_outline, color: AppColors.accentBlue, size: 48),
+                      const SizedBox(height: 16),
+                      Text('Add New Model', style: AppTextStyles.bodyMedium),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ],
