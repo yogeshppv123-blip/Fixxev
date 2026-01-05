@@ -82,7 +82,9 @@ class _AboutScreenState extends State<AboutScreen> {
                           tagline: _pageContent['heroBadgeText'] ?? 'LAUNCH ANNOUNCEMENT',
                           description1: _pageContent['heroDesc1'] ?? 'Fixx EV Technologies Pvt. Ltd. is on a mission to solve one of the biggest barriers to electric vehicle adoption in India.',
                           description2: _pageContent['heroDesc2'] ?? 'As India rapidly moves towards electric mobility, the service ecosystem has remained fragmented.',
-                          imageUrl: _pageContent['heroImage'] ?? 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e',
+                          imageUrl: (_pageContent['heroImage'] != null && _pageContent['heroImage'].toString().isNotEmpty)
+                              ? _pageContent['heroImage']
+                              : 'assets/images/about_hero.png',
                           buttonText: _pageContent['heroBtnText'] ?? 'GET IN TOUCH →',
                           isRed: _pageContent['heroIsRed'] ?? false,
                         ),
@@ -93,10 +95,25 @@ class _AboutScreenState extends State<AboutScreen> {
                       // 3. DYNAMIC BLOCKS
                       ...zigzagSections.asMap().entries.map((entry) {
                         final section = entry.value;
+                        final adminImage = section['imageUrl'];
+                        final sTitle = (section['title'] ?? '').toString();
+                        
+                        // Prioritize admin-uploaded image; fallback to local assets
+                        String imgUrl;
+                        if (adminImage != null && adminImage.toString().isNotEmpty) {
+                          imgUrl = adminImage; // Admin image takes priority
+                        } else if (sTitle.contains('Building') || sTitle.contains('Infrastructure')) {
+                          imgUrl = 'assets/images/about_infrastructure.png';
+                        } else if (sTitle.contains('Growth') || sTitle.contains('Franchise')) {
+                          imgUrl = 'assets/images/about_growth.png';
+                        } else if (sTitle.contains('Why This Matters') || sTitle.contains('Impact')) {
+                          imgUrl = 'assets/images/about_impact.png';
+                        } else {
+                          imgUrl = 'https://images.unsplash.com/photo-1522071820081-009f0129c71c';
+                        }
+
                         return _AboutZigZagBlock(
-                          image: section['imageUrl']?.isNotEmpty == true 
-                              ? section['imageUrl'] 
-                              : 'https://images.unsplash.com/photo-1522071820081-009f0129c71c',
+                          image: imgUrl,
                           title: section['title'] ?? '',
                           subtitle: section['subtitle'],
                           label: section['label'] ?? '',
@@ -208,11 +225,17 @@ class _AboutHeroLight extends StatelessWidget {
                   flex: 1,
                   child: ClipRRect(
                     borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
-                    child: Image.network(
-                      imageUrl,
-                      height: 500,
-                      fit: BoxFit.cover,
-                    ),
+                    child: imageUrl.startsWith('http')
+                        ? Image.network(
+                            imageUrl,
+                            height: 500,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.asset(
+                            imageUrl,
+                            height: 500,
+                            fit: BoxFit.cover,
+                          ),
                   ),
                 ),
             ],
@@ -367,17 +390,29 @@ class _AboutZigZagBlock extends StatelessWidget {
 
     final imageContent = ClipRRect(
       borderRadius: BorderRadius.circular(8),
-      child: Image.network(
-        image,
-        height: isMobile ? 300 : 450,
-        width: double.infinity,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => Container(
-          height: isMobile ? 300 : 450,
-          color: Colors.grey[200],
-          child: const Icon(Icons.image, size: 48, color: Colors.grey),
-        ),
-      ),
+      child: image.startsWith('http') 
+        ? Image.network(
+            image,
+            height: isMobile ? 300 : 450,
+            width: double.infinity,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => Container(
+              height: isMobile ? 300 : 450,
+              color: Colors.grey[200],
+              child: const Icon(Icons.image, size: 48, color: Colors.grey),
+            ),
+          )
+        : Image.asset(
+            image,
+            height: isMobile ? 300 : 450,
+            width: double.infinity,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => Container(
+              height: isMobile ? 300 : 450,
+              color: Colors.grey[200],
+              child: const Icon(Icons.image, size: 48, color: Colors.grey),
+            ),
+          ),
     );
 
     if (isMobile) {

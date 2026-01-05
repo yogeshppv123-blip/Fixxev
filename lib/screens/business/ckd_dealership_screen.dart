@@ -228,8 +228,8 @@ class _WhatWeDoSection extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         image: DecorationImage(
           image: (imageUrl != null && imageUrl.isNotEmpty)
-              ? NetworkImage(imageUrl)
-              : const NetworkImage('https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=800'),
+              ? (imageUrl.startsWith('http') ? NetworkImage(imageUrl) : AssetImage(imageUrl) as ImageProvider)
+              : const AssetImage('assets/images/franchise_mission.png'),
           fit: BoxFit.cover,
         ),
         boxShadow: [
@@ -362,7 +362,7 @@ class _FranchiseOptionsSection extends StatelessWidget {
             context,
             title: content['sparePartsTitle'] ?? 'Spare Parts Dealer',
             description: content['sparePartsDesc'] ?? 'Become an authorized FIXXEV spare parts distributor.',
-            imageUrl: content['sparePartsImage'] ?? 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800',
+            imageUrl: content['sparePartsImage'] ?? 'assets/images/franchise_parts.png',
             benefits: sparePartsBenefits,
             icon: Icons.inventory_2,
           ),
@@ -371,7 +371,7 @@ class _FranchiseOptionsSection extends StatelessWidget {
             context,
             title: content['serviceCenterTitle'] ?? 'Service Center Dealer',
             description: content['serviceCenterDesc'] ?? 'Open an authorized FIXXEV service center.',
-            imageUrl: content['serviceCenterImage'] ?? 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800',
+            imageUrl: content['serviceCenterImage'] ?? 'assets/images/franchise_service.png',
             benefits: serviceCenterBenefits,
             icon: Icons.build_circle,
           ),
@@ -387,7 +387,7 @@ class _FranchiseOptionsSection extends StatelessWidget {
             context,
             title: content['sparePartsTitle'] ?? 'Spare Parts Dealer',
             description: content['sparePartsDesc'] ?? 'Become an authorized FIXXEV spare parts distributor.',
-            imageUrl: content['sparePartsImage'] ?? 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800',
+            imageUrl: content['sparePartsImage'] ?? 'assets/images/franchise_parts.png',
             benefits: sparePartsBenefits,
             icon: Icons.inventory_2,
           ),
@@ -398,7 +398,7 @@ class _FranchiseOptionsSection extends StatelessWidget {
             context,
             title: content['serviceCenterTitle'] ?? 'Service Center Dealer',
             description: content['serviceCenterDesc'] ?? 'Open an authorized FIXXEV service center.',
-            imageUrl: content['serviceCenterImage'] ?? 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800',
+            imageUrl: content['serviceCenterImage'] ?? 'assets/images/franchise_service.png',
             benefits: serviceCenterBenefits,
             icon: Icons.build_circle,
           ),
@@ -436,7 +436,7 @@ class _FranchiseOptionsSection extends StatelessWidget {
             height: 220,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: NetworkImage(imageUrl),
+                image: imageUrl.startsWith('http') ? NetworkImage(imageUrl) : AssetImage(imageUrl) as ImageProvider,
                 fit: BoxFit.cover,
               ),
             ),

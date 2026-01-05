@@ -96,8 +96,25 @@ class _ServicesPageState extends State<ServicesPage> {
                     else
                       ...List.generate(contentBlocks.length, (index) {
                         final service = contentBlocks[index];
+                        final adminImage = service['imageUrl'];
+                        final sTitle = (service['title'] ?? '').toString();
+                        
+                        // Prioritize admin-uploaded image; fallback to local assets
+                        String imgUrl;
+                        if (adminImage != null && adminImage.toString().isNotEmpty) {
+                          imgUrl = adminImage; // Admin image takes priority
+                        } else if (sTitle.contains('After-Sales') || sTitle.contains('Maintenance')) {
+                          imgUrl = 'assets/images/service_repair.png';
+                        } else if (sTitle.contains('Diagnostics')) {
+                          imgUrl = 'assets/images/service_diagnostics.png';
+                        } else if (sTitle.contains('Warranty')) {
+                          imgUrl = 'assets/images/service_warranty.png';
+                        } else {
+                          imgUrl = _getServiceImage(index);
+                        }
+
                         return _ZigZagServiceBlock(
-                          image: service['imageUrl'] ?? _getServiceImage(index),
+                          image: imgUrl,
                           title: service['title'] ?? '',
                           label: service['label'] ?? '// SERVICE',
                           description: service['description'] ?? '',
@@ -193,7 +210,10 @@ class _ZigZagServiceBlock extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.backgroundDark,
         borderRadius: BorderRadius.circular(24),
-        image: DecorationImage(image: NetworkImage(image), fit: BoxFit.cover),
+        image: DecorationImage(
+          image: image.startsWith('http') ? NetworkImage(image) : AssetImage(image) as ImageProvider,
+          fit: BoxFit.cover
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(20),

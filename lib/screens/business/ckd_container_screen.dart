@@ -236,7 +236,7 @@ class _HeroWithFormSection extends StatelessWidget {
         image: DecorationImage(
           image: heroImage.isNotEmpty 
               ? NetworkImage(heroImage) 
-              : const AssetImage('assets/images/c14.jpg') as ImageProvider,
+              : const AssetImage('assets/images/c14_v2.png') as ImageProvider,
           fit: BoxFit.cover,
           opacity: 0.15,
         ),
@@ -438,7 +438,7 @@ class _CommunitySection extends StatelessWidget {
                           image: DecorationImage(
                             image: content['communityImage'] != null && content['communityImage'].toString().isNotEmpty
                                 ? NetworkImage(content['communityImage'])
-                                : const AssetImage('assets/images/fixx_community.png') as ImageProvider,
+                                : const AssetImage('assets/images/fixx_community_v3.png') as ImageProvider,
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -662,7 +662,7 @@ class _SmarterShowroomsSection extends StatelessWidget {
                     clipBehavior: Clip.antiAlias,
                     child: content['smarterImage'] != null && content['smarterImage'].toString().isNotEmpty
                         ? Image.network(content['smarterImage'], fit: BoxFit.cover)
-                        : Image.asset('assets/images/your_ev_brand.png', fit: BoxFit.cover),
+                        : Image.asset('assets/images/your_ev_brand_v3.png', fit: BoxFit.cover),
                   ),
                 ),
               ]
@@ -750,7 +750,7 @@ class _ScalableFutureSection extends StatelessWidget {
                       image: DecorationImage(
                         image: content['whyImage'] != null && content['whyImage'].toString().isNotEmpty
                             ? NetworkImage(content['whyImage'])
-                            : const AssetImage('assets/images/why_fixx_ev.png') as ImageProvider,
+                            : const AssetImage('assets/images/why_fixx_ev_v3.png') as ImageProvider,
                         fit: BoxFit.cover,
                       ),
                     ),
