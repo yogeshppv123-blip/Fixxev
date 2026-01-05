@@ -900,7 +900,7 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
               width: 300,
               height: 360,
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.white24, style: BorderStyle.dashed),
+                border: Border.all(color: Colors.white24, style: BorderStyle.solid),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: InkWell(
