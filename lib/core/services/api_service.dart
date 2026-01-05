@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 
 class ApiService {
   final Dio _dio = Dio(BaseOptions(
-    baseUrl: const String.fromEnvironment('API_URL', defaultValue: 'http://127.0.0.1:5001/api'),
+    baseUrl: const String.fromEnvironment('API_URL', defaultValue: 'https://api.fixxev.in/api'),
     connectTimeout: const Duration(seconds: 10),
     receiveTimeout: const Duration(seconds: 10),
   ));

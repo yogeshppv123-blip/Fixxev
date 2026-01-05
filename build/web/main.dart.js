@@ -8560,7 +8560,7 @@ a5E:function a5E(){},
 a5F:function a5F(){},
 a5G:function a5G(){},
 a5H:function a5H(){},
-aVD(){var s=A.ha("http://127.0.0.1:5001/api",B.aa,B.aa),r=new A.CL(A.b([B.nO],t.i6))
+aVD(){var s=A.ha("https://api.fixxev.in/api",B.aa,B.aa),r=new A.CL(A.b([B.nO],t.i6))
 r.O(r,B.q6)
 r=new A.Oj($,r,$,new A.P4(51200),!1)
 r.JO$=s
@@ -47107,7 +47107,7 @@ case 6:case 1:return A.L(q,r)
 case 2:return A.K(o.at(-1),r)}})
 return A.M($async$xe,r)}}
 A.aGa.prototype={
-$1(a){var s=new A.iT(new A.f9(A.hQ(A.ha("http://127.0.0.1:5001/api",B.aa,B.aa))),B.h,B.X,B.a6,B.e,B.bH,$.aH())
+$1(a){var s=new A.iT(new A.f9(A.hQ(A.ha("https://api.fixxev.in/api",B.aa,B.aa))),B.h,B.X,B.a6,B.e,B.bH,$.aH())
 s.Ca()
 return s},
 $S:514}
@@ -47123,7 +47123,7 @@ p=A.xI(s,r,new A.v5(r,b.f,r,r,r,r,new A.cT(A.aJ(16),B.w)),n,new A.vG(o),q,p,!0)
 return new A.oY($.aS3(),"FIXXEV",p,!1,r)},
 $S:513}
 A.qh.prototype={
-a1(){return new A.GL(A.iN(0,null,null),new A.f9(A.hQ(A.ha("http://127.0.0.1:5001/api",B.aa,B.aa))),[],A.r(t.N,t.z),new A.bG(null,t.sW))}}
+a1(){return new A.GL(A.iN(0,null,null),new A.f9(A.hQ(A.ha("https://api.fixxev.in/api",B.aa,B.aa))),[],A.r(t.N,t.z),new A.bG(null,t.sW))}}
 A.GL.prototype={
 aa(){var s=this
 s.av()
@@ -47313,7 +47313,7 @@ A.aqI.prototype={
 $0(){},
 $S:0}
 A.qp.prototype={
-a1(){return new A.Vq(new A.f9(A.hQ(A.ha("http://127.0.0.1:5001/api",B.aa,B.aa))))}}
+a1(){return new A.Vq(new A.f9(A.hQ(A.ha("https://api.fixxev.in/api",B.aa,B.aa))))}}
 A.Vq.prototype={
 aa(){var s,r=this
 r.av()
@@ -47405,7 +47405,7 @@ A.asc.prototype={
 $0(){},
 $S:0}
 A.qt.prototype={
-a1(){var s=A.iN(0,null,null),r=A.hQ(A.ha("http://127.0.0.1:5001/api",B.aa,B.aa)),q=$.aH()
+a1(){var s=A.iN(0,null,null),r=A.hQ(A.ha("https://api.fixxev.in/api",B.aa,B.aa)),q=$.aH()
 return new A.H3(s,new A.f9(r),new A.db(B.aq,q),new A.db(B.aq,q),new A.db(B.aq,q),new A.db(B.aq,q),new A.db(B.aq,q),new A.db(B.aq,q),new A.db(B.aq,q),new A.bG(null,t.sW))}}
 A.H3.prototype={
 aa(){this.av()
@@ -47916,7 +47916,7 @@ A.ash.prototype={
 $0(){},
 $S:0}
 A.qu.prototype={
-a1(){return new A.H4(A.iN(0,null,null),new A.f9(A.hQ(A.ha("http://127.0.0.1:5001/api",B.aa,B.aa))),A.r(t.N,t.z))}}
+a1(){return new A.H4(A.iN(0,null,null),new A.f9(A.hQ(A.ha("https://api.fixxev.in/api",B.aa,B.aa))),A.r(t.N,t.z))}}
 A.H4.prototype={
 aa(){var s=this
 s.av()
@@ -48113,7 +48113,7 @@ r=A.eL(A.V(r,B.e.m()>>>16&255,B.e.m()>>>8&255,B.e.m()&255),1)
 return A.a5(s,A.ah(A.b([A.U(a,s,s,s,s,$.e1().dD(B.X,40),s,s),B.by,A.U(b,s,s,s,s,$.cb().b4(A.V(204,B.e.m()>>>16&255,B.e.m()>>>8&255,B.e.m()&255)),B.a8,s)],t.p),B.p,B.i,B.f),B.j,s,s,new A.az(q,s,r,p,s,s,B.r),s,s,s,B.Ix,s,s,200)}}
 A.In.prototype={
 a1(){var s=$.aH()
-return new A.Io(new A.db(B.aq,s),new A.db(B.aq,s),new A.db(B.aq,s),new A.db(B.aq,s),new A.f9(A.hQ(A.ha("http://127.0.0.1:5001/api",B.aa,B.aa))))}}
+return new A.Io(new A.db(B.aq,s),new A.db(B.aq,s),new A.db(B.aq,s),new A.db(B.aq,s),new A.f9(A.hQ(A.ha("https://api.fixxev.in/api",B.aa,B.aa))))}}
 A.Io.prototype={
 l(){var s=this,r=s.d,q=r.K$=$.aH()
 r.I$=0
@@ -48180,7 +48180,7 @@ A.axy.prototype={
 $0(){return this.a.w=this.b},
 $S:0}
 A.qE.prototype={
-a1(){var s=A.iN(0,null,null),r=A.hQ(A.ha("http://127.0.0.1:5001/api",B.aa,B.aa)),q=$.aH(),p=t.N
+a1(){var s=A.iN(0,null,null),r=A.hQ(A.ha("https://api.fixxev.in/api",B.aa,B.aa)),q=$.aH(),p=t.N
 return new A.Hg(s,new A.f9(r),new A.db(B.aq,q),new A.db(B.aq,q),new A.db(B.aq,q),new A.db(B.aq,q),new A.db(B.aq,q),new A.db(B.aq,q),new A.db(B.aq,q),new A.db(B.aq,q),new A.db(B.aq,q),new A.db(B.aq,q),A.a0(["investment","\u20b92 \u2013 3 Lakhs","interest","EV Spares Franchise","hasLocation","No","locationSize","300\u2013500 sq.ft","runBusiness","No","industryExperience","No","managementType","Full time"],p,p),new A.bG(null,t.sW))}}
 A.Hg.prototype={
 aa(){var s=this
@@ -48508,7 +48508,7 @@ A.ub.prototype={
 E(a){var s=null,r=A.f0(s,s,A.V(B.d.au(127.5),B.e.m()>>>16&255,B.e.m()>>>8&255,B.e.m()&255),s,s,s,s,s,s,s,s,s,s,s,s,s,s,!0,s,s,s,s,s,s,s,s),q=A.V(B.d.au(25.5),B.e.m()>>>16&255,B.e.m()>>>8&255,B.e.m()&255)
 return A.G4(this.e,A.w6(s,new A.dX(4,A.aJ(12),B.w),s,B.i_,s,s,s,s,!0,s,s,s,s,s,s,q,!0,s,s,s,s,s,s,s,s,s,s,s,s,s,r,this.c,s,s,s,s,s,s,s,s,s,!0,!0,s,s,s,s,s,s,s,s,s,s,s,s,s,s),this.d,B.BS)}}
 A.rc.prototype={
-a1(){return new A.Ic(A.iN(0,null,null),new A.f9(A.hQ(A.ha("http://127.0.0.1:5001/api",B.aa,B.aa))),new A.bG(null,t.sW))}}
+a1(){return new A.Ic(A.iN(0,null,null),new A.f9(A.hQ(A.ha("https://api.fixxev.in/api",B.aa,B.aa))),new A.bG(null,t.sW))}}
 A.Ic.prototype={
 aa(){var s=this
 s.av()
@@ -49585,7 +49585,7 @@ be(){this.bT()
 this.bL()
 this.dZ()}}
 A.GI.prototype={
-a1(){var s=A.hQ(A.ha("http://127.0.0.1:5001/api",B.aa,B.aa)),r=$.aH()
+a1(){var s=A.hQ(A.ha("https://api.fixxev.in/api",B.aa,B.aa)),r=$.aH()
 return new A.KW(new A.f9(s),new A.db(B.aq,r),new A.db(B.aq,r),new A.db(B.aq,r),new A.db(B.aq,r))}}
 A.KW.prototype={
 l(){var s=this,r=s.f,q=r.K$=$.aH()
@@ -49715,7 +49715,7 @@ be(){this.bT()
 this.bL()
 this.dZ()}}
 A.t7.prototype={
-a1(){return new A.a_j(new A.f9(A.hQ(A.ha("http://127.0.0.1:5001/api",B.aa,B.aa))))}}
+a1(){return new A.a_j(new A.f9(A.hQ(A.ha("https://api.fixxev.in/api",B.aa,B.aa))))}}
 A.a_j.prototype={
 aa(){var s,r=this
 r.av()
@@ -49814,7 +49814,7 @@ s.toString
 return A.ac6(s,"/contact",t.X)},
 $S:0}
 A.tA.prototype={
-a1(){return new A.K_(A.iN(0,null,null),new A.f9(A.hQ(A.ha("http://127.0.0.1:5001/api",B.aa,B.aa))),A.r(t.N,t.z))}}
+a1(){return new A.K_(A.iN(0,null,null),new A.f9(A.hQ(A.ha("https://api.fixxev.in/api",B.aa,B.aa))),A.r(t.N,t.z))}}
 A.K_.prototype={
 aa(){var s,r=this
 r.av()
@@ -49983,7 +49983,7 @@ A.aBJ.prototype={
 $0(){return A.ac6(this.a,"/contact",t.X)},
 $S:0}
 A.tJ.prototype={
-a1(){return new A.Kp(A.iN(0,null,null),new A.f9(A.hQ(A.ha("http://127.0.0.1:5001/api",B.aa,B.aa))))}}
+a1(){return new A.Kp(A.iN(0,null,null),new A.f9(A.hQ(A.ha("https://api.fixxev.in/api",B.aa,B.aa))))}}
 A.Kp.prototype={
 aa(){var s=this
 s.av()
@@ -50167,7 +50167,7 @@ this.dZ()}}
 A.j5.prototype={
 gCO(){return B.Ui},
 a1(){var s=t.N,r=t.z
-return new A.Wt(new A.f9(A.hQ(A.ha("http://127.0.0.1:5001/api",B.aa,B.aa))),A.r(s,r),A.r(s,r))}}
+return new A.Wt(new A.f9(A.hQ(A.ha("https://api.fixxev.in/api",B.aa,B.aa))),A.r(s,r),A.r(s,r))}}
 A.Wt.prototype={
 aa(){this.av()
 this.lz()},
@@ -50279,7 +50279,7 @@ $0(){return this.a.d=!1},
 $S:0}
 A.Do.prototype={
 a1(){var s=t.N,r=t.z
-return new A.YZ(new A.f9(A.hQ(A.ha("http://127.0.0.1:5001/api",B.aa,B.aa))),A.r(s,r),A.r(s,r))}}
+return new A.YZ(new A.f9(A.hQ(A.ha("https://api.fixxev.in/api",B.aa,B.aa))),A.r(s,r),A.r(s,r))}}
 A.YZ.prototype={
 aa(){this.av()
 this.lz()},
@@ -50363,7 +50363,7 @@ return A.a5(s,B.Kl,B.j,B.hz,s,s,s,s,s,s,s,s,s)},
 $S:58}
 A.Cc.prototype={
 a1(){var s=t.N,r=t.z
-return new A.XI(new A.f9(A.hQ(A.ha("http://127.0.0.1:5001/api",B.aa,B.aa))),A.r(s,r),A.r(s,r))}}
+return new A.XI(new A.f9(A.hQ(A.ha("https://api.fixxev.in/api",B.aa,B.aa))),A.r(s,r),A.r(s,r))}}
 A.XI.prototype={
 aa(){this.av()
 this.yI()},

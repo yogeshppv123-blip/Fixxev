@@ -48364,7 +48364,7 @@ A.Qv.prototype={}
 A.abt.prototype={}
 A.abu.prototype={}
 A.a5z.prototype={
-ab_(){var s=A.og(A.aSb("http://127.0.0.1:5001/api",B.qC,B.qC))
+ab_(){var s=A.og(A.aSb("https://api.fixxev.in/api",B.qC,B.qC))
 this.a=s
 s=s.a13$
 s.J(s,new A.Qq(new A.a5A(),null,null,null))},
