@@ -133,62 +133,76 @@ class _BrandCardState extends State<_BrandCard> {
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 200),
+        transform: Matrix4.identity()..scale(_isHovered ? 1.03 : 1.0),
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
-          color: const Color(0xFFEBF2FA),
+          color: _isHovered ? AppColors.accentBlue : const Color(0xFFEBF2FA),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: _isHovered ? AppColors.accentBlue : Colors.transparent,
+            color: Colors.transparent, // Clean look
             width: 2,
           ),
           boxShadow: _isHovered
               ? [
                   BoxShadow(
-                    color: AppColors.accentBlue.withValues(alpha: 0.2),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
+                    color: AppColors.accentBlue.withValues(alpha: 0.3),
+                    blurRadius: 30,
+                    offset: const Offset(0, 15),
+                    spreadRadius: 2,
                   )
                 ]
-              : [],
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.02),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  )
+                ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min, // Ensure it doesn't try to expand incorrectly
+          mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
-                    color: AppColors.accentBlue,
+                    color: _isHovered ? Colors.white : AppColors.accentBlue,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: isNetwork 
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          imagePath,
-                          fit: BoxFit.cover, // Changed to cover for photos
-                          errorBuilder: (c,e,s) => Icon(widget.item['icon'], color: Colors.white, size: 32),
-                        ),
-                      )
-                    : Image.asset(
-                        imagePath,
-                        color: Colors.white,
-                        fit: BoxFit.contain,
-                        errorBuilder: (c,e,s) => Icon(widget.item['icon'], color: Colors.white, size: 32),
-                      ),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12), // Re-added padding for container consistency
+                      child: isNetwork 
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              imagePath,
+                              fit: BoxFit.cover,
+                              errorBuilder: (c,e,s) => Icon(widget.item['icon'], color: _isHovered ? AppColors.accentBlue : Colors.white, size: 32),
+                            ),
+                          )
+                        : Image.asset(
+                            imagePath,
+                            // color: null, // Natural colors
+                            fit: BoxFit.contain,
+                            errorBuilder: (c,e,s) => Icon(widget.item['icon'], color: _isHovered ? AppColors.accentBlue : Colors.white, size: 32),
+                          ),
+                    ),
+                  ),
                 ),
                 Text(
                   widget.item['id'] as String,
                   style: TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.w900,
-                    color: Colors.grey.withValues(alpha: 0.15),
+                    color: _isHovered ? Colors.white.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.15),
                   ),
                 ),
               ],
@@ -196,10 +210,10 @@ class _BrandCardState extends State<_BrandCard> {
             const SizedBox(height: 24),
             Text(
               widget.item['title'] as String,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: AppColors.primaryNavy,
+                color: _isHovered ? Colors.white : AppColors.primaryNavy,
               ),
             ),
             const SizedBox(height: 12),
@@ -208,7 +222,7 @@ class _BrandCardState extends State<_BrandCard> {
               style: TextStyle(
                 fontSize: 14,
                 height: 1.5,
-                color: AppColors.textDark.withValues(alpha: 0.7),
+                color: _isHovered ? Colors.white.withValues(alpha: 0.9) : AppColors.textDark.withValues(alpha: 0.7),
               ),
             ),
           ],
