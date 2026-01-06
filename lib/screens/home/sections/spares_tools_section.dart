@@ -102,7 +102,7 @@ class _BrandsCardSectionState extends State<BrandsCardSection> {
         : defaultItems;
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 80),
+      padding: const EdgeInsets.symmetric(vertical: 40),
       color: Colors.white,
       child: Column(
         children: [
@@ -111,12 +111,12 @@ class _BrandsCardSectionState extends State<BrandsCardSection> {
             child: Column(
               children: [
                 Text(
-                  'SERVICE EXPERTISE',
+                  'GENUINE PARTS',
                   style: TextStyle(
                     fontSize: 14,
                     letterSpacing: 2.0,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.secondary,
+                    color: const Color(0xFF2EBD59),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -124,7 +124,7 @@ class _BrandsCardSectionState extends State<BrandsCardSection> {
                   sectionTitle,
                   textAlign: TextAlign.center,
                   style: AppTextStyles.heading2.copyWith(
-                    color: AppColors.primaryNavy,
+                    color: AppColors.accentBlue,
                     height: 1.2,
                     fontWeight: FontWeight.w900,
                   ),
@@ -141,10 +141,9 @@ class _BrandsCardSectionState extends State<BrandsCardSection> {
               ],
             ),
           ),
-          const SizedBox(height: 60),
-
+          SizedBox(height: isMobile ? 30 : 50),
           SizedBox(
-            height: 380,
+            height: 340, // Reduced height to remove extra bottom space
             child: PageView.builder(
               controller: _pageController,
               onPageChanged: (index) {
@@ -228,7 +227,7 @@ class _BrandCardState extends State<_BrandCard> {
       onExit: (_) => setState(() => _isHovered = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         decoration: BoxDecoration(
           color: highlighted ? AppColors.accentBlue : const Color(0xFFF1F5F9),
           borderRadius: BorderRadius.circular(24),
@@ -249,25 +248,32 @@ class _BrandCardState extends State<_BrandCard> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  width: 50,
-                  height: 50,
+                  width: 120, // Increased from 100
+                  height: 120, // Increased from 100
+                  padding: const EdgeInsets.all(12), // Reduced padding for bigger content
                   decoration: BoxDecoration(
                     color: highlighted ? Colors.white : AppColors.accentBlue,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.15),
+                        blurRadius: 15,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: isNetwork 
                     ? Image.network(
                         imagePath, 
-                        fit: BoxFit.contain, 
-                        // REMOVED COLOR FILTER HERE
-                        errorBuilder: (c,e,s) => Icon(widget.item['icon'], color: highlighted ? AppColors.accentBlue : Colors.white)
+                        fit: BoxFit.contain, // Ensure full visibility
+                        errorBuilder: (c,e,s) => Icon(widget.item['icon'], size: 60, color: highlighted ? AppColors.accentBlue : Colors.white)
                       )
                     : Image.asset(
                         imagePath, 
                         fit: BoxFit.contain,
                         // REMOVED COLOR FILTER HERE
-                        errorBuilder: (c,e,s) => Icon(widget.item['icon'], color: highlighted ? AppColors.accentBlue : Colors.white)
+                        errorBuilder: (c,e,s) => Icon(widget.item['icon'], size: 60, color: highlighted ? AppColors.accentBlue : Colors.white)
                       ),
                 ),
                 Text(
@@ -280,25 +286,27 @@ class _BrandCardState extends State<_BrandCard> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16), // Reduced from 24
             Text(
               widget.item['title'],
               style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+                fontSize: 24, // Increased size
+                fontWeight: FontWeight.w900,
                 color: highlighted ? Colors.white : AppColors.primaryNavy,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8), // Reduced from 12
             Expanded(
               child: Text(
                 widget.item['description'],
                 style: TextStyle(
-                  fontSize: 14,
-                  height: 1.5,
-                  color: highlighted ? Colors.white.withOpacity(0.9) : AppColors.textDark.withOpacity(0.6),
+                  fontSize: 16,
+                  height: 1.4,
+                  fontWeight: FontWeight.w500,
+                  color: highlighted ? Colors.white.withOpacity(0.9) : Colors.black87,
                 ),
-                overflow: TextOverflow.fade,
+                maxLines: 4,
+                overflow: TextOverflow.visible,
               ),
             ),
           ],
