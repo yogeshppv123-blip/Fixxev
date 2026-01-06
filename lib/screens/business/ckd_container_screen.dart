@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'dart:html' as html;
-import 'dart:ui_web' as ui_web;
 import 'package:fixxev/core/theme/app_colors.dart';
 import 'package:fixxev/core/theme/app_text_styles.dart';
 import 'package:fixxev/widgets/custom_app_bar.dart';
@@ -387,82 +385,102 @@ class _CommunitySection extends StatelessWidget {
     
     return Container(
       padding: EdgeInsets.symmetric(
-        vertical: 100,
+        vertical: isMobile ? 60 : 100,
         horizontal: isMobile ? 24 : 80,
       ),
       color: Colors.white,
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 1200),
-          child: Column(
-            children: [
-              Row(
+          child: isMobile 
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildCommunityText(isRed, true),
+                  if (content['communityImage'] != null && content['communityImage'].toString().isNotEmpty) ...[
+                    const SizedBox(height: 48),
+                    _buildCommunityImage(true),
+                  ],
+                ],
+              )
+            : Row(
                 children: [
                   Expanded(
                     flex: 5,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          content['communityTitle'] ?? 'CKD Import & Assembly\nSolutions',
-                          style: AppTextStyles.sectionTitle.copyWith(fontSize: 42, color: isRed ? Colors.redAccent : AppColors.primary),
-                        ),
-                        const SizedBox(height: 24),
-                        Text(
-                          content['communityDesc'] ?? 'Fixx EV offers complete CKD (Completely Knocked Down) import solutions for both low-speed and high speed electric scooters.',
-                          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textDark, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 16),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: (content['communityItems'] != null
-                              ? (content['communityItems'] as String).split('\n').where((s) => s.trim().isNotEmpty).toList()
-                              : ['Launch your own EV brand', 'Control product quality', 'Improve margins', 'Build long-term market presence'])
-                              .map((item) => _buildBullet(item.trim())).toList(),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          content['communityConclusion'] ?? 'We handle everything — from factory sourcing in China to assembly, testing and go-to-market support in India.',
-                          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey),
-                        ),
-                      ],
-                    ),
+                    child: _buildCommunityText(isRed, false),
                   ),
-                  if (!isMobile) ...[
-                    const SizedBox(width: 60),
-                    Expanded(
-                      flex: 6,
-                      child: Container(
-                        height: 350,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          image: DecorationImage(
-                            image: content['communityImage'] != null && content['communityImage'].toString().isNotEmpty
-                                ? NetworkImage(content['communityImage'])
-                                : const AssetImage('assets/images/fixx_community_v3.png') as ImageProvider,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  const SizedBox(width: 60),
+                  Expanded(
+                    flex: 6,
+                    child: _buildCommunityImage(false),
+                  ),
                 ],
               ),
-            ],
-          ),
         ),
       ),
     );
   }
 
+  Widget _buildCommunityText(bool isRed, bool isMobile) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          content['communityTitle'] ?? 'CKD Import & Assembly\nSolutions',
+          style: AppTextStyles.sectionTitle.copyWith(fontSize: isMobile ? 32 : 42, color: isRed ? Colors.redAccent : AppColors.primary),
+        ),
+        const SizedBox(height: 24),
+        Text(
+          content['communityDesc'] ?? 'Fixx EV offers complete CKD (Completely Knocked Down) import solutions for both low-speed and high speed electric scooters.',
+          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textDark, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: (content['communityItems'] != null
+              ? (content['communityItems'] as String).split('\n').where((s) => s.trim().isNotEmpty).toList()
+              : ['Launch your own EV brand', 'Control product quality', 'Improve margins', 'Build long-term market presence'])
+              .map((item) => _buildBullet(item.trim())).toList(),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          content['communityConclusion'] ?? 'We handle everything — from factory sourcing in China to assembly, testing and go-to-market support in India.',
+          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCommunityImage(bool isMobile) {
+    return Container(
+      height: isMobile ? 300 : 350,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        image: DecorationImage(
+          image: content['communityImage'] != null && content['communityImage'].toString().isNotEmpty
+              ? NetworkImage(content['communityImage'])
+              : const AssetImage('assets/images/fixx_community_v3.png') as ImageProvider,
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
+  }
+
+
   Widget _buildBullet(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.check_circle, color: AppColors.accentTeal, size: 20),
+          const Padding(
+            padding: EdgeInsets.only(top: 2),
+            child: Icon(Icons.check_circle, color: AppColors.accentTeal, size: 20),
+          ),
           const SizedBox(width: 12),
-          Text(text, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textDark)),
+          Expanded(
+            child: Text(text, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textDark)),
+          ),
         ],
       ),
     );
@@ -605,74 +623,92 @@ class _SmarterShowroomsSection extends StatelessWidget {
     final isRed = content['smarterIsRed'] ?? false;
 
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 100, horizontal: isMobile ? 24 : 80),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 60 : 100, horizontal: isMobile ? 24 : 80),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 1200),
-          child: Row(
-            children: [
-              Expanded(
-                flex: 5,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    RichText(
-                      text: TextSpan(
-                        style: AppTextStyles.sectionTitle.copyWith(fontSize: 36, height: 1.2, color: isRed ? Colors.redAccent : AppColors.primary),
-                        children: [
-                          TextSpan(text: content['smarterTitle'] ?? 'Sales, Service & Spare Parts Support'),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    Text(
-                      content['smarterDesc'] ?? 'Launching a brand is not just about selling — it’s about supporting customers after sale.\n\nThrough Fixx EV’s nationwide EV Service Centres and India’s largest EV spares network, your brand gets:',
-                      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
-                    ),
-                    const SizedBox(height: 24),
-                    // Dynamic Checklist
-                    ...(content['smarterItems'] != null 
-                        ? (content['smarterItems'] as String).split('\n')
-                        : [
-                            'Service infrastructure',
-                            'Genuine spare parts',
-                            'Trained technicians',
-                            'Warranty support',
-                            'Nationwide coverage'
-                          ]).where((item) => item.trim().isNotEmpty).map((item) => _CheckList(text: item.trim(), boldText: '', isRed: isRed)),
-                    
-                    const SizedBox(height: 24),
-                    Text(
-                      'This gives your brand instant credibility and trust in the market.',
-                      style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textDark, fontWeight: FontWeight.bold),
-                    ),
+          child: isMobile 
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSmarterText(isRed, true),
+                  if (content['smarterImage'] != null && content['smarterImage'].toString().isNotEmpty) ...[
+                    const SizedBox(height: 48),
+                    _buildSmarterImage(true),
                   ],
-                ),
-              ),
-              if (!isMobile) ...[
-                const SizedBox(width: 60),
-                Expanded(
-                  flex: 5,
-                  child: Container(
-                    height: 500,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20)],
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: content['smarterImage'] != null && content['smarterImage'].toString().isNotEmpty
-                        ? Image.network(content['smarterImage'], fit: BoxFit.cover)
-                        : Image.asset('assets/images/your_ev_brand_v3.png', fit: BoxFit.cover),
+                ],
+              )
+            : Row(
+                children: [
+                  Expanded(
+                    flex: 5,
+                    child: _buildSmarterText(isRed, false),
                   ),
-                ),
-              ]
-            ],
-          ),
+                  const SizedBox(width: 60),
+                  Expanded(
+                    flex: 5,
+                    child: _buildSmarterImage(false),
+                  ),
+                ],
+              ),
         ),
       ),
     );
   }
+
+  Widget _buildSmarterText(bool isRed, bool isMobile) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+            style: AppTextStyles.sectionTitle.copyWith(fontSize: isMobile ? 32 : 36, height: 1.2, color: isRed ? Colors.redAccent : AppColors.primary),
+            children: [
+              TextSpan(text: content['smarterTitle'] ?? 'Sales, Service & Spare Parts Support'),
+            ],
+          ),
+        ),
+        const SizedBox(height: 32),
+        Text(
+          content['smarterDesc'] ?? 'Launching a brand is not just about selling — it’s about supporting customers after sale.\n\nThrough Fixx EV’s nationwide EV Service Centres and India’s largest EV spares network, your brand gets:',
+          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
+        ),
+        const SizedBox(height: 24),
+        // Dynamic Checklist
+        ...(content['smarterItems'] != null 
+            ? (content['smarterItems'] as String).split('\n')
+            : [
+                'Service infrastructure',
+                'Genuine spare parts',
+                'Trained technicians',
+                'Warranty support',
+                'Nationwide coverage'
+              ]).where((item) => item.trim().isNotEmpty).map((item) => _CheckList(text: item.trim(), boldText: '', isRed: isRed)),
+        
+        const SizedBox(height: 24),
+        Text(
+          'This gives your brand instant credibility and trust in the market.',
+          style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textDark, fontWeight: FontWeight.bold),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSmarterImage(bool isMobile) {
+    return Container(
+      height: isMobile ? 350 : 500,
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20)],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: content['smarterImage'] != null && content['smarterImage'].toString().isNotEmpty
+          ? Image.network(content['smarterImage'], fit: BoxFit.cover)
+          : Image.asset('assets/images/your_ev_brand_v3.png', fit: BoxFit.cover),
+    );
+  }
+
 }
 
 class _CheckList extends StatelessWidget {
@@ -734,85 +770,95 @@ class _ScalableFutureSection extends StatelessWidget {
     final isRed = content['whyIsRed'] ?? false;
 
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 100, horizontal: isMobile ? 24 : 80),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 60 : 100, horizontal: isMobile ? 24 : 80),
       color: Colors.white,
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 1200),
-          child: Row(
+          child: isMobile 
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                   _buildScalableText(isRed, isMobile),
+                   const SizedBox(height: 48),
+                   _buildScalableImage(isMobile),
+                ],
+              )
+            : Row(
+                children: [
+                  Expanded(flex: 5, child: _buildScalableImage(isMobile)),
+                  const SizedBox(width: 60),
+                  Expanded(flex: 5, child: _buildScalableText(isRed, isMobile)),
+                ],
+              ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScalableImage(bool isMobile) {
+    return Container(
+      height: isMobile ? 300 : 400,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        image: DecorationImage(
+          image: content['whyImage'] != null && content['whyImage'].toString().isNotEmpty
+              ? NetworkImage(content['whyImage'])
+              : const AssetImage('assets/images/why_fixx_ev_v3.png') as ImageProvider,
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScalableText(bool isRed, bool isMobile) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          content['whyFixxTitle'] ?? 'Why Fixx EV?',
+          style: AppTextStyles.sectionTitle.copyWith(fontSize: isMobile ? 32 : 36, color: isRed ? Colors.redAccent : AppColors.primary),
+        ),
+        const SizedBox(height: 24),
+        Text(
+          content['whyFixxSubtitle'] ?? 'With 10+ years of EV industry experience, Fixx EV has worked across:',
+          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, fontSize: 16),
+        ),
+        const SizedBox(height: 24),
+        Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: (content['whyFixxChips'] != null
+              ? (content['whyFixxChips'] as String).split('\n').where((s) => s.trim().isNotEmpty).toList()
+              : ['Manufacturing', 'Import & sourcing', 'Sales & distribution', 'Service & spare parts', 'Fleet operations'])
+              .map((chip) => _Chip(chip.trim())).toList(),
+        ),
+        const SizedBox(height: 32),
+         Text(
+          content['whyFixxConclusion'] ?? 'We know what works — and what fails — in the Indian EV market.',
+          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textDark, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 32),
+        Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: AppColors.backgroundLight,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.primary.withOpacity(0.1)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (!isMobile)
-                Expanded(
-                  flex: 5,
-                  child: Container(
-                    height: 400,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      image: DecorationImage(
-                        image: content['whyImage'] != null && content['whyImage'].toString().isNotEmpty
-                            ? NetworkImage(content['whyImage'])
-                            : const AssetImage('assets/images/why_fixx_ev_v3.png') as ImageProvider,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                ),
-              const SizedBox(width: 60),
-              Expanded(
-                flex: 5,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      content['whyFixxTitle'] ?? 'Why Fixx EV?',
-                      style: AppTextStyles.sectionTitle.copyWith(fontSize: 36, color: isRed ? Colors.redAccent : AppColors.primary),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      content['whyFixxSubtitle'] ?? 'With 10+ years of EV industry experience, Fixx EV has worked across:',
-                      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, fontSize: 16),
-                    ),
-                    const SizedBox(height: 24),
-                    Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
-                      children: (content['whyFixxChips'] != null
-                          ? (content['whyFixxChips'] as String).split('\n').where((s) => s.trim().isNotEmpty).toList()
-                          : ['Manufacturing', 'Import & sourcing', 'Sales & distribution', 'Service & spare parts', 'Fleet operations'])
-                          .map((chip) => _Chip(chip.trim())).toList(),
-                    ),
-                    const SizedBox(height: 32),
-                     Text(
-                      content['whyFixxConclusion'] ?? 'We know what works — and what fails — in the Indian EV market.',
-                      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textDark, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 32),
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: AppColors.backgroundLight,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.primary.withOpacity(0.1)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(content['missionLabel'] ?? 'OUR MISSION', style: AppTextStyles.bodySmall.copyWith(color: isRed ? Colors.redAccent : AppColors.accentTeal, fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 8),
-                          Text(
-                            content['missionText'] ?? 'Help 100s of entrepreneurs build profitable, sustainable EV brands — without burning money or time.',
-                            style: AppTextStyles.cardTitle.copyWith(fontSize: 18),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+              Text(content['missionLabel'] ?? 'OUR MISSION', style: AppTextStyles.bodySmall.copyWith(color: isRed ? Colors.redAccent : AppColors.accentTeal, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Text(
+                content['missionText'] ?? 'Help 100s of entrepreneurs build profitable, sustainable EV brands — without burning money or time.',
+                style: AppTextStyles.cardTitle.copyWith(fontSize: 18),
               ),
             ],
           ),
         ),
-      ),
+      ],
     );
   }
 }
@@ -1007,140 +1053,106 @@ class _NetworkMapSection extends StatelessWidget {
         : ['Exclusive territory rights', 'Faster installation timelines', 'Affordable infrastructure', 'Reliable supply and service support'];
     
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 100, horizontal: isMobile ? 24 : 80),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 60 : 100, horizontal: isMobile ? 24 : 80),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 1200),
-          child: Row(
-            children: [
-              // Map Left - Using generic map image to match visual style requested
-              Expanded(
-                flex: 6,
-                child: Container(
-                  height: 450,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    color: const Color(0xFFE3F2FD), // Light blue background
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20)],
-                    image: const DecorationImage(
-                      image: const NetworkImage('https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/India_map_blank.svg/800px-India_map_blank.svg.png'),
-                      fit: BoxFit.contain,
-                      alignment: Alignment.center,
-                    ),
+          child: isMobile 
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                   _buildTextSection(content, bulletItems, isMobile),
+                   const SizedBox(height: 48),
+                   _buildMapSection(isMobile),
+                ],
+              )
+            : Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Map Left
+                  Expanded(
+                    flex: 6,
+                    child: _buildMapSection(isMobile),
                   ),
-                  child: Stack(
-                    children: [
-                      Positioned.fill(child: _LeafletMapEmbed()),
-                    ],
+                  const SizedBox(width: 60),
+                  // Text Right
+                  Expanded(
+                    flex: 4,
+                    child: _buildTextSection(content, bulletItems, isMobile),
                   ),
-                ),
+                ],
               ),
-              if (!isMobile) const SizedBox(width: 60),
-              // Text Right
-              Expanded(
-                flex: 4,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      content['networkTitle'] ?? 'We are reaching every corner of India',
-                      style: AppTextStyles.sectionTitle.copyWith(fontSize: 36, color: AppColors.primaryNavy, height: 1.2),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      content['networkDesc'] ?? 'At Fixx EV, our vision is to make clean mobility accessible everywhere—not just in big cities. Through modular CKD container showrooms, we enable fast deployment, lower setup costs, and seamless expansion across India.',
-                      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      content['networkDesc2'] ?? 'From metros like Mumbai, Delhi, and Bengaluru, to fast-growing Tier-2 and Tier-3 cities, Fixx EV empowers entrepreneurs to build profitable EV businesses where demand is rising fastest.',
-                      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      content['networkBulletTitle'] ?? 'Our dealer-first model ensures every partner gets:',
-                      style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 16),
-                    ...bulletItems.map((item) => _BulletPoint(item)),
-                    const SizedBox(height: 16),
-                    Text(
-                      content['networkConclusion'] ?? 'This PAN-India strategy gives dealers a powerful competitive edge, while customers benefit from quick service, better availability, and trusted EV solutions.',
-                      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
   }
-}
 
-class _LeafletMapEmbed extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    // Exact Leaflet HTML/JS provided by user, wrapped in HTML structure
-    const String leafletHtml = '''
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-        <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-        <style>
-          body { margin: 0; padding: 0; }
-          #indiaMap { height: 100vh; width: 100%; }
-        </style>
-      </head>
-      <body>
-        <div id="indiaMap"></div>
-        <script>
-          var map = L.map('indiaMap').setView([22.9734, 78.6569], 5);
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
-          }).addTo(map);
-          var cities = [
-            { name: "New Delhi", lat: 28.6139, lng: 77.2090 },
-            { name: "Mumbai", lat: 19.0760, lng: 72.8777 },
-            { name: "Bangalore", lat: 12.9716, lng: 77.5946 },
-            { name: "Hyderabad", lat: 17.3850, lng: 78.4867 },
-            { name: "Chennai", lat: 13.0827, lng: 80.2707 },
-            { name: "Kolkata", lat: 22.5726, lng: 88.3639 },
-            { name: "Ahmedabad", lat: 23.0225, lng: 72.5714 },
-            { name: "Pune", lat: 18.5204, lng: 73.8567 },
-            { name: "Jaipur", lat: 26.9124, lng: 75.7873 },
-            { name: "Lucknow", lat: 26.8467, lng: 80.9462 },
-            { name: "Chandigarh", lat: 30.7333, lng: 76.7794 },
-            { name: "Bhopal", lat: 23.2599, lng: 77.4126 }
-          ];
-          cities.forEach(function(city) {
-            L.marker([city.lat, city.lng]).addTo(map).bindPopup("<b>" + city.name + "</b>");
-          });
-        </script>
-      </body>
-      </html>
-    ''';
-
-    // ignore: undefined_prefixed_name
-    ui_web.platformViewRegistry.registerViewFactory(
-      'leaflet-map-embed',
-      (int viewId) {
-        final iframe = html.IFrameElement()
-          ..style.border = 'none'
-          ..style.height = '100%'
-          ..style.width = '100%';
-        iframe.srcdoc = leafletHtml;
-        return iframe;
-      },
+  Widget _buildMapSection(bool isMobile) {
+    final mapImage = content['networkImage']?.toString() ?? 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/India_map_blank.svg/800px-India_map_blank.svg.png';
+    
+    return Container(
+      height: isMobile ? 350 : 450,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: mapImage.startsWith('assets') 
+          ? Image.asset(mapImage, fit: BoxFit.contain)
+          : Image.network(
+              mapImage,
+              fit: BoxFit.contain,
+              errorBuilder: (c, e, s) => const Center(
+                child: Icon(Icons.map_outlined, size: 64, color: AppColors.textGrey),
+              ),
+            ),
+      ),
     );
+  }
 
-    return const HtmlElementView(viewType: 'leaflet-map-embed');
+  Widget _buildTextSection(Map<String, dynamic> content, List<String> bulletItems, bool isMobile) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          content['networkTitle'] ?? 'We are reaching every corner of India',
+          style: AppTextStyles.sectionTitle.copyWith(fontSize: isMobile ? 32 : 36, color: AppColors.primaryNavy, height: 1.2),
+        ),
+        const SizedBox(height: 24),
+        Text(
+          content['networkDesc'] ?? 'At Fixx EV, our vision is to make clean mobility accessible everywhere—not just in big cities. Through modular CKD container showrooms, we enable fast deployment, lower setup costs, and seamless expansion across India.',
+          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          content['networkDesc2'] ?? 'From metros like Mumbai, Delhi, and Bengaluru, to fast-growing Tier-2 and Tier-3 cities, Fixx EV empowers entrepreneurs to build profitable EV businesses where demand is rising fastest.',
+          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
+        ),
+        const SizedBox(height: 24),
+        Text(
+          content['networkBulletTitle'] ?? 'Our dealer-first model ensures every partner gets:',
+          style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+        ...bulletItems.map((item) => _BulletPoint(item)),
+        const SizedBox(height: 16),
+        Text(
+          content['networkConclusion'] ?? 'This PAN-India strategy gives dealers a powerful competitive edge, while customers benefit from quick service, better availability, and trusted EV solutions.',
+          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey, height: 1.6),
+        ),
+      ],
+    );
   }
 }
+
 
 class _BulletPoint extends StatelessWidget {
   final String text;
@@ -1150,10 +1162,16 @@ class _BulletPoint extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(width: 6, height: 6, decoration: const BoxDecoration(color: AppColors.primaryNavy, shape: BoxShape.circle)),
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Container(width: 6, height: 6, decoration: const BoxDecoration(color: AppColors.primaryNavy, shape: BoxShape.circle)),
+          ),
           const SizedBox(width: 12),
-          Text(text, style: AppTextStyles.bodyMedium),
+          Expanded(
+            child: Text(text, style: AppTextStyles.bodyMedium),
+          ),
         ],
       ),
     );
@@ -1175,12 +1193,14 @@ class _HighlightStat extends StatelessWidget {
           width: 4, height: 40, color: AppColors.accentBlue,
         ),
         const SizedBox(width: 16),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(val, style: AppTextStyles.cardTitle.copyWith(fontSize: 24, color: isRed ? Colors.redAccent : AppColors.primaryNavy)),
-            Text(label, style: AppTextStyles.bodySmall),
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(val, style: AppTextStyles.cardTitle.copyWith(fontSize: 24, color: isRed ? Colors.redAccent : AppColors.primaryNavy)),
+              Text(label, style: AppTextStyles.bodySmall),
+            ],
+          ),
         )
       ],
     );
@@ -1411,7 +1431,7 @@ class _BottomFormSection extends StatelessWidget {
     final isMobile = MediaQuery.of(context).size.width < 900;
     
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 100, horizontal: isMobile ? 24 : 80),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 60 : 100, horizontal: isMobile ? 24 : 80),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 800),
@@ -1420,26 +1440,31 @@ class _BottomFormSection extends StatelessWidget {
             children: [
               Text(
                 'Be part of India\'s electric future. Start your own EV journey with Fixx EV today.',
-                style: AppTextStyles.sectionTitle.copyWith(fontSize: 32),
+                style: AppTextStyles.sectionTitle.copyWith(fontSize: isMobile ? 28 : 32),
               ),
               const SizedBox(height: 50),
-              Wrap(
-                spacing: 24, runSpacing: 24,
-                children: [
-                  SizedBox(width: 350, child: _SimpleTextField(label: 'Name', controller: nameController)),
-                  SizedBox(width: 350, child: _SimpleTextField(label: 'Country', controller: countryController)),
-                  SizedBox(width: 350, child: _SimpleTextField(label: 'Email', controller: emailController)),
-                  SizedBox(width: 350, child: _SimpleTextField(label: 'State', controller: stateController)),
-                  SizedBox(width: 350, child: _SimpleTextField(label: 'Phone', controller: phoneController)),
-                  SizedBox(width: 350, child: _SimpleTextField(label: 'City', controller: cityController)),
-                ],
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final fieldWidth = isMobile ? constraints.maxWidth : (constraints.maxWidth - 24) / 2;
+                  return Wrap(
+                    spacing: 24, runSpacing: 24,
+                    children: [
+                      SizedBox(width: fieldWidth, child: _SimpleTextField(label: 'Name', controller: nameController)),
+                      SizedBox(width: fieldWidth, child: _SimpleTextField(label: 'Country', controller: countryController)),
+                      SizedBox(width: fieldWidth, child: _SimpleTextField(label: 'Email', controller: emailController)),
+                      SizedBox(width: fieldWidth, child: _SimpleTextField(label: 'State', controller: stateController)),
+                      SizedBox(width: fieldWidth, child: _SimpleTextField(label: 'Phone', controller: phoneController)),
+                      SizedBox(width: fieldWidth, child: _SimpleTextField(label: 'City', controller: cityController)),
+                    ],
+                  );
+                }
               ),
               const SizedBox(height: 24),
               _SimpleTextField(label: 'Description', controller: descController),
               const SizedBox(height: 40),
               PrimaryButton(
                 text: isSubmitting ? 'SUBMITTING...' : 'SUBMIT', 
-                width: 200, 
+                width: isMobile ? double.infinity : 200, 
                 backgroundColor: isRed ? Colors.redAccent : null,
                 onPressed: isSubmitting ? () {} : onSubmit
               ),

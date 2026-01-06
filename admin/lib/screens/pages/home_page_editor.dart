@@ -16,6 +16,7 @@ class _HomePageEditorState extends State<HomePageEditor> {
   final ApiService _apiService = ApiService();
   bool _isLoading = true;
   bool _isSaving = false;
+  bool get isMobile => MediaQuery.of(context).size.width < 1100;
 
   // --- Hero Section ---
   final List<Map<String, TextEditingController>> _heroSlides = [];
@@ -101,13 +102,14 @@ class _HomePageEditorState extends State<HomePageEditor> {
     });
   }
 
-  void _addTestimonial({String? name, String? role, String? content, String? rating}) {
+  void _addTestimonial({String? name, String? role, String? content, String? rating, String? image}) {
     setState(() {
       _testimonialItems.add({
         'name': TextEditingController(text: name ?? ''),
         'role': TextEditingController(text: role ?? ''),
         'content': TextEditingController(text: content ?? ''),
         'rating': TextEditingController(text: rating ?? '5'),
+        'image': TextEditingController(text: image ?? ''),
       });
     });
   }
@@ -222,11 +224,11 @@ class _HomePageEditorState extends State<HomePageEditor> {
         final tItems = content['testimonials'] as List?;
         _testimonialItems.clear();
         if (tItems != null && tItems.isNotEmpty) {
-          for (var t in tItems) _addTestimonial(name: t['name'], role: t['role'], content: t['content'], rating: t['rating']?.toString());
+          for (var t in tItems) _addTestimonial(name: t['name'], role: t['role'], content: t['content'], rating: t['rating']?.toString(), image: t['image']);
         } else {
-          _addTestimonial(name: 'Rahul Sharma', role: 'Tesla Owner', content: 'The AIOT diagnostics at FIXXEV saved me from a major battery failure.', rating: '5');
-          _addTestimonial(name: 'Ananya Patel', role: 'Nexon EV User', content: 'Top-notch service! The technicians really know their way around electric vehicles.', rating: '5');
-          _addTestimonial(name: 'Vikram Singh', role: 'Fleet Manager', content: 'Our proactive support has increased our vehicle uptime by 40%.', rating: '5');
+          _addTestimonial(name: 'Rahul Sharma', role: 'Tesla Owner', content: 'The AIOT diagnostics at FIXXEV saved me from a major battery failure.', rating: '5', image: '');
+          _addTestimonial(name: 'Ananya Patel', role: 'Nexon EV User', content: 'Top-notch service! The technicians really know their way around electric vehicles.', rating: '5', image: '');
+          _addTestimonial(name: 'Vikram Singh', role: 'Fleet Manager', content: 'Our proactive support has increased our vehicle uptime by 40%.', rating: '5', image: '');
         }
 
         // 7. About Us
@@ -323,6 +325,7 @@ class _HomePageEditorState extends State<HomePageEditor> {
         'role': t['role']!.text,
         'content': t['content']!.text,
         'rating': int.tryParse(t['rating']!.text) ?? 5,
+        'image': t['image']!.text,
       }).toList();
 
       // About Us
@@ -396,8 +399,7 @@ class _HomePageEditorState extends State<HomePageEditor> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 900;
+    // Threshold defined in isMobile getter
     
     return Scaffold(
       key: _scaffoldKey,
@@ -575,7 +577,19 @@ class _HomePageEditorState extends State<HomePageEditor> {
                   IconButton(onPressed: () => setState(() => _heroSlides.removeAt(index)), icon: const Icon(Icons.delete_outline, color: Colors.redAccent)),
                 ]),
                 const SizedBox(height: 16),
-                Row(
+                isMobile ? Column(
+                  children: [
+                    Container(
+                      height: 150,
+                      decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white.withOpacity(0.1))),
+                      child: s['image']!.text.isNotEmpty
+                          ? ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(s['image']!.text, fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.white24)))
+                          : const Icon(Icons.image_outlined, color: Colors.white24),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildTextField('Image URL', s['image']!, isImage: true),
+                  ],
+                ) : Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
@@ -591,7 +605,13 @@ class _HomePageEditorState extends State<HomePageEditor> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Row(children: [
+                isMobile ? Column(
+                  children: [
+                    _buildTextField('Tagline', s['tagline']!),
+                    const SizedBox(height: 16),
+                    _buildTextField('Button Text', s['btnText']!),
+                  ],
+                ) : Row(children: [
                   Expanded(child: _buildTextField('Tagline', s['tagline']!)),
                   const SizedBox(width: 16),
                   Expanded(child: _buildTextField('Button Text', s['btnText']!)),
@@ -619,7 +639,12 @@ class _HomePageEditorState extends State<HomePageEditor> {
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 20, mainAxisSpacing: 10, childAspectRatio: 4.5),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: isMobile ? 1 : 2, 
+            crossAxisSpacing: 20, 
+            mainAxisSpacing: 10, 
+            childAspectRatio: isMobile ? 4.0 : 4.5
+          ),
           itemCount: 4,
           itemBuilder: (context, i) => Row(children: [
             Expanded(child: _buildTextField('Value', _barStatControllers[i]['value']!)),
@@ -640,17 +665,39 @@ class _HomePageEditorState extends State<HomePageEditor> {
         const SizedBox(height: 16),
         _buildTextField('Title', _wwdTitleController),
         const SizedBox(height: 24),
-        ...List.generate(3, (i) => Padding(padding: const EdgeInsets.only(bottom: 16), child: Row(children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: AppColors.accentBlue.withOpacity(0.05), borderRadius: BorderRadius.circular(8)),
-            child: Icon(_getWwdIcon(i), color: AppColors.accentBlue, size: 20),
-          ),
-          const SizedBox(width: 16),
-          Expanded(child: _buildTextField('Card ${i+1} Title', _wwdCardControllers[i]['title']!)),
-          const SizedBox(width: 16),
-          Expanded(flex: 2, child: _buildTextField('Description', _wwdCardControllers[i]['desc']!)),
-        ]))),
+        ...List.generate(3, (i) => Padding(
+          padding: const EdgeInsets.only(bottom: 16), 
+          child: isMobile ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(color: AppColors.accentBlue.withOpacity(0.05), borderRadius: BorderRadius.circular(8)),
+                    child: Icon(_getWwdIcon(i), color: AppColors.accentBlue, size: 20),
+                  ),
+                  const SizedBox(width: 16),
+                  Text('Innovation #${i+1}', style: const TextStyle(color: AppColors.accentBlue, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _buildTextField('Card Title', _wwdCardControllers[i]['title']!),
+              const SizedBox(height: 12),
+              _buildTextField('Description', _wwdCardControllers[i]['desc']!, maxLines: 2),
+            ],
+          ) : Row(children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(color: AppColors.accentBlue.withOpacity(0.05), borderRadius: BorderRadius.circular(8)),
+              child: Icon(_getWwdIcon(i), color: AppColors.accentBlue, size: 20),
+            ),
+            const SizedBox(width: 16),
+            Expanded(child: _buildTextField('Card ${i+1} Title', _wwdCardControllers[i]['title']!)),
+            const SizedBox(width: 16),
+            Expanded(flex: 2, child: _buildTextField('Description', _wwdCardControllers[i]['desc']!)),
+          ])
+        )),
       ],
     );
   }
@@ -664,17 +711,39 @@ class _HomePageEditorState extends State<HomePageEditor> {
         const SizedBox(height: 16),
         _buildTextField('Description', _whyDescController, maxLines: 2),
         const SizedBox(height: 24),
-        ...List.generate(4, (i) => Padding(padding: const EdgeInsets.only(bottom: 16), child: Row(children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: AppColors.accentBlue.withOpacity(0.05), borderRadius: BorderRadius.circular(8)),
-            child: Icon(_getWhyIcon(i), color: AppColors.accentBlue, size: 20),
-          ),
-          const SizedBox(width: 16),
-          Expanded(child: _buildTextField('Bullet ${i+1} Title', _whyBulletControllers[i]['title']!)),
-          const SizedBox(width: 16),
-          Expanded(flex: 2, child: _buildTextField('Description', _whyBulletControllers[i]['desc']!)),
-        ]))),
+        ...List.generate(4, (i) => Padding(
+          padding: const EdgeInsets.only(bottom: 16), 
+          child: isMobile ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(color: AppColors.accentBlue.withOpacity(0.05), borderRadius: BorderRadius.circular(8)),
+                    child: Icon(_getWhyIcon(i), color: AppColors.accentBlue, size: 20),
+                  ),
+                  const SizedBox(width: 16),
+                  Text('Reason #${i+1}', style: const TextStyle(color: AppColors.accentBlue, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _buildTextField('Bullet Title', _whyBulletControllers[i]['title']!),
+              const SizedBox(height: 12),
+              _buildTextField('Description', _whyBulletControllers[i]['desc']!, maxLines: 2),
+            ],
+          ) : Row(children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(color: AppColors.accentBlue.withOpacity(0.05), borderRadius: BorderRadius.circular(8)),
+              child: Icon(_getWhyIcon(i), color: AppColors.accentBlue, size: 20),
+            ),
+            const SizedBox(width: 16),
+            Expanded(child: _buildTextField('Bullet ${i+1} Title', _whyBulletControllers[i]['title']!)),
+            const SizedBox(width: 16),
+            Expanded(flex: 2, child: _buildTextField('Description', _whyBulletControllers[i]['desc']!)),
+          ])
+        )),
       ],
     );
   }
@@ -684,7 +753,22 @@ class _HomePageEditorState extends State<HomePageEditor> {
       title: '5. About Mission 500',
       icon: Icons.info_outline,
       children: [
-        Row(
+        isMobile ? Column(
+          children: [
+            Container(
+              height: 200,
+              width: double.infinity,
+              decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white.withOpacity(0.1))),
+              child: _aboutImageController.text.isNotEmpty
+                  ? ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(_aboutImageController.text, fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.white24)))
+                  : const Icon(Icons.image_outlined, color: Colors.white24),
+            ),
+            const SizedBox(height: 16),
+            _buildTextField('Tagline', _aboutTaglineController),
+            const SizedBox(height: 16),
+            _buildTextField('Side Image URL', _aboutImageController, isImage: true),
+          ],
+        ) : Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
@@ -728,18 +812,46 @@ class _HomePageEditorState extends State<HomePageEditor> {
         const SizedBox(height: 24),
         ...List.generate(_serviceCards.length, (index) {
            final c = _serviceCards[index];
-           return Padding(padding: const EdgeInsets.only(bottom: 16), child: Row(children: [
-             Container(
-               padding: const EdgeInsets.all(10),
-               decoration: BoxDecoration(color: AppColors.accentBlue.withOpacity(0.05), borderRadius: BorderRadius.circular(8)),
-               child: Icon(_getServiceIcon(index), color: AppColors.accentBlue, size: 20),
-             ),
-             const SizedBox(width: 16),
-             Expanded(child: _buildTextField('Card Title', c['title']!)),
-             const SizedBox(width: 16),
-             Expanded(flex: 2, child: _buildTextField('Card Description', c['desc']!)),
-             IconButton(onPressed: () => setState(() => _serviceCards.removeAt(index)), icon: const Icon(Icons.delete_outline, color: Colors.redAccent)),
-           ]));
+           return Padding(
+             padding: const EdgeInsets.only(bottom: 24), 
+             child: isMobile ? Column(
+               crossAxisAlignment: CrossAxisAlignment.start,
+               children: [
+                 Row(
+                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                   children: [
+                     Row(
+                       children: [
+                         Container(
+                           padding: const EdgeInsets.all(10),
+                           decoration: BoxDecoration(color: AppColors.accentBlue.withOpacity(0.05), borderRadius: BorderRadius.circular(8)),
+                           child: Icon(_getServiceIcon(index), color: AppColors.accentBlue, size: 20),
+                         ),
+                         const SizedBox(width: 16),
+                         Text('Part #${index+1}', style: const TextStyle(color: AppColors.accentBlue, fontWeight: FontWeight.bold)),
+                       ],
+                     ),
+                     IconButton(onPressed: () => setState(() => _serviceCards.removeAt(index)), icon: const Icon(Icons.delete_outline, color: Colors.redAccent)),
+                   ],
+                 ),
+                 const SizedBox(height: 12),
+                 _buildTextField('Card Title', c['title']!),
+                 const SizedBox(height: 12),
+                 _buildTextField('Card Description', c['desc']!, maxLines: 2),
+               ],
+             ) : Row(children: [
+               Container(
+                 padding: const EdgeInsets.all(10),
+                 decoration: BoxDecoration(color: AppColors.accentBlue.withOpacity(0.05), borderRadius: BorderRadius.circular(8)),
+                 child: Icon(_getServiceIcon(index), color: AppColors.accentBlue, size: 20),
+               ),
+               const SizedBox(width: 16),
+               Expanded(child: _buildTextField('Card Title', c['title']!)),
+               const SizedBox(width: 16),
+               Expanded(flex: 2, child: _buildTextField('Card Description', c['desc']!)),
+               IconButton(onPressed: () => setState(() => _serviceCards.removeAt(index)), icon: const Icon(Icons.delete_outline, color: Colors.redAccent)),
+             ])
+           );
         }),
         OutlinedButton.icon(onPressed: () => _addServiceCard(), icon: const Icon(Icons.add), label: const Text('Add Service Item')),
       ],
@@ -754,8 +866,30 @@ class _HomePageEditorState extends State<HomePageEditor> {
         ...List.generate(_partnerLogos.length, (index) {
           final p = _partnerLogos[index];
           return Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: Row(children: [
+            padding: const EdgeInsets.only(bottom: 24),
+            child: isMobile ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.white.withOpacity(0.1))),
+                      child: p['image']!.text.isNotEmpty
+                          ? ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.network(p['image']!.text, fit: BoxFit.contain, errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.white24)))
+                          : const Icon(Icons.image_outlined, color: Colors.white24),
+                    ),
+                    IconButton(onPressed: () => setState(() => _partnerLogos.removeAt(index)), icon: const Icon(Icons.delete_outline, color: Colors.redAccent)),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                _buildTextField('Partner Name', p['name']!),
+                const SizedBox(height: 12),
+                _buildTextField('Logo Link', p['image']!, isImage: true),
+              ],
+            ) : Row(children: [
               Container(
                 width: 50,
                 height: 50,
@@ -791,16 +925,47 @@ class _HomePageEditorState extends State<HomePageEditor> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(color: Colors.white.withOpacity(0.03), borderRadius: BorderRadius.circular(10)),
             child: Column(children: [
-              Row(children: [
-                Expanded(child: _buildTextField('Name', t['name']!)),
-                const SizedBox(width: 16),
-                Expanded(child: _buildTextField('Role', t['role']!)),
-                const SizedBox(width: 16),
-                Expanded(child: _buildTextField('Rating', t['rating']!)),
-                IconButton(onPressed: () => setState(() => _testimonialItems.removeAt(index)), icon: const Icon(Icons.delete_outline, color: Colors.redAccent)),
-              ]),
-              const SizedBox(height: 12),
-              _buildTextField('Feedback Content', t['content']!, maxLines: 2),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(color: Colors.white.withOpacity(0.1)),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: t['image']!.text.isNotEmpty
+                        ? Image.network(t['image']!.text, fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.person, color: Colors.white24))
+                        : const Icon(Icons.person_outline, color: Colors.white24),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Row(children: [
+                          Expanded(child: _buildTextField('Name', t['name']!)),
+                          const SizedBox(width: 12),
+                          Expanded(child: _buildTextField('Role', t['role']!)),
+                        ]),
+                        const SizedBox(height: 12),
+                        _buildTextField('Profile Image URL', t['image']!, isImage: true),
+                      ],
+                    ),
+                  ),
+                  IconButton(onPressed: () => setState(() => _testimonialItems.removeAt(index)), icon: const Icon(Icons.delete_outline, color: Colors.redAccent)),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  SizedBox(width: 100, child: _buildTextField('Rating (1-5)', t['rating']!)),
+                  const SizedBox(width: 16),
+                  Expanded(child: _buildTextField('Feedback Content', t['content']!, maxLines: 2)),
+                ],
+              ),
             ]),
           );
         }),

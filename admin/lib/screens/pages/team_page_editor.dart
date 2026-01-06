@@ -24,12 +24,12 @@ class _TeamPageEditorState extends State<TeamPageEditor> {
   final _sectionSubtitleController = TextEditingController();
 
   final _defaultMembers = [
-    {'name': 'Rajesh Kumar', 'role': 'Founder & CEO', 'image': 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400'},
-    {'name': 'Alex Rivera', 'role': 'EV Systems Engineer', 'image': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400'},
-    {'name': 'Sarah Chen', 'role': 'Battery Specialist', 'image': 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400'},
-    {'name': 'Mark Thompson', 'role': 'Diagnostics Expert', 'image': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400'},
-    {'name': 'Priya Singh', 'role': 'Operations Head', 'image': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400'},
-    {'name': 'Vikram Malhotra', 'role': 'Service Manager', 'image': 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400'},
+    {'name': 'Rajesh Kumar', 'role': 'Founder & CEO', 'category': 'Our Core Team', 'image': 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400'},
+    {'name': 'Priya Singh', 'role': 'Operations Head', 'category': 'Our Core Team', 'image': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400'},
+    {'name': 'Alex Rivera', 'role': 'EV Systems Engineer', 'category': 'Technical Team', 'image': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400'},
+    {'name': 'Sarah Chen', 'role': 'Battery Specialist', 'category': 'Technical Team', 'image': 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400'},
+    {'name': 'Mark Thompson', 'role': 'Diagnostics Expert', 'category': 'Technical Team', 'image': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400'},
+    {'name': 'Vikram Malhotra', 'role': 'Service Manager', 'category': 'Technical Team', 'image': 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400'},
   ];
 
   @override
@@ -160,7 +160,7 @@ class _TeamPageEditorState extends State<TeamPageEditor> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 900;
+    final isMobile = screenWidth < 1100;
 
     return Scaffold(
       key: _scaffoldKey,
@@ -168,6 +168,7 @@ class _TeamPageEditorState extends State<TeamPageEditor> {
       drawer: isMobile ? const Drawer(child: AdminSidebar(currentRoute: '/pages')) : null,
       appBar: isMobile ? AppBar(
         backgroundColor: AppColors.sidebarDark,
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.menu, color: Colors.white),
           onPressed: () => _scaffoldKey.currentState?.openDrawer(),
@@ -195,6 +196,7 @@ class _TeamPageEditorState extends State<TeamPageEditor> {
                       child: SingleChildScrollView(
                         padding: EdgeInsets.all(isMobile ? 16 : 32),
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             _buildSectionCard(
                               title: 'Hero Section',
@@ -208,71 +210,159 @@ class _TeamPageEditorState extends State<TeamPageEditor> {
                               ],
                             ),
                             const SizedBox(height: 32),
-                            _buildSectionCard(
-                              title: 'Team Section Header',
-                              icon: Icons.text_fields,
+                            
+                            // TEAM MEMBERS BY CATEGORY
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                _buildTextField('Main Heading', _sectionTitleController),
-                                const SizedBox(height: 16),
-                                _buildTextField('Subheading/Description', _sectionSubtitleController),
-                              ],
-                            ),
-                            const SizedBox(height: 32),
-                            // Header Row for Team Members
-                            isMobile 
-                              ? Column(
+                                Text('Team Management', style: AppTextStyles.heading2),
+                                Row(
                                   children: [
-                                    Text('Individual Team Members', style: AppTextStyles.heading3),
-                                    const SizedBox(height: 16),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        TextButton.icon(
-                                          onPressed: _seedData,
-                                          icon: const Icon(Icons.cloud_upload, size: 18),
-                                          label: const Text('Seed Defaults'),
-                                        ),
-                                        const SizedBox(width: 16),
-                                        ElevatedButton.icon(
-                                          onPressed: () => _navigateToEdit(),
-                                          icon: const Icon(Icons.person_add, size: 18),
-                                          label: const Text('Add Member'),
-                                          style: ElevatedButton.styleFrom(backgroundColor: AppColors.accentBlue),
-                                        ),
-                                      ],
+                                    OutlinedButton.icon(
+                                      onPressed: _seedData, 
+                                      icon: const Icon(Icons.cloud_upload), 
+                                      label: const Text('Seed Defaults')
                                     ),
-                                  ],
-                                )
-                              : Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text('Individual Team Members', style: AppTextStyles.heading3),
-                                    Row(
-                                      children: [
-                                        TextButton.icon(
-                                          onPressed: _seedData,
-                                          icon: const Icon(Icons.cloud_upload, size: 18),
-                                          label: const Text('Seed Defaults'),
-                                        ),
-                                        const SizedBox(width: 16),
-                                        ElevatedButton.icon(
-                                          onPressed: () => _navigateToEdit(),
-                                          icon: const Icon(Icons.person_add, size: 18),
-                                          label: const Text('Add Member'),
-                                          style: ElevatedButton.styleFrom(backgroundColor: AppColors.accentBlue),
-                                        ),
-                                      ],
+                                    const SizedBox(width: 16),
+                                    ElevatedButton.icon(
+                                      onPressed: () => _navigateToEdit(), 
+                                      icon: const Icon(Icons.add), 
+                                      label: const Text('Add Member')
                                     ),
                                   ],
                                 ),
+                              ],
+                            ),
                             const SizedBox(height: 24),
-                            _buildTeamContent(isMobile),
+                            
+                            _buildCategorizedTeamList(isMobile),
+                            
+                            const SizedBox(height: 100),
                           ],
                         ),
                       ),
                     ),
                   ],
                 ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategorizedTeamList(bool isMobile) {
+    return FutureBuilder<List<dynamic>>(
+      future: _membersFuture,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+        
+        final members = snapshot.data!;
+        final coreTeam = members.where((m) => (m['category'] ?? 'Our Core Team') == 'Our Core Team').toList();
+        final techTeam = members.where((m) => m['category'] == 'Technical Team').toList();
+
+        return Column(
+          children: [
+            _buildCategorySection('Our Core Team', coreTeam, isMobile),
+            const SizedBox(height: 32),
+            _buildCategorySection('Technical Team', techTeam, isMobile),
+          ],
+        );
+      }
+    );
+  }
+
+  Widget _buildCategorySection(String title, List<dynamic> team, bool isMobile) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppColors.cardDark,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.sidebarDark),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 4, height: 20, 
+                decoration: BoxDecoration(color: AppColors.accentRed, borderRadius: BorderRadius.circular(2))
+              ),
+              const SizedBox(width: 12),
+              Text(title, style: AppTextStyles.heading3),
+              const SizedBox(width: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                decoration: BoxDecoration(color: AppColors.sidebarDark, borderRadius: BorderRadius.circular(20)),
+                child: Text('${team.length}', style: const TextStyle(fontSize: 12, color: Colors.white70)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          if (team.isEmpty)
+             const Padding(
+               padding: EdgeInsets.symmetric(vertical: 20),
+               child: Text('No members in this category.', style: TextStyle(color: Colors.white38, fontStyle: FontStyle.italic)),
+             )
+          else
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: isMobile ? 1 : 4,
+                crossAxisSpacing: 20,
+                mainAxisSpacing: 20,
+                childAspectRatio: 1.2,
+              ),
+              itemCount: team.length,
+              itemBuilder: (context, index) {
+                final member = team[index];
+                return _buildMemberAdminCard(member);
+              },
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMemberAdminCard(dynamic member) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.sidebarDark,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              ClipOval(
+                child: Image.network(
+                  member['image'] ?? '',
+                  width: 50, height: 50, fit: BoxFit.cover,
+                  errorBuilder: (c,e,s) => const Icon(Icons.person, size: 30),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(member['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    Text(member['role'] ?? '', style: TextStyle(fontSize: 12, color: AppColors.accentBlue), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const Spacer(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _navigateToEdit(member)),
+              IconButton(icon: const Icon(Icons.delete, size: 18, color: Colors.redAccent), onPressed: () => _deleteMember(member['_id'])),
+            ],
           ),
         ],
       ),
@@ -293,7 +383,7 @@ class _TeamPageEditorState extends State<TeamPageEditor> {
             children: [
               IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back, color: Colors.white)),
               const SizedBox(width: 16),
-              Text('Edit Team Page', style: AppTextStyles.heading2),
+              const Text('Edit Team Page', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white)),
             ],
           ),
           ElevatedButton.icon(
@@ -337,12 +427,12 @@ class _TeamPageEditorState extends State<TeamPageEditor> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTextStyles.label.copyWith(color: AppColors.textGrey)),
+        Text(label, style: const TextStyle(fontSize: 12, color: Colors.white60)),
         const SizedBox(height: 8),
         TextField(
           controller: controller,
           maxLines: maxLines,
-          style: AppTextStyles.bodyLarge,
+          style: const TextStyle(color: Colors.white, fontSize: 14),
           decoration: InputDecoration(
             filled: true,
             fillColor: AppColors.sidebarDark,
@@ -350,96 +440,6 @@ class _TeamPageEditorState extends State<TeamPageEditor> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildTeamContent(bool isMobile) {
-    return FutureBuilder<List<dynamic>>(
-      future: _membersFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: Padding(
-            padding: EdgeInsets.all(32.0),
-            child: CircularProgressIndicator(),
-          ));
-        }
-        if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}', style: const TextStyle(color: AppColors.error)));
-        }
-
-        final members = snapshot.data ?? [];
-
-        if (members.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 100),
-                const Icon(Icons.group_outlined, size: 64, color: AppColors.textGrey),
-                const SizedBox(height: 16),
-                Text('No team members found.', style: AppTextStyles.bodyMedium),
-              ],
-            ),
-          );
-        }
-
-        return GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: isMobile ? 1 : 4,
-            crossAxisSpacing: 24,
-            mainAxisSpacing: 24,
-            childAspectRatio: isMobile ? 1.0 : 0.85,
-          ),
-          itemCount: members.length,
-          itemBuilder: (context, index) {
-            final member = members[index];
-            return Container(
-              decoration: BoxDecoration(
-                color: AppColors.cardDark,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.sidebarDark),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ClipOval(
-                    child: Image.network(
-                      member['image'] ?? '',
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        width: 80, height: 80, color: AppColors.sidebarDark,
-                        child: const Icon(Icons.person, size: 40, color: AppColors.textGrey),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(member['name'] ?? '', style: AppTextStyles.heading3.copyWith(fontSize: 16)),
-                  const SizedBox(height: 4),
-                  Text(member['role'] ?? '', style: AppTextStyles.bodySmall.copyWith(color: AppColors.accentBlue)),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.textGrey),
-                        onPressed: () => _navigateToEdit(member),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete_outline, size: 18, color: AppColors.error),
-                        onPressed: () => _deleteMember(member['_id']),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
     );
   }
 }

@@ -118,20 +118,41 @@ class _DealershipPageEditorState extends State<DealershipPageEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 1100;
+
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
+      drawer: isMobile ? const Drawer(child: AdminSidebar(currentRoute: '/pages')) : null,
+      appBar: isMobile ? AppBar(
+        backgroundColor: AppColors.sidebarDark,
+        elevation: 0,
+        leading: Builder(builder: (context) => IconButton(
+          icon: const Icon(Icons.menu, color: Colors.white),
+          onPressed: () => Scaffold.of(context).openDrawer(),
+        )),
+        title: Text('Edit Dealership Page', style: AppTextStyles.heading3),
+        actions: [
+          IconButton(
+            onPressed: _isSaving ? null : _saveContent,
+            icon: _isSaving 
+              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+              : const Icon(Icons.save),
+          ),
+        ],
+      ) : null,
       body: Row(
         children: [
-          const AdminSidebar(currentRoute: '/pages'),
+          if (!isMobile) const AdminSidebar(currentRoute: '/pages'),
           Expanded(
             child: _isLoading 
               ? const Center(child: CircularProgressIndicator())
               : Column(
                   children: [
-                    _buildHeader(),
+                    if (!isMobile) _buildHeader(),
                     Expanded(
                       child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(32),
+                        padding: EdgeInsets.all(isMobile ? 16 : 32),
                         child: Column(
                           children: [
                             // Hero Section
@@ -198,6 +219,7 @@ class _DealershipPageEditorState extends State<DealershipPageEditor> {
                                 _buildTextField('Description', _whyPartnerDescController, maxLines: 4),
                               ],
                             ),
+                            const SizedBox(height: 100),
                           ],
                         ),
                       ),

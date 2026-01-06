@@ -152,20 +152,41 @@ class _BlogPageEditorState extends State<BlogPageEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 1100;
+
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
+      drawer: isMobile ? const Drawer(child: AdminSidebar(currentRoute: '/pages')) : null,
+      appBar: isMobile ? AppBar(
+        backgroundColor: AppColors.sidebarDark,
+        elevation: 0,
+        leading: Builder(builder: (context) => IconButton(
+          icon: const Icon(Icons.menu, color: Colors.white),
+          onPressed: () => Scaffold.of(context).openDrawer(),
+        )),
+        title: Text('Edit Blog Page', style: AppTextStyles.heading3),
+        actions: [
+          IconButton(
+            onPressed: _isSaving ? null : _saveContent,
+            icon: _isSaving 
+              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+              : const Icon(Icons.save),
+          ),
+        ],
+      ) : null,
       body: Row(
         children: [
-          const AdminSidebar(currentRoute: '/pages'),
+          if (!isMobile) const AdminSidebar(currentRoute: '/pages'),
           Expanded(
             child: _isLoading 
               ? const Center(child: CircularProgressIndicator())
               : Column(
                   children: [
-                    _buildHeader(),
+                    if (!isMobile) _buildHeader(),
                     Expanded(
                       child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(32),
+                        padding: EdgeInsets.all(isMobile ? 16 : 32),
                         child: Column(
                           children: [
                             _buildSectionCard(
@@ -178,7 +199,8 @@ class _BlogPageEditorState extends State<BlogPageEditor> {
                               ],
                             ),
                             const SizedBox(height: 32),
-                            _buildPostManagementSection(),
+                            _buildPostManagementSection(isMobile),
+                            const SizedBox(height: 100),
                           ],
                         ),
                       ),
@@ -191,12 +213,39 @@ class _BlogPageEditorState extends State<BlogPageEditor> {
     );
   }
 
-  Widget _buildPostManagementSection() {
+  Widget _buildPostManagementSection(bool isMobile) {
     return _buildSectionCard(
       title: 'Individual Blog Posts',
       icon: Icons.article_outlined,
       children: [
-        Row(
+        isMobile ? Column(
+          children: [
+            Text('Manage all posts displayed on the blog page.', style: AppTextStyles.bodyMedium),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton.icon(
+                  onPressed: _seedData,
+                  icon: const Icon(Icons.cloud_upload, size: 18),
+                  label: const Text('Seed Defaults'),
+                  style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 12)),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton.icon(
+                  onPressed: () => _navigateToEdit(),
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('New Post'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.accentBlue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ) : Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text('Manage all posts displayed on the blog page.', style: AppTextStyles.bodyMedium),
@@ -258,7 +307,7 @@ class _BlogPageEditorState extends State<BlogPageEditor> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
-                children: blogs.map((post) => _buildPostRow(post)).toList(),
+                children: blogs.map((post) => _buildPostRow(post, isMobile)).toList(),
               ),
             );
           },
@@ -267,13 +316,59 @@ class _BlogPageEditorState extends State<BlogPageEditor> {
     );
   }
 
-  Widget _buildPostRow(dynamic post) {
+  Widget _buildPostRow(dynamic post, bool isMobile) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
         border: Border(bottom: BorderSide(color: AppColors.cardDark)),
       ),
-      child: Row(
+      child: isMobile ? Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  post['image'] ?? '',
+                  width: 60,
+                  height: 45,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    width: 60, height: 45, color: AppColors.cardDark,
+                    child: const Icon(Icons.article, size: 20, color: AppColors.textMuted),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(post['title'] ?? '', style: AppTextStyles.heading3.copyWith(fontSize: 14)),
+                    const SizedBox(height: 4),
+                    Text('${post['category']} • ${post['date']}', style: AppTextStyles.bodySmall.copyWith(fontSize: 10)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.textGrey),
+                onPressed: () => _navigateToEdit(post),
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete_outline, size: 18, color: AppColors.error),
+                onPressed: () => _deletePost(post['_id']),
+              ),
+            ],
+          ),
+        ],
+      ) : Row(
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(8),

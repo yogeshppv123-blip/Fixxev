@@ -17,7 +17,8 @@ router.post('/', async (req, res) => {
     const memberData = {
         name: req.body.name,
         role: req.body.role,
-        bio: req.body.bio
+        bio: req.body.bio,
+        category: req.body.category || 'Our Core Team'
     };
     if (req.body.image && req.body.image.trim() !== '') {
         memberData.image = req.body.image;

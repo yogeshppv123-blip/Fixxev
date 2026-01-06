@@ -49,7 +49,7 @@ class _PagesListScreenState extends State<PagesListScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 900;
+    final isMobile = screenWidth < 1100;
 
     final pages = [
       {
@@ -137,10 +137,11 @@ class _PagesListScreenState extends State<PagesListScreen> {
       drawer: isMobile ? const Drawer(child: AdminSidebar(currentRoute: '/pages')) : null,
       appBar: isMobile ? AppBar(
         backgroundColor: AppColors.sidebarDark,
-        leading: IconButton(
+        elevation: 0,
+        leading: Builder(builder: (context) => IconButton(
           icon: const Icon(Icons.menu, color: Colors.white),
-          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-        ),
+          onPressed: () => Scaffold.of(context).openDrawer(),
+        )),
         title: Text('Pages', style: AppTextStyles.heading3),
         actions: [
           IconButton(
@@ -198,7 +199,7 @@ class _PagesListScreenState extends State<PagesListScreen> {
                       crossAxisCount: isMobile ? 1 : _calculateCrossAxisCount(screenWidth, 300),
                       crossAxisSpacing: 24,
                       mainAxisSpacing: 24,
-                      childAspectRatio: isMobile ? 1.8 : 1.2,
+                      childAspectRatio: isMobile ? (screenWidth < 600 ? 1.5 : 2.0) : 1.2,
                     ),
                     itemCount: pages.length,
                     itemBuilder: (context, index) {

@@ -101,16 +101,37 @@ class _NavbarEditorState extends State<NavbarEditor> {
       );
     }
 
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 1100;
+
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
+      drawer: isMobile ? const Drawer(child: AdminSidebar(currentRoute: '/pages')) : null,
+      appBar: isMobile ? AppBar(
+        backgroundColor: AppColors.sidebarDark,
+        elevation: 0,
+        leading: Builder(builder: (context) => IconButton(
+          icon: const Icon(Icons.menu, color: Colors.white),
+          onPressed: () => Scaffold.of(context).openDrawer(),
+        )),
+        title: Text('Navbar Settings', style: AppTextStyles.heading3),
+        actions: [
+          IconButton(
+            onPressed: _isSaving ? null : _saveContent,
+            icon: _isSaving 
+              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+              : const Icon(Icons.save),
+          ),
+        ],
+      ) : null,
       body: Row(
         children: [
-          const AdminSidebar(currentRoute: '/pages'),
+          if (!isMobile) const AdminSidebar(currentRoute: '/pages'),
           Expanded(
             child: Column(
               children: [
                 // Header
-                Container(
+                if (!isMobile) Container(
                   padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
                   decoration: const BoxDecoration(
                     color: AppColors.backgroundDark,
@@ -156,7 +177,7 @@ class _NavbarEditorState extends State<NavbarEditor> {
                 // Content
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(32),
+                    padding: EdgeInsets.all(isMobile ? 16 : 32),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -206,6 +227,7 @@ class _NavbarEditorState extends State<NavbarEditor> {
                             _buildTextField('CTA Button Text', _ctaTextController, hint: 'GET A QUOTE'),
                           ],
                         ),
+                        const SizedBox(height: 100),
                       ],
                     ),
                   ),

@@ -37,7 +37,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 900;
+    final isMobile = screenWidth < 1100;
     
     return Scaffold(
       key: _scaffoldKey,
@@ -134,62 +134,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
 
                       // Stats - responsive grid
-                      if (isMobile)
-                        _buildMobileStats(stats)
-                      else
-                        Row(
-                          children: [
-                            Expanded(
-                              child: StatCard(
-                                title: 'Total Services',
-                                value: stats['servicesCount'].toString(),
-                                icon: Icons.settings_suggest_outlined,
-                                color: AppColors.info,
-                                trend: 'Live',
-                                trendUp: true,
-                              ),
-                            ),
-                            const SizedBox(width: 24),
-                            Expanded(
-                              child: StatCard(
-                                title: 'Blog Posts',
-                                value: stats['blogsCount'].toString(),
-                                icon: Icons.article_outlined,
-                                color: AppColors.success,
-                                trend: 'Live',
-                                trendUp: true,
-                              ),
-                            ),
-                            const SizedBox(width: 24),
-                            Expanded(
-                              child: StatCard(
-                                title: 'Products',
-                                value: stats['productsCount'].toString(),
-                                icon: Icons.inventory_2_outlined,
-                                color: AppColors.warning,
-                                trend: 'Live',
-                                trendUp: null,
-                              ),
-                            ),
-                            const SizedBox(width: 24),
-                            Expanded(
-                              child: StatCard(
-                                title: 'Team Members',
-                                value: stats['teamCount'].toString(),
-                                icon: Icons.people_outline,
-                                color: AppColors.accentRed,
-                                trend: 'Live',
-                                trendUp: true,
-                              ),
-                            ),
-                          ],
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 32),
+                        child: LayoutBuilder(
+                          builder: (context, statsConstraints) {
+                            final cardWidth = (statsConstraints.maxWidth - (isMobile ? 12 : 72)) / (isMobile ? 2 : 4);
+                            return Wrap(
+                              spacing: isMobile ? 12 : 24,
+                              runSpacing: isMobile ? 12 : 24,
+                              children: [
+                                _buildStatExpanded('Total Services', stats['servicesCount'].toString(), Icons.settings_suggest_outlined, AppColors.info, cardWidth),
+                                _buildStatExpanded('Blog Posts', stats['blogsCount'].toString(), Icons.article_outlined, AppColors.success, cardWidth),
+                                _buildStatExpanded('Products', stats['productsCount'].toString(), Icons.inventory_2_outlined, AppColors.warning, cardWidth),
+                                _buildStatExpanded('Team Members', stats['teamCount'].toString(), Icons.people_outline, AppColors.accentRed, cardWidth),
+                              ],
+                            );
+                          }
                         ),
+                      ),
                       const SizedBox(height: 32),
                       _buildOverviewChart(stats['leadsChartData'] ?? []),
                       const SizedBox(height: 32),
                       
                       // Recent leads and quick actions - responsive
-                      if (isMobile) ...[
+                    if (isMobile) ...[
                         _buildQuickActions(context),
                         const SizedBox(height: 24),
                         _buildRecentLeads(stats['recentLeads'] ?? []),
@@ -339,97 +307,152 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildRecentLeads(List<dynamic> leads) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AppColors.cardDark,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Recent Leads', style: AppTextStyles.heading3),
-              TextButton(
-                onPressed: () => Navigator.pushNamed(context, '/leads'),
-                child: Text('View All', style: AppTextStyles.bodySmall.copyWith(color: AppColors.accentRed)),
-              ),
-            ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final useMobileLayout = constraints.maxWidth < 750;
+        
+        return Container(
+          padding: EdgeInsets.all(useMobileLayout ? 16 : 24),
+          decoration: BoxDecoration(
+            color: AppColors.cardDark,
+            borderRadius: BorderRadius.circular(16),
           ),
-          const SizedBox(height: 20),
-          // Table header
-          if (leads.isEmpty)
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 40),
-                child: Text('No recent leads found.', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textMuted)),
-              ),
-            )
-          else ...[
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-              decoration: BoxDecoration(
-                color: AppColors.sidebarDark,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(flex: 2, child: Text('Name', style: AppTextStyles.label)),
-                  Expanded(child: Text('Type', style: AppTextStyles.label)),
-                  Expanded(child: Text('Date', style: AppTextStyles.label)),
-                  Expanded(child: Text('Status', style: AppTextStyles.label)),
+                  Text('Recent Leads', style: AppTextStyles.heading3),
+                  TextButton(
+                    onPressed: () => Navigator.pushNamed(context, '/leads'),
+                    child: Text('View All', style: AppTextStyles.bodySmall.copyWith(color: AppColors.accentRed)),
+                  ),
                 ],
               ),
-            ),
-            const SizedBox(height: 8),
-            // Table rows
-            ...leads.map((lead) => Container(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-              decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color: AppColors.sidebarDark)),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 16,
-                          backgroundColor: AppColors.primaryNavy,
-                          child: Text(
-                            (lead['name'] ?? 'U')[0],
-                            style: const TextStyle(color: Colors.white, fontSize: 12),
+              const SizedBox(height: 20),
+              // Table header
+              if (leads.isEmpty)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 40),
+                    child: Text('No recent leads found.', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textMuted)),
+                  ),
+                )
+              else ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: AppColors.sidebarDark,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(flex: useMobileLayout ? 3 : 2, child: Text('Name', style: AppTextStyles.label)),
+                      if (!useMobileLayout) Expanded(child: Text('Type', style: AppTextStyles.label)),
+                      if (!useMobileLayout) Expanded(child: Text('Date', style: AppTextStyles.label)),
+                      Expanded(
+                        flex: useMobileLayout ? 1 : 1, 
+                        child: Align(
+                          alignment: useMobileLayout ? Alignment.centerRight : Alignment.centerLeft, 
+                          child: Text('Status', style: AppTextStyles.label)
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // Table rows
+                ...leads.map((lead) => Container(
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                  decoration: BoxDecoration(
+                    border: Border(bottom: BorderSide(color: AppColors.sidebarDark)),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: useMobileLayout ? 3 : 2,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 14,
+                                  backgroundColor: AppColors.primaryNavy,
+                                  child: Text(
+                                    (lead['name'] ?? 'U')[0],
+                                    style: const TextStyle(color: Colors.white, fontSize: 10),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    lead['name'] ?? 'Unknown', 
+                                    style: AppTextStyles.bodyLarge.copyWith(fontSize: 14), 
+                                    overflow: TextOverflow.ellipsis
+                                  ),
+                                ),
+                              ],
+                            ),
+                            if (useMobileLayout) ...[
+                              const SizedBox(height: 6),
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: _getTypeColor(lead['type'] ?? 'Other').withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      lead['type'] ?? 'Other',
+                                      style: TextStyle(color: _getTypeColor(lead['type'] ?? 'Other'), fontSize: 9, fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(formatRelativeTime(lead['createdAt']), style: AppTextStyles.bodySmall.copyWith(fontSize: 10, color: AppColors.textMuted)),
+                                ],
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      if (!useMobileLayout)
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: _getTypeColor(lead['type'] ?? 'Other').withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                lead['type'] ?? 'Other',
+                                style: AppTextStyles.bodySmall.copyWith(color: _getTypeColor(lead['type'] ?? 'Other')),
+                              ),
+                            ),
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(child: Text(lead['name'] ?? 'Unknown', style: AppTextStyles.bodyLarge, overflow: TextOverflow.ellipsis)),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: _getTypeColor(lead['type'] ?? 'Other').withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(4),
+                      if (!useMobileLayout) 
+                        Expanded(child: Text(formatRelativeTime(lead['createdAt']), style: AppTextStyles.bodyMedium)),
+                      Expanded(
+                        flex: useMobileLayout ? 1 : 1,
+                        child: Align(
+                          alignment: useMobileLayout ? Alignment.centerRight : Alignment.centerLeft,
+                          child: _buildStatusBadge(lead['status'] ?? 'New', useMobileLayout)
+                        )
                       ),
-                      child: Text(
-                        lead['type'] ?? 'Other',
-                        style: AppTextStyles.bodySmall.copyWith(color: _getTypeColor(lead['type'] ?? 'Other')),
-                      ),
-                    ),
+                    ],
                   ),
-                  Expanded(child: Text(formatRelativeTime(lead['createdAt']), style: AppTextStyles.bodyMedium)),
-                  Expanded(child: _buildStatusBadge(lead['status'] ?? 'New')),
-                ],
-              ),
-            )).toList(),
-          ],
-        ],
-      ),
+                )).toList(),
+              ],
+            ],
+          ),
+        );
+      }
     );
   }
 
@@ -442,7 +465,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  Widget _buildStatusBadge(String status) {
+  Widget _buildStatusBadge(String status, bool isMobile) {
     Color color;
     switch (status) {
       case 'New': color = AppColors.success; break;
@@ -451,16 +474,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case 'Closed': color = AppColors.textMuted; break;
       default: color = AppColors.textMuted;
     }
+    
+    final padding = isMobile 
+        ? const EdgeInsets.symmetric(horizontal: 8, vertical: 4)
+        : const EdgeInsets.symmetric(horizontal: 12, vertical: 6);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: padding,
       decoration: BoxDecoration(
         color: color.withOpacity(0.15),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         status,
-        style: AppTextStyles.bodySmall.copyWith(color: color, fontWeight: FontWeight.w600),
+        style: AppTextStyles.bodySmall.copyWith(
+          color: color, 
+          fontWeight: FontWeight.w600,
+          fontSize: isMobile ? 10 : 12,
+        ),
       ),
     );
   }
@@ -523,6 +554,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  Widget _buildStatExpanded(String title, String value, IconData icon, Color color, double width) {
+    return SizedBox(
+      width: width,
+      child: StatCard(
+        title: title,
+        value: value,
+        icon: icon,
+        color: color,
+        trend: 'Live',
+        trendUp: true,
+      ),
+    );
+  }
+
   Widget _buildOverviewChart(List<dynamic> leadsData) {
     // Generate labels for the last 7 days
     final now = DateTime.now();
@@ -555,25 +600,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Inquiry Analytics', style: AppTextStyles.heading3),
-                  const SizedBox(height: 4),
-                  Text('Weekly leads and inquiries activity', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textMuted)),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Inquiry Analytics', style: AppTextStyles.heading3, overflow: TextOverflow.ellipsis),
+                    const SizedBox(height: 4),
+                    Text('Weekly leads activity', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textMuted), overflow: TextOverflow.ellipsis),
+                  ],
+                ),
               ),
+              const SizedBox(width: 12),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   color: AppColors.sidebarDark,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.calendar_today, size: 14, color: AppColors.accentTeal), // Fixed color to teal
-                    const SizedBox(width: 8),
-                    Text('Last 7 Days', style: AppTextStyles.bodySmall),
+                    const Icon(Icons.calendar_today, size: 12, color: AppColors.accentTeal),
+                    const SizedBox(width: 6),
+                    Text('Last 7 Days', style: AppTextStyles.bodySmall.copyWith(fontSize: 10)),
                   ],
                 ),
               ),

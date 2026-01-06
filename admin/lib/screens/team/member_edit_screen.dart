@@ -21,6 +21,7 @@ class _MemberEditScreenState extends State<MemberEditScreen> {
   late TextEditingController _nameController;
   late TextEditingController _roleController;
   late TextEditingController _imgController;
+  String _selectedCategory = 'Our Core Team';
   
   bool _isUploading = false;
   bool _isSaving = false;
@@ -33,6 +34,7 @@ class _MemberEditScreenState extends State<MemberEditScreen> {
     _nameController = TextEditingController(text: _isEditing ? widget.member!['name'] : '');
     _roleController = TextEditingController(text: _isEditing ? widget.member!['role'] : '');
     _imgController = TextEditingController(text: _isEditing ? (widget.member!['image'] ?? '') : '');
+    _selectedCategory = _isEditing ? (widget.member!['category'] ?? 'Our Core Team') : 'Our Core Team';
   }
 
   Future<void> _pickAndUploadImage() async {
@@ -78,6 +80,7 @@ class _MemberEditScreenState extends State<MemberEditScreen> {
       'name': _nameController.text.trim(),
       'role': _roleController.text.trim(),
       'image': _imgController.text.trim(),
+      'category': _selectedCategory,
     };
 
     try {
@@ -203,6 +206,36 @@ class _MemberEditScreenState extends State<MemberEditScreen> {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 24),
+          _buildLabel('Category'),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: AppColors.sidebarDark,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: ['Our Core Team', 'Technical Team'].contains(_selectedCategory) 
+                    ? _selectedCategory 
+                    : 'Our Core Team',
+                isExpanded: true,
+                dropdownColor: AppColors.sidebarDark,
+                style: AppTextStyles.bodyLarge,
+                items: ['Our Core Team', 'Technical Team'].map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (val) {
+                  if (val != null) {
+                    setState(() => _selectedCategory = val);
+                  }
+                },
+              ),
+            ),
           ),
         ],
       ),

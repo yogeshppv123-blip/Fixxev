@@ -16,6 +16,7 @@ class _AboutPageEditorState extends State<AboutPageEditor> {
   final ApiService _apiService = ApiService();
   bool _isLoading = true;
   bool _isSaving = false;
+  bool get isMobile => MediaQuery.of(context).size.width < 1100;
 
   // --- Hero Section ---
   final _heroTaglineController = TextEditingController();
@@ -218,29 +219,49 @@ class _AboutPageEditorState extends State<AboutPageEditor> {
 
   @override
   Widget build(BuildContext context) {
+    // Threshold defined in isMobile getter
+
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
+      drawer: isMobile ? const Drawer(child: AdminSidebar(currentRoute: '/pages')) : null,
+      appBar: isMobile ? AppBar(
+        backgroundColor: AppColors.sidebarDark,
+        elevation: 0,
+        leading: Builder(builder: (context) => IconButton(
+          icon: const Icon(Icons.menu, color: Colors.white),
+          onPressed: () => Scaffold.of(context).openDrawer(),
+        )),
+        title: Text('Edit About Page', style: AppTextStyles.heading3),
+        actions: [
+          IconButton(
+            onPressed: _isSaving ? null : _saveContent,
+            icon: _isSaving 
+              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+              : const Icon(Icons.save),
+          ),
+        ],
+      ) : null,
       body: Row(
         children: [
-          const AdminSidebar(currentRoute: '/pages'),
+          if (!isMobile) const AdminSidebar(currentRoute: '/pages'),
           Expanded(
             child: _isLoading 
               ? const Center(child: CircularProgressIndicator())
               : Column(
                   children: [
-                    _buildHeader(),
+                    if (!isMobile) _buildHeader(),
                     Expanded(
                       child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(32),
+                        padding: EdgeInsets.all(isMobile ? 16 : 32),
                         child: Column(
                           children: [
-                            _buildHeroSection(),
+                            _buildHeroSection(isMobile),
                             const SizedBox(height: 32),
-                            _buildStatsSection(),
+                            _buildStatsSection(isMobile),
                             const SizedBox(height: 32),
-                            _buildZigZagSections(),
+                            _buildZigZagSections(isMobile),
                             const SizedBox(height: 32),
-                            _buildCTASection(),
+                            _buildCTASection(isMobile),
                             const SizedBox(height: 100),
                           ],
                         ),
@@ -345,12 +366,26 @@ class _AboutPageEditorState extends State<AboutPageEditor> {
     }
   }
 
-  Widget _buildHeroSection() {
+  Widget _buildHeroSection(bool isMobile) {
     return _buildSectionCard(
       title: '1. About Hero Section',
       icon: Icons.info_outline,
       children: [
-        Row(
+        isMobile ? Column(
+          children: [
+            Container(
+              height: 200, width: double.infinity,
+              decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white.withOpacity(0.1))),
+              child: _heroImageController.text.isNotEmpty
+                  ? ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(_heroImageController.text, fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.white24)))
+                  : const Icon(Icons.image_outlined, color: Colors.white24),
+            ),
+            const SizedBox(height: 16),
+            _buildTextField('Tagline', _heroTaglineController),
+            const SizedBox(height: 16),
+            _buildTextField('Image URL', _heroImageController, isImage: true),
+          ],
+        ) : Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
@@ -381,7 +416,19 @@ class _AboutPageEditorState extends State<AboutPageEditor> {
         const SizedBox(height: 16),
         _buildTextField('Hero Button Text', _heroBtnTextController),
         const SizedBox(height: 16),
-        Row(
+        isMobile ? Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildTextField('Badge Text (Launch Announcement)', _heroBadgeTextController),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Text('Red Theme', style: TextStyle(color: AppColors.textGrey, fontSize: 12)),
+                Switch(value: _heroIsRed, onChanged: (v) => setState(() => _heroIsRed = v), activeColor: Colors.redAccent),
+              ],
+            ),
+          ],
+        ) : Row(
           children: [
             Expanded(child: _buildTextField('Badge Text (Launch Announcement)', _heroBadgeTextController)),
             const SizedBox(width: 24),
@@ -398,7 +445,7 @@ class _AboutPageEditorState extends State<AboutPageEditor> {
     );
   }
 
-  Widget _buildStatsSection() {
+  Widget _buildStatsSection(bool isMobile) {
     return _buildSectionCard(
       title: '2. Impact Stats Bar',
       icon: Icons.analytics_outlined,
@@ -406,7 +453,12 @@ class _AboutPageEditorState extends State<AboutPageEditor> {
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 20, mainAxisSpacing: 10, childAspectRatio: 4.5),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: isMobile ? 1 : 2, 
+            crossAxisSpacing: 20, 
+            mainAxisSpacing: 10, 
+            childAspectRatio: isMobile ? 4.5 : 4.5
+          ),
           itemCount: 4,
           itemBuilder: (context, i) => Row(children: [
             Expanded(child: _buildTextField('Value', _stats[i]['value']!)),
@@ -418,7 +470,7 @@ class _AboutPageEditorState extends State<AboutPageEditor> {
     );
   }
 
-  Widget _buildZigZagSections() {
+  Widget _buildZigZagSections(bool isMobile) {
     return _buildSectionCard(
       title: '3. Story ZigZag Blocks',
       icon: Icons.view_headline,
@@ -427,7 +479,7 @@ class _AboutPageEditorState extends State<AboutPageEditor> {
           final s = _zigzagSections[index];
           return Container(
             margin: const EdgeInsets.only(bottom: 24),
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(isMobile ? 16 : 20),
             decoration: BoxDecoration(color: Colors.white.withOpacity(0.03), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white.withOpacity(0.05))),
             child: Column(
               children: [
@@ -436,7 +488,21 @@ class _AboutPageEditorState extends State<AboutPageEditor> {
                   IconButton(onPressed: () => setState(() => _zigzagSections.removeAt(index)), icon: const Icon(Icons.delete_outline, color: Colors.redAccent)),
                 ]),
                 const SizedBox(height: 16),
-                Row(
+                isMobile ? Column(
+                  children: [
+                    Container(
+                      height: 150, width: double.infinity,
+                      decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.white.withOpacity(0.1))),
+                      child: s['imageUrl']!.text.isNotEmpty
+                          ? ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.network(s['imageUrl']!.text, fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.white24)))
+                          : const Icon(Icons.image_outlined, color: Colors.white24),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildTextField('Label (Small text above title)', s['label']!),
+                    const SizedBox(height: 12),
+                    _buildTextField('Image URL', s['imageUrl']!, isImage: true),
+                  ],
+                ) : Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
@@ -457,7 +523,13 @@ class _AboutPageEditorState extends State<AboutPageEditor> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Row(
+                isMobile ? Column(
+                  children: [
+                    _buildTextField('Heading Title', s['title']!),
+                    const SizedBox(height: 12),
+                    _buildTextField('Subheading (Optional)', s['subtitle']!),
+                  ],
+                ) : Row(
                   children: [
                     Expanded(child: _buildTextField('Heading Title', s['title']!)),
                     const SizedBox(width: 16),
@@ -481,12 +553,24 @@ class _AboutPageEditorState extends State<AboutPageEditor> {
     );
   }
 
-  Widget _buildCTASection() {
+  Widget _buildCTASection(bool isMobile) {
     return _buildSectionCard(
       title: '4. Join CTA Section',
       icon: Icons.campaign_outlined,
       children: [
-        Row(
+        isMobile ? Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildTextField('CTA Title', _ctaTitleController),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Text('Red Theme', style: TextStyle(color: AppColors.textGrey, fontSize: 12)),
+                Switch(value: _ctaIsRed, onChanged: (v) => setState(() => _ctaIsRed = v), activeColor: Colors.redAccent),
+              ],
+            ),
+          ],
+        ) : Row(
           children: [
             Expanded(child: _buildTextField('CTA Title', _ctaTitleController)),
             const SizedBox(width: 24),

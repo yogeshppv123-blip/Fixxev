@@ -65,7 +65,7 @@ class _LeadsScreenState extends State<LeadsScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 900;
+    final isMobile = screenWidth < 1100;
 
     if (_isLoading) {
       return Scaffold(
@@ -598,179 +598,224 @@ class _LeadsScreenState extends State<LeadsScreen> {
   void _showLeadDetails(Map<String, dynamic> lead) {
     showDialog(
       context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: Container(
-          width: 600,
-          decoration: BoxDecoration(
-            color: AppColors.backgroundDark,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: AppColors.sidebarDark),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Header Section
-              Container(
-                padding: const EdgeInsets.all(32),
-                decoration: BoxDecoration(
-                  color: AppColors.sidebarDark,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                ),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundColor: AppColors.accentBlue.withOpacity(0.1),
-                      child: Text(
-                        (lead['name'] ?? 'U')[0].toUpperCase(),
-                        style: AppTextStyles.heading2.copyWith(color: AppColors.accentBlue),
-                      ),
+      builder: (context) => LayoutBuilder(
+        builder: (context, constraints) {
+          final isMobile = constraints.maxWidth < 650;
+          final dialogWidth = isMobile ? constraints.maxWidth * 0.95 : 600.0;
+          
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: isMobile ? const EdgeInsets.all(10) : const EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0),
+            child: Container(
+              width: dialogWidth,
+              decoration: BoxDecoration(
+                color: AppColors.backgroundDark,
+                borderRadius: BorderRadius.circular(isMobile ? 16 : 24),
+                border: Border.all(color: AppColors.sidebarDark),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header Section
+                  Container(
+                    padding: EdgeInsets.all(isMobile ? 24 : 32),
+                    decoration: BoxDecoration(
+                      color: AppColors.sidebarDark,
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(isMobile ? 16 : 24)),
                     ),
-                    const SizedBox(width: 20),
-                    Expanded(
+                    child: Row(
+                      crossAxisAlignment: isMobile ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+                      children: [
+                        CircleAvatar(
+                          radius: isMobile ? 24 : 30,
+                          backgroundColor: AppColors.accentBlue.withOpacity(0.1),
+                          child: Text(
+                            (lead['name'] ?? 'U')[0].toUpperCase(),
+                            style: (isMobile ? AppTextStyles.heading3 : AppTextStyles.heading2).copyWith(color: AppColors.accentBlue),
+                          ),
+                        ),
+                        SizedBox(width: isMobile ? 16 : 20),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                lead['name'] ?? 'Unknown Sender', 
+                                style: isMobile ? AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.bold) : AppTextStyles.heading2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: [
+                                  _buildMiniBadge(lead['type'] ?? 'General', _getTypeColor(lead['type'])),
+                                  _buildMiniBadge(lead['status'] ?? 'NEW', _getStatusColor(lead['status'])),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.close, color: AppColors.textMuted),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  // Content Section
+                  Flexible(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.all(isMobile ? 20 : 32),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(lead['name'] ?? 'Unknown Sender', style: AppTextStyles.heading2),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              _buildMiniBadge(lead['type'] ?? 'General', _getTypeColor(lead['type'])),
-                              const SizedBox(width: 12),
-                              _buildMiniBadge(lead['status'] ?? 'NEW', _getStatusColor(lead['status'])),
-                            ],
+                          // Contact Info Cards
+                          if (isMobile) ...[
+                            _buildContactCard(Icons.email_outlined, 'Email Address', lead['email'] ?? 'N/A', true),
+                            const SizedBox(height: 12),
+                            _buildContactCard(Icons.phone_outlined, 'Phone Number', lead['phone'] ?? 'N/A', true),
+                          ] else
+                            Row(
+                              children: [
+                                _buildContactCard(Icons.email_outlined, 'Email Address', lead['email'] ?? 'N/A', false),
+                                const SizedBox(width: 20),
+                                _buildContactCard(Icons.phone_outlined, 'Phone Number', lead['phone'] ?? 'N/A', false),
+                              ],
+                            ),
+                          const SizedBox(height: 32),
+                          
+                          // Message Section
+                          Text('INQUIRY MESSAGE', style: AppTextStyles.label.copyWith(letterSpacing: 1.5, fontSize: 10)),
+                          const SizedBox(height: 12),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: AppColors.cardDark,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: AppColors.sidebarDark),
+                            ),
+                            child: Text(
+                              lead['message'] ?? 'No message provided.',
+                              style: AppTextStyles.bodyLarge.copyWith(height: 1.6, fontSize: isMobile ? 14 : 16),
+                            ),
                           ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close, color: AppColors.textMuted),
-                    ),
-                  ],
-                ),
-              ),
-              
-              // Content Section
-              Flexible(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(32),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Contact Info Cards
-                      Row(
-                        children: [
-                          _buildContactCard(Icons.email_outlined, 'Email Address', lead['email'] ?? 'N/A'),
-                          const SizedBox(width: 20),
-                          _buildContactCard(Icons.phone_outlined, 'Phone Number', lead['phone'] ?? 'N/A'),
-                        ],
-                      ),
-                      const SizedBox(height: 32),
-                      
-                      // Message Section
-                      Text('INQUIRY MESSAGE', style: AppTextStyles.label.copyWith(letterSpacing: 1.5, fontSize: 10)),
-                      const SizedBox(height: 12),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: AppColors.cardDark,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.sidebarDark),
-                        ),
-                        child: Text(
-                          lead['message'] ?? 'No message provided.',
-                          style: AppTextStyles.bodyLarge.copyWith(height: 1.6),
-                        ),
-                      ),
-                      
-                      if (lead['details'] != null && (lead['details'] as Map).isNotEmpty) ...[
-                        const SizedBox(height: 32),
-                        Text('ADDITIONAL SPECIFICATIONS', style: AppTextStyles.label.copyWith(letterSpacing: 1.5, fontSize: 10)),
-                        const SizedBox(height: 12),
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: AppColors.cardDark.withOpacity(0.5),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Column(
-                            children: (lead['details'] as Map<String, dynamic>).entries.map((e) => Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    width: 140, 
-                                    child: Text(e.key.toUpperCase(), style: AppTextStyles.label.copyWith(fontSize: 9, color: AppColors.textMuted)),
-                                  ),
-                                  Expanded(
-                                    child: Text(e.value.toString(), style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
-                                  ),
-                                ],
+                          
+                          if (lead['details'] != null && (lead['details'] as Map).isNotEmpty) ...[
+                            const SizedBox(height: 32),
+                            Text('ADDITIONAL SPECIFICATIONS', style: AppTextStyles.label.copyWith(letterSpacing: 1.5, fontSize: 10)),
+                            const SizedBox(height: 12),
+                            Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: AppColors.cardDark.withOpacity(0.5),
+                                borderRadius: BorderRadius.circular(16),
                               ),
-                            )).toList(),
-                          ),
-                        ),
-                      ],
-                    ],
+                              child: Column(
+                                children: (lead['details'] as Map<String, dynamic>).entries.map((e) => Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(
+                                        width: isMobile ? 100 : 140, 
+                                        child: Text(e.key.toUpperCase(), style: AppTextStyles.label.copyWith(fontSize: 9, color: AppColors.textMuted)),
+                                      ),
+                                      Expanded(
+                                        child: Text(e.value.toString(), style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold, fontSize: isMobile ? 12 : 14)),
+                                      ),
+                                    ],
+                                  ),
+                                )).toList(),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                  
+                  // Action Bar
+                  Padding(
+                    padding: EdgeInsets.all(isMobile ? 24 : 32),
+                    child: isMobile 
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            ElevatedButton.icon(
+                              onPressed: () => _replyViaEmail(lead),
+                              icon: const Icon(Icons.reply, size: 18),
+                              label: const Text('Reply via Email'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.accentBlue,
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text('Dismiss', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textMuted)),
+                            ),
+                          ],
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              style: TextButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                              ),
+                              child: Text('Dismiss', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textMuted)),
+                            ),
+                            const SizedBox(width: 16),
+                            ElevatedButton.icon(
+                              onPressed: () => _replyViaEmail(lead),
+                              icon: const Icon(Icons.reply, size: 18),
+                              label: const Text('Reply via Email'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.accentBlue,
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                            ),
+                          ],
+                        ),
+                  ),
+                ],
               ),
-              
-              // Action Bar
-              Padding(
-                padding: const EdgeInsets.all(32),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                      ),
-                      child: Text('Dismiss', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textMuted)),
-                    ),
-                    const SizedBox(width: 16),
-                    ElevatedButton.icon(
-                      onPressed: () async {
-                        try {
-                          final String query = encodeQueryParameters({
-                            'subject': 'RE: Inquiry from Fixxev - ${lead['type']}',
-                            'body': 'Hi ${lead['name']},\n\nThank you for reaching out to Fixxev.\n\n---\nBest Regards,\nFixxev Team\nEmail: $_companyEmail'
-                          }) ?? '';
-                          
-                          final Uri emailLaunchUri = Uri.parse('mailto:${lead['email']}?$query');
-                          
-                          await launchUrl(
-                            emailLaunchUri,
-                            mode: LaunchMode.externalApplication,
-                          );
-                        } catch (e) {
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Could not open email client. Please email manually to: ${lead['email']}')),
-                            );
-                          }
-                        }
-                      },
-                      icon: const Icon(Icons.reply, size: 18),
-                      label: const Text('Reply via Email'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.accentBlue,
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        }
       ),
     );
+  }
+
+  Future<void> _replyViaEmail(Map<String, dynamic> lead) async {
+    try {
+      final String query = encodeQueryParameters({
+        'subject': 'RE: Inquiry from Fixxev - ${lead['type']}',
+        'body': 'Hi ${lead['name']},\n\nThank you for reaching out to Fixxev.\n\n---\nBest Regards,\nFixxev Team\nEmail: $_companyEmail'
+      }) ?? '';
+      
+      final Uri emailLaunchUri = Uri.parse('mailto:${lead['email']}?$query');
+      
+      await launchUrl(
+        emailLaunchUri,
+        mode: LaunchMode.externalApplication,
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not open email client. Please email manually to: ${lead['email']}')),
+        );
+      }
+    }
   }
 
   Widget _buildMiniBadge(String text, Color color) {
@@ -788,31 +833,35 @@ class _LeadsScreenState extends State<LeadsScreen> {
     );
   }
 
-  Widget _buildContactCard(IconData icon, String label, String value) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.cardDark,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.sidebarDark),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: AppColors.textMuted, size: 20),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(label, style: TextStyle(fontSize: 10, color: AppColors.textMuted, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 4),
-                  Text(value, style: AppTextStyles.bodyMedium, overflow: TextOverflow.ellipsis),
-                ],
-              ),
+  Widget _buildContactCard(IconData icon, String label, String value, bool isMobile) {
+    return (isMobile ? SizedBox(width: double.infinity, child: _buildInnerContactCard(icon, label, value)) : Expanded(
+      child: _buildInnerContactCard(icon, label, value)
+    ));
+  }
+
+  Widget _buildInnerContactCard(IconData icon, String label, String value) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.cardDark,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.sidebarDark),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: AppColors.textMuted, size: 20),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: const TextStyle(fontSize: 10, color: AppColors.textMuted, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                Text(value, style: AppTextStyles.bodyMedium, overflow: TextOverflow.ellipsis),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

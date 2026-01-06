@@ -129,20 +129,41 @@ class _ContactPageEditorState extends State<ContactPageEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 1100;
+
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
+      drawer: isMobile ? const Drawer(child: AdminSidebar(currentRoute: '/pages')) : null,
+      appBar: isMobile ? AppBar(
+        backgroundColor: AppColors.sidebarDark,
+        elevation: 0,
+        leading: Builder(builder: (context) => IconButton(
+          icon: const Icon(Icons.menu, color: Colors.white),
+          onPressed: () => Scaffold.of(context).openDrawer(),
+        )),
+        title: Text('Edit Contact Page', style: AppTextStyles.heading3),
+        actions: [
+          IconButton(
+            onPressed: _isSaving ? null : _saveContent,
+            icon: _isSaving 
+              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+              : const Icon(Icons.save),
+          ),
+        ],
+      ) : null,
       body: Row(
         children: [
-          const AdminSidebar(currentRoute: '/pages'),
+          if (!isMobile) const AdminSidebar(currentRoute: '/pages'),
           Expanded(
             child: _isLoading 
               ? const Center(child: CircularProgressIndicator())
               : Column(
                   children: [
-                    _buildHeader(),
+                    if (!isMobile) _buildHeader(),
                     Expanded(
                       child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(32),
+                        padding: EdgeInsets.all(isMobile ? 16 : 32),
                         child: Column(
                           children: [
                             _buildSectionCard(
@@ -171,37 +192,55 @@ class _ContactPageEditorState extends State<ContactPageEditor> {
                               title: 'Contact Information',
                               icon: Icons.contact_page_outlined,
                               children: [
-                                Row(
-                                  children: [
-                                    Expanded(child: _buildTextField('Address Section Title', _addressTitleController)),
-                                    const SizedBox(width: 16),
-                                    Expanded(child: _buildTextField('Office Address', _addressController, maxLines: 2)),
-                                  ],
-                                ),
-                                const SizedBox(height: 16),
-                                Row(
-                                  children: [
-                                    Expanded(child: _buildTextField('Phone Section Title', _phoneTitleController)),
-                                    const SizedBox(width: 16),
-                                    Expanded(child: _buildTextField('Phone Number', _phoneController)),
-                                  ],
-                                ),
-                                const SizedBox(height: 16),
-                                Row(
-                                  children: [
-                                    Expanded(child: _buildTextField('Email Section Title', _emailTitleController)),
-                                    const SizedBox(width: 16),
-                                    Expanded(child: _buildTextField('Support Email', _emailController)),
-                                  ],
-                                ),
-                                const SizedBox(height: 16),
-                                Row(
-                                  children: [
-                                    Expanded(child: _buildTextField('Working Hours Title', _workingHoursTitleController)),
-                                    const SizedBox(width: 16),
-                                    Expanded(child: _buildTextField('Working Hours', _workingHoursController)),
-                                  ],
-                                ),
+                                if (isMobile) ...[
+                                  _buildTextField('Address Section Title', _addressTitleController),
+                                  const SizedBox(height: 12),
+                                  _buildTextField('Office Address', _addressController, maxLines: 2),
+                                  const SizedBox(height: 16),
+                                  _buildTextField('Phone Section Title', _phoneTitleController),
+                                  const SizedBox(height: 12),
+                                  _buildTextField('Phone Number', _phoneController),
+                                  const SizedBox(height: 16),
+                                  _buildTextField('Email Section Title', _emailTitleController),
+                                  const SizedBox(height: 12),
+                                  _buildTextField('Support Email', _emailController),
+                                  const SizedBox(height: 16),
+                                  _buildTextField('Working Hours Title', _workingHoursTitleController),
+                                  const SizedBox(height: 12),
+                                  _buildTextField('Working Hours', _workingHoursController),
+                                ] else ...[
+                                  Row(
+                                    children: [
+                                      Expanded(child: _buildTextField('Address Section Title', _addressTitleController)),
+                                      const SizedBox(width: 16),
+                                      Expanded(child: _buildTextField('Office Address', _addressController, maxLines: 2)),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Row(
+                                    children: [
+                                      Expanded(child: _buildTextField('Phone Section Title', _phoneTitleController)),
+                                      const SizedBox(width: 16),
+                                      Expanded(child: _buildTextField('Phone Number', _phoneController)),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Row(
+                                    children: [
+                                      Expanded(child: _buildTextField('Email Section Title', _emailTitleController)),
+                                      const SizedBox(width: 16),
+                                      Expanded(child: _buildTextField('Support Email', _emailController)),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Row(
+                                    children: [
+                                      Expanded(child: _buildTextField('Working Hours Title', _workingHoursTitleController)),
+                                      const SizedBox(width: 16),
+                                      Expanded(child: _buildTextField('Working Hours', _workingHoursController)),
+                                    ],
+                                  ),
+                                ],
                                 const SizedBox(height: 24),
                                 _buildTextField('Google Maps Link', _mapUrlController, maxLines: 2),
                                 const SizedBox(height: 16),
@@ -222,6 +261,7 @@ class _ContactPageEditorState extends State<ContactPageEditor> {
                                 _buildTextField('Twitter/X URL', _twitterController),
                                 const SizedBox(height: 16),
                                 _buildTextField('LinkedIn URL', _linkedinController),
+                                const SizedBox(height: 100),
                               ],
                             ),
                           ],

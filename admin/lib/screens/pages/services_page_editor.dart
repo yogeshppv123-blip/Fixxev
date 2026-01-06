@@ -16,6 +16,7 @@ class _ServicesPageEditorState extends State<ServicesPageEditor> {
   final ApiService _apiService = ApiService();
   bool _isLoading = true;
   bool _isSaving = false;
+  bool get isMobile => MediaQuery.of(context).size.width < 1100;
 
   final _heroTitleController = TextEditingController();
   final _heroTaglineController = TextEditingController();
@@ -256,30 +257,51 @@ class _ServicesPageEditorState extends State<ServicesPageEditor> {
 
   @override
   Widget build(BuildContext context) {
+    // Threshold defined in isMobile getter
+
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
+      drawer: isMobile ? const Drawer(child: AdminSidebar(currentRoute: '/pages')) : null,
+      appBar: isMobile ? AppBar(
+        backgroundColor: AppColors.sidebarDark,
+        elevation: 0,
+        leading: Builder(builder: (context) => IconButton(
+          icon: const Icon(Icons.menu, color: Colors.white),
+          onPressed: () => Scaffold.of(context).openDrawer(),
+        )),
+        title: Text('Edit Services Page', style: AppTextStyles.heading3),
+        actions: [
+          IconButton(
+            onPressed: _isSaving ? null : _saveContent,
+            icon: _isSaving 
+              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+              : const Icon(Icons.save),
+          ),
+        ],
+      ) : null,
       body: Row(
         children: [
-          const AdminSidebar(currentRoute: '/pages'),
+          if (!isMobile) const AdminSidebar(currentRoute: '/pages'),
           Expanded(
             child: _isLoading 
               ? const Center(child: CircularProgressIndicator())
               : Column(
                   children: [
-                    _buildHeader(),
+                    if (!isMobile) _buildHeader(),
                     Expanded(
                       child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(32),
+                        padding: EdgeInsets.all(isMobile ? 16 : 32),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildHeroSection(),
+                            _buildHeroSection(isMobile),
                             const SizedBox(height: 32),
-                            _buildServiceBlocks(),
+                            _buildServiceBlocks(isMobile),
                             const SizedBox(height: 32),
                             _buildWhyChooseSection(),
                             const SizedBox(height: 32),
-                            _buildCTASection(),
+                            _buildCTASection(isMobile),
+                            const SizedBox(height: 100),
                           ],
                         ),
                       ),
@@ -321,12 +343,26 @@ class _ServicesPageEditorState extends State<ServicesPageEditor> {
     );
   }
 
-  Widget _buildHeroSection() {
+  Widget _buildHeroSection(bool isMobile) {
     return _buildSectionCard(
       title: '1. Services Hero',
       icon: Icons.title,
       children: [
-        Row(
+        isMobile ? Column(
+          children: [
+            Container(
+              height: 200, width: double.infinity,
+              decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white.withOpacity(0.1))),
+              child: _heroImageController.text.isNotEmpty
+                  ? ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(_heroImageController.text, fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.white24)))
+                  : const Icon(Icons.image_outlined, color: Colors.white24),
+            ),
+            const SizedBox(height: 16),
+            _buildTextField('Hero Tagline', _heroTaglineController),
+            const SizedBox(height: 16),
+            _buildTextField('Hero Image URL', _heroImageController, isImage: true),
+          ],
+        ) : Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
@@ -351,7 +387,19 @@ class _ServicesPageEditorState extends State<ServicesPageEditor> {
         const SizedBox(height: 24),
         _buildTextField('Main Title', _heroTitleController, maxLines: 2),
         const SizedBox(height: 16),
-        Row(
+        isMobile ? Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildTextField('Hero Button Text', _heroBtnTextController),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Text('Red Theme', style: TextStyle(color: AppColors.textGrey, fontSize: 12)),
+                Switch(value: _heroIsRed, onChanged: (v) => setState(() => _heroIsRed = v), activeColor: Colors.redAccent),
+              ],
+            ),
+          ],
+        ) : Row(
           children: [
             Expanded(child: _buildTextField('Hero Button Text', _heroBtnTextController)),
             const SizedBox(width: 24),
@@ -382,12 +430,24 @@ class _ServicesPageEditorState extends State<ServicesPageEditor> {
     );
   }
 
-  Widget _buildCTASection() {
+  Widget _buildCTASection(bool isMobile) {
     return _buildSectionCard(
       title: '3. CTA Section',
       icon: Icons.campaign_outlined,
       children: [
-        Row(
+        isMobile ? Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildTextField('CTA Title', _ctaTitleController, maxLines: 2),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Text('Red Theme', style: TextStyle(color: AppColors.textGrey, fontSize: 12)),
+                Switch(value: _ctaIsRed, onChanged: (v) => setState(() => _ctaIsRed = v), activeColor: Colors.redAccent),
+              ],
+            ),
+          ],
+        ) : Row(
           children: [
             Expanded(child: _buildTextField('CTA Title', _ctaTitleController, maxLines: 2)),
             const SizedBox(width: 24),
@@ -406,7 +466,7 @@ class _ServicesPageEditorState extends State<ServicesPageEditor> {
     );
   }
 
-  Widget _buildServiceBlocks() {
+  Widget _buildServiceBlocks(bool isMobile) {
     return _buildSectionCard(
       title: '4. Service Management Blocks',
       icon: Icons.electrical_services_outlined,
@@ -415,7 +475,7 @@ class _ServicesPageEditorState extends State<ServicesPageEditor> {
           final s = _zigzagServices[index];
           return Container(
             margin: const EdgeInsets.only(bottom: 24),
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(isMobile ? 16 : 20),
             decoration: BoxDecoration(color: Colors.white.withOpacity(0.03), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white.withOpacity(0.05))),
             child: Column(
               children: [
@@ -424,7 +484,21 @@ class _ServicesPageEditorState extends State<ServicesPageEditor> {
                   IconButton(onPressed: () => setState(() => _zigzagServices.removeAt(index)), icon: const Icon(Icons.delete_outline, color: Colors.redAccent)),
                 ]),
                 const SizedBox(height: 16),
-                Row(
+                isMobile ? Column(
+                  children: [
+                    Container(
+                      height: 150, width: double.infinity,
+                      decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.white.withOpacity(0.1))),
+                      child: s['imageUrl']!.text.isNotEmpty
+                          ? ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.network(s['imageUrl']!.text, fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.white24)))
+                          : const Icon(Icons.image_outlined, color: Colors.white24),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildTextField('Service Category (Label)', s['label']!),
+                    const SizedBox(height: 12),
+                    _buildTextField('Image URL', s['imageUrl']!, isImage: true),
+                  ],
+                ) : Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(

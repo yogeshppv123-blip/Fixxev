@@ -30,11 +30,13 @@ class _TeamScreenState extends State<TeamScreen> {
   }
 
   void _onScroll() {
-    final isScrolled = _scrollController.offset > 50;
-    if (isScrolled != _isScrolled) {
-      setState(() {
-        _isScrolled = isScrolled;
-      });
+    if (_scrollController.hasClients) {
+      final isScrolled = _scrollController.offset > 50;
+      if (isScrolled != _isScrolled) {
+        setState(() {
+          _isScrolled = isScrolled;
+        });
+      }
     }
   }
 
@@ -54,63 +56,69 @@ class _TeamScreenState extends State<TeamScreen> {
             controller: _scrollController,
             child: Column(
               children: [
-                      FutureBuilder<Map<String, dynamic>>(
-                        future: _apiService.getPageContent('team'),
-                        builder: (context, contentSnapshot) {
-                          final content = contentSnapshot.data?['content'] ?? {};
-                          return Column(
-                            children: [
-                              SubPageHero(
-                                title: content['heroTitle'] ?? 'Meet Our Experts',
-                                tagline: content['heroTagline'] ?? 'Technical Leadership',
-                                imageUrl: content['heroImage'] ?? 'https://images.unsplash.com/photo-1560958089-b8a1929cea89?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&h=1440&q=80',
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
-                                color: Colors.white,
-                                child: Column(
-                                  children: [
-                                    SectionHeader(
-                                      title: content['sectionTitle'] ?? 'Technical Specialists',
-                                      subtitle: content['sectionSubtitle'] ?? 'Certified engineers dedicated to your EV',
-                                      centered: true,
-                                    ),
-                                    const SizedBox(height: 60),
-                                    FutureBuilder<List<dynamic>>(
-                                      future: _teamFuture,
-                                      builder: (context, snapshot) {
-                                        if (snapshot.connectionState == ConnectionState.waiting) {
-                                          return const Center(child: CircularProgressIndicator());
-                                        }
-                                        if (snapshot.hasError) {
-                                          return Center(child: Text('Error: ${snapshot.error}'));
-                                        }
+                FutureBuilder<Map<String, dynamic>>(
+                  future: _apiService.getPageContent('team'),
+                  builder: (context, contentSnapshot) {
+                    final content = contentSnapshot.data?['content'] ?? {};
+                    return Column(
+                      children: [
+                        SubPageHero(
+                          title: content['heroTitle'] ?? 'Meet Our Experts',
+                          tagline: content['heroTagline'] ?? 'Technical Leadership',
+                          imageUrl: content['heroImage'] ?? 'https://images.unsplash.com/photo-1560958089-b8a1929cea89?ixlib=rb-4.0.3&auto=format&fit=crop&w=2560&h=1440&q=80',
+                        ),
+                        
+                        FutureBuilder<List<dynamic>>(
+                          future: _teamFuture,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return const SizedBox(
+                                height: 400,
+                                child: Center(child: CircularProgressIndicator())
+                              );
+                            }
+                            if (snapshot.hasError) {
+                              return Center(child: Text('Error: ${snapshot.error}'));
+                            }
 
-                                        final members = snapshot.data ?? [];
+                            final members = snapshot.data ?? [];
+                            
+                            // Group members
+                            final coreTeam = members.where((m) => (m['category'] ?? 'Our Core Team') == 'Our Core Team').toList();
+                            final technicalTeam = members.where((m) => m['category'] == 'Technical Team').toList();
 
-                                        if (members.isEmpty) {
-                                          return const Text('No team members found.');
-                                        }
+                            return Column(
+                              children: [
+                                // Core Team Section
+                                if (coreTeam.isNotEmpty)
+                                  _buildTeamGrid(
+                                    title: 'Our Core Team',
+                                    subtitle: 'The visionary leadership driving FIXXEV forward',
+                                    members: coreTeam,
+                                  ),
 
-                                        return Wrap(
-                                          spacing: 40,
-                                          runSpacing: 40,
-                                          alignment: WrapAlignment.center,
-                                          children: members.map((m) => _TeamMemberCard(
-                                            name: m['name'] ?? '',
-                                            role: m['role'] ?? '',
-                                            image: m['image'],
-                                          )).toList(),
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          );
-                        }
-                      ),
+                                // Technical Team Section
+                                if (technicalTeam.isNotEmpty)
+                                  _buildTeamGrid(
+                                    title: 'Technical Team',
+                                    subtitle: 'Certified engineers and diagnostics experts',
+                                    members: technicalTeam,
+                                    bgColor: const Color(0xFFF8F9FA),
+                                  ),
+                                
+                                if (members.isEmpty)
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 100),
+                                    child: Center(child: Text('No team members found.')),
+                                  ),
+                              ],
+                            );
+                          },
+                        ),
+                      ],
+                    );
+                  }
+                ),
                 
                 const FooterWidget(),
               ],
@@ -131,6 +139,39 @@ class _TeamScreenState extends State<TeamScreen> {
           ),
           
           FloatingConnectButtons(scrollController: _scrollController),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTeamGrid({
+    required String title,
+    required String subtitle,
+    required List<dynamic> members,
+    Color bgColor = Colors.white,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
+      color: bgColor,
+      child: Column(
+        children: [
+          SectionHeader(
+            title: title,
+            subtitle: subtitle,
+            centered: true,
+          ),
+          const SizedBox(height: 60),
+          Wrap(
+            spacing: 40,
+            runSpacing: 40,
+            alignment: WrapAlignment.center,
+            children: members.map((m) => _TeamMemberCard(
+              name: m['name'] ?? '',
+              role: m['role'] ?? '',
+              image: m['image'],
+            )).toList(),
+          ),
         ],
       ),
     );
@@ -206,7 +247,6 @@ class _TeamMemberCardState extends State<_TeamMemberCard> {
                         ),
                       ),
                 ),
-                // Overlay social links on hover
                 if (_isHovered)
                   Positioned.fill(
                     child: Container(
@@ -266,5 +306,3 @@ class _SocialIcon extends StatelessWidget {
     );
   }
 }
-
-

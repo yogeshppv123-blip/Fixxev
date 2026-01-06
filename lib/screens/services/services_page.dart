@@ -22,17 +22,18 @@ class ServicesPage extends StatefulWidget {
 class _ServicesPageState extends State<ServicesPage> {
   final ScrollController _scrollController = ScrollController();
   final ApiService _apiService = ApiService();
-  late Future<List<dynamic>> _servicesFuture;
-  late Future<Map<String, dynamic>> _pageContentFuture;
+  late Future<List<dynamic>> _combinedFuture;
   bool _isScrolled = false;
-  Map<String, dynamic> _pageContent = {};
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    _servicesFuture = _apiService.getServices();
-    _pageContentFuture = _apiService.getPageContent('services');
+    _combinedFuture = Future.wait([
+      _apiService.getServices(),
+      _apiService.getPageContent('services'),
+    ]);
   }
 
   void _onScroll() {
@@ -53,14 +54,13 @@ class _ServicesPageState extends State<ServicesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: const MobileDrawer(),
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
           FutureBuilder<List<dynamic>>(
-            future: Future.wait([_servicesFuture, _pageContentFuture]).then((val) {
-               _pageContent = (val[1] as Map<String, dynamic>);
-               return val[0] as List<dynamic>;
-            }),
+            future: _combinedFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -69,10 +69,13 @@ class _ServicesPageState extends State<ServicesPage> {
                 return Center(child: Text('Error: ${snapshot.error}'));
               }
 
-              final allServices = snapshot.data ?? [];
+              final results = snapshot.data!;
+              final allServices = results[0] as List<dynamic>;
+              final content = results[1] as Map<String, dynamic>;
+
               final services = allServices.where((s) => s['status'] == 'Active').toList();
 
-              final contentBlocks = _pageContent['serviceBlocks'] as List?;
+              final contentBlocks = content['serviceBlocks'] as List?;
               final hasContentBlocks = contentBlocks != null && contentBlocks.isNotEmpty;
 
               return SingleChildScrollView(
@@ -81,11 +84,11 @@ class _ServicesPageState extends State<ServicesPage> {
                   children: [
                     // 1. LIGHT HERO
                     _ServiceHeroLight(
-                      title: _pageContent['heroTitle'] ?? 'Advanced Multi-Brand\nEV Solutions',
-                      tagline: _pageContent['heroTagline'] ?? 'SERVICE EXCELLENCE',
-                      imageUrl: _pageContent['heroImage'] ?? 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7',
-                      buttonText: _pageContent['heroBtnText'] ?? 'CONTACT US',
-                      isRed: _pageContent['heroIsRed'] ?? false,
+                      title: content['heroTitle'] ?? 'Advanced Multi-Brand\nEV Solutions',
+                      tagline: content['heroTagline'] ?? 'SERVICE EXCELLENCE',
+                      imageUrl: content['heroImage'] ?? 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7',
+                      buttonText: content['heroBtnText'] ?? 'CONTACT US',
+                      isRed: content['heroIsRed'] ?? false,
                     ),
 
                     if (!hasContentBlocks)
@@ -100,7 +103,7 @@ class _ServicesPageState extends State<ServicesPage> {
                         final sTitle = (service['title'] ?? '').toString();
                         
                         // Prioritize admin-uploaded image; fallback to local assets
-                        String imgUrl;
+                         String imgUrl;
                         if (adminImage != null && adminImage.toString().isNotEmpty) {
                           imgUrl = adminImage; // Admin image takes priority
                         } else if (sTitle.contains('After-Sales') || sTitle.contains('Maintenance')) {
@@ -125,9 +128,9 @@ class _ServicesPageState extends State<ServicesPage> {
 
                     // 8. WHY CHOOSE FIXXEV
                     _WhyChooseServiceSection(
-                      title: _pageContent['whyChooseTitle'] ?? 'Why Choose FIXXEV?',
-                      label: _pageContent['whyChooseLabel'] ?? '// THE ADVANTAGE',
-                      points: (_pageContent['whyChoosePoints'] as List?)?.cast<String>() ?? [
+                      title: content['whyChooseTitle'] ?? 'Why Choose FIXXEV?',
+                      label: content['whyChooseLabel'] ?? '// THE ADVANTAGE',
+                      points: (content['whyChoosePoints'] as List?)?.cast<String>() ?? [
                         'Specialized for 2W, L3 and L5 Multi-brand electric vehicles.',
                         'High-end diagnostics for CAN Bus and LIN protocols.',
                         'ISO-certified workshops ensuring dust-free environments.',
@@ -137,9 +140,9 @@ class _ServicesPageState extends State<ServicesPage> {
 
                     // 9. CTA SECTION
                     _ServiceCTASection(
-                      title: _pageContent['ctaTitle'] ?? 'Optimize Your EV’s Performance\nWith Precision Engineering',
-                      buttonText: _pageContent['ctaBtnText'] ?? 'BOOK AN APPOINTMENT',
-                      isRed: _pageContent['ctaIsRed'] ?? false,
+                      title: content['ctaTitle'] ?? 'Optimize Your EV’s Performance\nWith Precision Engineering',
+                      buttonText: content['ctaBtnText'] ?? 'BOOK AN APPOINTMENT',
+                      isRed: content['ctaIsRed'] ?? false,
                     ),
 
                     const FooterWidget(),
@@ -157,7 +160,7 @@ class _ServicesPageState extends State<ServicesPage> {
               isTransparent: false,
               backgroundColor: AppColors.navDark,
               useLightText: true,
-              onMenuPressed: () {},
+              onMenuPressed: () => _scaffoldKey.currentState?.openDrawer(),
               onContactPressed: () {},
             ),
           ),
@@ -254,7 +257,7 @@ class _ZigZagServiceBlock extends StatelessWidget {
             children: [
               const Icon(Icons.check_circle, color: AppColors.accentTeal, size: 20),
               const SizedBox(width: 12),
-              Text(item, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
+              Expanded(child: Text(item, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600))),
             ],
           ),
         )),
@@ -466,8 +469,11 @@ class _WhyPoint extends StatelessWidget {
   const _WhyPoint({required this.text});
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 900;
+    
     return SizedBox(
-      width: 500,
+      width: isMobile ? screenWidth - 48 : 500,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

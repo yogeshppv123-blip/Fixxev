@@ -19,6 +19,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
   final ApiService _apiService = ApiService();
   late Future<List<dynamic>> _productsFuture;
   late Future<Map<String, dynamic>> _pageContentFuture;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -33,37 +34,50 @@ class _ProductsScreenState extends State<ProductsScreen> {
     final isMobile = screenWidth < 768;
 
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: const MobileDrawer(),
       backgroundColor: AppColors.backgroundLight,
-      appBar: const CustomAppBar(
-        backgroundColor: AppColors.navDark,
-        useLightText: true,
-      ),
-      endDrawer: isMobile ? const MobileDrawer() : null,
-      body: FutureBuilder<List<dynamic>>(
-        future: Future.wait([_productsFuture, _pageContentFuture]),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
+      body: Stack(
+        children: [
+          FutureBuilder<List<dynamic>>(
+            future: Future.wait([_productsFuture, _pageContentFuture]),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              }
 
-          final content = snapshot.data![1] as Map<String, dynamic>;
-          final productBlocks = content['productBlocks'] as List? ?? [];
+              final content = snapshot.data![1] as Map<String, dynamic>;
+              final productBlocks = content['productBlocks'] as List? ?? [];
 
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                _buildProductsHero(context, isMobile, content),
-                const SizedBox(height: 80),
-                _buildProductList(context, isMobile, productBlocks, content['heroIsRed'] ?? false),
-                const SizedBox(height: 100),
-                const FooterWidget(),
-              ],
+              return SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 80), // Space for AppBar
+                    _buildProductsHero(context, isMobile, content),
+                    const SizedBox(height: 80),
+                    _buildProductList(context, isMobile, productBlocks, content['heroIsRed'] ?? false),
+                    const SizedBox(height: 100),
+                    const FooterWidget(),
+                  ],
+                ),
+              );
+            },
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: CustomAppBar(
+              backgroundColor: AppColors.navDark,
+              useLightText: true,
+              onMenuPressed: () => _scaffoldKey.currentState?.openDrawer(),
+              onContactPressed: () {},
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }

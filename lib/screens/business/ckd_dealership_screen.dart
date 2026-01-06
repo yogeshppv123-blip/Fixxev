@@ -20,6 +20,7 @@ class _CKDealershipScreenState extends State<CKDealershipScreen> {
   final ApiService _apiService = ApiService();
   bool _isScrolled = false;
   Map<String, dynamic> _content = {};
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
 
   @override
@@ -58,6 +59,8 @@ class _CKDealershipScreenState extends State<CKDealershipScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: const MobileDrawer(),
       extendBodyBehindAppBar: true,
       backgroundColor: Colors.white,
       body: Stack(
@@ -94,7 +97,7 @@ class _CKDealershipScreenState extends State<CKDealershipScreen> {
               isTransparent: !_isScrolled,
               backgroundColor: _isScrolled ? AppColors.navDark : null,
               useLightText: true,
-              onMenuPressed: () {},
+              onMenuPressed: () => _scaffoldKey.currentState?.openDrawer(),
               onContactPressed: () {},
             ),
           ),
@@ -156,8 +159,8 @@ class _FranchiseHero extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
-          SizedBox(
-            width: 700,
+          Container(
+            constraints: const BoxConstraints(maxWidth: 700),
             child: Text(
               content['heroSubtitle'] ?? 'Join India\'s fastest-growing EV service ecosystem. Partner with us as a Spare Parts Dealer or Service Center and be at the forefront of the electric mobility revolution.',
               style: AppTextStyles.heroSubtitle.copyWith(

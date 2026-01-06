@@ -232,35 +232,57 @@ class _FranchisePageEditorState extends State<FranchisePageEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 1100;
+
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
+      drawer: isMobile ? const Drawer(child: AdminSidebar(currentRoute: '/pages')) : null,
+      appBar: isMobile ? AppBar(
+        backgroundColor: AppColors.sidebarDark,
+        elevation: 0,
+        leading: Builder(builder: (context) => IconButton(
+          icon: const Icon(Icons.menu, color: Colors.white),
+          onPressed: () => Scaffold.of(context).openDrawer(),
+        )),
+        title: Text('Edit Franchise', style: AppTextStyles.heading3),
+        actions: [
+          IconButton(
+            onPressed: _isSaving ? null : _saveContent,
+            icon: _isSaving 
+              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+              : const Icon(Icons.save),
+          ),
+        ],
+      ) : null,
       body: Row(
         children: [
-          const AdminSidebar(currentRoute: '/pages'),
+          if (!isMobile) const AdminSidebar(currentRoute: '/pages'),
           Expanded(
             child: _isLoading 
               ? const Center(child: CircularProgressIndicator())
               : Column(
                   children: [
-                    _buildHeader(),
+                    if (!isMobile) _buildHeader(),
                     Expanded(
                       child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(32),
+                        padding: EdgeInsets.all(isMobile ? 16 : 32),
                         child: Column(
                           children: [
-                            _buildHeroSection(),
+                            _buildHeroSection(isMobile),
                             const SizedBox(height: 32),
-                            _buildMissionSection(),
+                            _buildMissionSection(isMobile),
                             const SizedBox(height: 32),
                             _buildOptionsHeaderSection(),
                             const SizedBox(height: 16),
-                            _buildSparePartsSection(),
+                            _buildSparePartsSection(isMobile),
                             const SizedBox(height: 32),
-                            _buildServiceCenterSection(),
+                            _buildServiceCenterSection(isMobile),
                             const SizedBox(height: 32),
                             _buildWhySection(),
                             const SizedBox(height: 32),
-                            _buildStatsSection(),
+                            _buildStatsSection(isMobile),
+                            const SizedBox(height: 100),
                           ],
                         ),
                       ),
@@ -349,9 +371,10 @@ class _FranchisePageEditorState extends State<FranchisePageEditor> {
     );
   }
 
-  Widget _buildImagePreview(TextEditingController controller) {
+  Widget _buildImagePreview(TextEditingController controller, bool isMobile) {
     return Container(
-      height: 120, width: 200,
+      height: isMobile ? 180 : 120, 
+      width: isMobile ? double.infinity : 200,
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: AppColors.sidebarDark,
@@ -367,15 +390,23 @@ class _FranchisePageEditorState extends State<FranchisePageEditor> {
     );
   }
 
-  Widget _buildHeroSection() {
+  Widget _buildHeroSection(bool isMobile) {
     return _buildSectionCard(
       title: '1. Hero Section',
       icon: Icons.star_outline,
       children: [
-        Row(
+        isMobile ? Column(
+          children: [
+            _buildImagePreview(_heroImageController, isMobile),
+            const SizedBox(height: 16),
+            _buildTextField('Hero Tagline', _heroTaglineController),
+            const SizedBox(height: 12),
+            _buildTextField('Background Image URL', _heroImageController, isImage: true),
+          ],
+        ) : Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildImagePreview(_heroImageController),
+            _buildImagePreview(_heroImageController, isMobile),
             const SizedBox(width: 24),
             Expanded(
               child: Column(
@@ -396,15 +427,23 @@ class _FranchisePageEditorState extends State<FranchisePageEditor> {
     );
   }
 
-  Widget _buildMissionSection() {
+  Widget _buildMissionSection(bool isMobile) {
     return _buildSectionCard(
       title: '2. Our Mission Section',
       icon: Icons.lightbulb_outline,
       children: [
-        Row(
+        isMobile ? Column(
+          children: [
+            _buildImagePreview(_missionImageController, isMobile),
+            const SizedBox(height: 16),
+            _buildTextField('Section Label', _missionLabelController),
+            const SizedBox(height: 12),
+            _buildTextField('Section Image URL', _missionImageController, isImage: true),
+          ],
+        ) : Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildImagePreview(_missionImageController),
+            _buildImagePreview(_missionImageController, isMobile),
             const SizedBox(width: 24),
             Expanded(
               child: Column(
@@ -439,15 +478,21 @@ class _FranchisePageEditorState extends State<FranchisePageEditor> {
     );
   }
 
-  Widget _buildSparePartsSection() {
+  Widget _buildSparePartsSection(bool isMobile) {
     return _buildSectionCard(
       title: '4. Spare Parts Dealer Card',
       icon: Icons.inventory_2_outlined,
       children: [
-        Row(
+        isMobile ? Column(
+          children: [
+            _buildImagePreview(_sparePartsImageController, isMobile),
+            const SizedBox(height: 16),
+            _buildTextField('Card Image URL', _sparePartsImageController, isImage: true),
+          ],
+        ) : Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildImagePreview(_sparePartsImageController),
+            _buildImagePreview(_sparePartsImageController, isMobile),
             const SizedBox(width: 24),
             Expanded(
               child: _buildTextField('Card Image URL', _sparePartsImageController, isImage: true),
@@ -464,15 +509,21 @@ class _FranchisePageEditorState extends State<FranchisePageEditor> {
     );
   }
 
-  Widget _buildServiceCenterSection() {
+  Widget _buildServiceCenterSection(bool isMobile) {
     return _buildSectionCard(
       title: '5. Service Center Dealer Card',
       icon: Icons.build_circle_outlined,
       children: [
-        Row(
+        isMobile ? Column(
+          children: [
+            _buildImagePreview(_serviceCenterImageController, isMobile),
+            const SizedBox(height: 16),
+            _buildTextField('Card Image URL', _serviceCenterImageController, isImage: true),
+          ],
+        ) : Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildImagePreview(_serviceCenterImageController),
+            _buildImagePreview(_serviceCenterImageController, isMobile),
             const SizedBox(width: 24),
             Expanded(
               child: _buildTextField('Card Image URL', _serviceCenterImageController, isImage: true),
@@ -503,42 +554,66 @@ class _FranchisePageEditorState extends State<FranchisePageEditor> {
     );
   }
 
-  Widget _buildStatsSection() {
+  Widget _buildStatsSection(bool isMobile) {
     return _buildSectionCard(
       title: '7. Statistics Bar',
       icon: Icons.bar_chart,
       children: [
-        Row(
+        isMobile ? Column(
           children: [
-            Expanded(child: _buildTextField('Stat 1 Value', _stat1ValueController)),
-            const SizedBox(width: 16),
-            Expanded(child: _buildTextField('Stat 1 Label', _stat1LabelController)),
+            _buildStatPair(_stat1ValueController, _stat1LabelController),
+            const SizedBox(height: 12),
+            _buildStatPair(_stat2ValueController, _stat2LabelController),
+            const SizedBox(height: 12),
+            _buildStatPair(_stat3ValueController, _stat3LabelController),
+            const SizedBox(height: 12),
+            _buildStatPair(_stat4ValueController, _stat4LabelController),
+          ],
+        ) : Column(
+          children: [
+            Row(
+              children: [
+                Expanded(child: _buildTextField('Stat 1 Value', _stat1ValueController)),
+                const SizedBox(width: 16),
+                Expanded(child: _buildTextField('Stat 1 Label', _stat1LabelController)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(child: _buildTextField('Stat 2 Value', _stat2ValueController)),
+                const SizedBox(width: 16),
+                Expanded(child: _buildTextField('Stat 2 Label', _stat2LabelController)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(child: _buildTextField('Stat 3 Value', _stat3ValueController)),
+                const SizedBox(width: 16),
+                Expanded(child: _buildTextField('Stat 3 Label', _stat3LabelController)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(child: _buildTextField('Stat 4 Value', _stat4ValueController)),
+                const SizedBox(width: 16),
+                Expanded(child: _buildTextField('Stat 4 Label', _stat4LabelController)),
+              ],
+            ),
           ],
         ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(child: _buildTextField('Stat 2 Value', _stat2ValueController)),
-            const SizedBox(width: 16),
-            Expanded(child: _buildTextField('Stat 2 Label', _stat2LabelController)),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(child: _buildTextField('Stat 3 Value', _stat3ValueController)),
-            const SizedBox(width: 16),
-            Expanded(child: _buildTextField('Stat 3 Label', _stat3LabelController)),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(child: _buildTextField('Stat 4 Value', _stat4ValueController)),
-            const SizedBox(width: 16),
-            Expanded(child: _buildTextField('Stat 4 Label', _stat4LabelController)),
-          ],
-        ),
+      ],
+    );
+  }
+
+  Widget _buildStatPair(TextEditingController val, TextEditingController lab) {
+    return Row(
+      children: [
+        Expanded(child: _buildTextField('Value', val)),
+        const SizedBox(width: 12),
+        Expanded(child: _buildTextField('Label', lab)),
       ],
     );
   }

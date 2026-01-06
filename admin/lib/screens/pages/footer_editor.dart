@@ -127,16 +127,37 @@ class _FooterEditorState extends State<FooterEditor> {
       );
     }
 
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 1100;
+
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
+      drawer: isMobile ? const Drawer(child: AdminSidebar(currentRoute: '/pages')) : null,
+      appBar: isMobile ? AppBar(
+        backgroundColor: AppColors.sidebarDark,
+        elevation: 0,
+        leading: Builder(builder: (context) => IconButton(
+          icon: const Icon(Icons.menu, color: Colors.white),
+          onPressed: () => Scaffold.of(context).openDrawer(),
+        )),
+        title: Text('Footer Settings', style: AppTextStyles.heading3),
+        actions: [
+          IconButton(
+            onPressed: _isSaving ? null : _saveContent,
+            icon: _isSaving 
+              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+              : const Icon(Icons.save),
+          ),
+        ],
+      ) : null,
       body: Row(
         children: [
-          const AdminSidebar(currentRoute: '/pages'),
+          if (!isMobile) const AdminSidebar(currentRoute: '/pages'),
           Expanded(
             child: Column(
               children: [
                 // Fixed Header
-                Container(
+                if (!isMobile) Container(
                   padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
                   decoration: const BoxDecoration(
                     color: AppColors.backgroundDark,
@@ -182,7 +203,7 @@ class _FooterEditorState extends State<FooterEditor> {
                 // Content
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(32),
+                    padding: EdgeInsets.all(isMobile ? 16 : 32),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -200,13 +221,19 @@ class _FooterEditorState extends State<FooterEditor> {
                           title: 'Contact Information',
                           icon: Icons.contact_phone,
                           children: [
-                            Row(
-                              children: [
-                                Expanded(child: _buildTextField('Phone Number', _phoneController)),
-                                const SizedBox(width: 20),
-                                Expanded(child: _buildTextField('Email Address', _emailController)),
-                              ],
-                            ),
+                            if (isMobile) ...[
+                              _buildTextField('Phone Number', _phoneController),
+                              const SizedBox(height: 16),
+                              _buildTextField('Email Address', _emailController),
+                            ] else ...[
+                              Row(
+                                children: [
+                                  Expanded(child: _buildTextField('Phone Number', _phoneController)),
+                                  const SizedBox(width: 20),
+                                  Expanded(child: _buildTextField('Email Address', _emailController)),
+                                ],
+                              ),
+                            ],
                             const SizedBox(height: 20),
                             _buildTextField('Office Address', _addressController, maxLines: 2),
                           ],
@@ -216,25 +243,36 @@ class _FooterEditorState extends State<FooterEditor> {
                           title: 'Social Media Links',
                           icon: Icons.share,
                           children: [
-                            Row(
-                              children: [
-                                Expanded(child: _buildTextField('Facebook URL', _facebookController)),
-                                const SizedBox(width: 20),
-                                Expanded(child: _buildTextField('Instagram URL', _instagramController)),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            Row(
-                              children: [
-                                Expanded(child: _buildTextField('LinkedIn URL', _linkedinController)),
-                                const SizedBox(width: 20),
-                                Expanded(child: _buildTextField('WhatsApp URL', _whatsappController, hint: 'wa.me/number')),
-                              ],
-                            ),
+                            if (isMobile) ...[
+                              _buildTextField('Facebook URL', _facebookController),
+                              const SizedBox(height: 16),
+                              _buildTextField('Instagram URL', _instagramController),
+                              const SizedBox(height: 16),
+                              _buildTextField('LinkedIn URL', _linkedinController),
+                              const SizedBox(height: 16),
+                              _buildTextField('WhatsApp URL', _whatsappController, hint: 'wa.me/number'),
+                            ] else ...[
+                              Row(
+                                children: [
+                                  Expanded(child: _buildTextField('Facebook URL', _facebookController)),
+                                  const SizedBox(width: 20),
+                                  Expanded(child: _buildTextField('Instagram URL', _instagramController)),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              Row(
+                                children: [
+                                  Expanded(child: _buildTextField('LinkedIn URL', _linkedinController)),
+                                  const SizedBox(width: 20),
+                                  Expanded(child: _buildTextField('WhatsApp URL', _whatsappController, hint: 'wa.me/number')),
+                                ],
+                              ),
+                            ],
                             const SizedBox(height: 20),
                             _buildTextField('YouTube / Play Store URL', _youtubeController),
                           ],
                         ),
+                        const SizedBox(height: 100),
                       ],
                     ),
                   ),

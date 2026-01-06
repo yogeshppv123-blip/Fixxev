@@ -18,6 +18,7 @@ class _BlogScreenState extends State<BlogScreen> {
   final ApiService _apiService = ApiService();
   late Future<List<dynamic>> _blogsFuture;
   late Future<Map<String, dynamic>> _pageContentFuture;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -32,37 +33,50 @@ class _BlogScreenState extends State<BlogScreen> {
     final isMobile = screenWidth < 768;
 
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: const MobileDrawer(),
       backgroundColor: Colors.white,
-      appBar: const CustomAppBar(
-        backgroundColor: AppColors.navDark,
-        useLightText: true,
-      ),
-      endDrawer: isMobile ? const MobileDrawer() : null,
-      body: FutureBuilder<List<dynamic>>(
-        future: Future.wait([_blogsFuture, _pageContentFuture]),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
+      body: Stack(
+        children: [
+          FutureBuilder<List<dynamic>>(
+            future: Future.wait([_blogsFuture, _pageContentFuture]),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              }
 
-          final blogPosts = snapshot.data![0] as List<dynamic>;
-          final content = snapshot.data![1] as Map<String, dynamic>;
+              final blogPosts = snapshot.data![0] as List<dynamic>;
+              final content = snapshot.data![1] as Map<String, dynamic>;
 
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                _buildBlogHero(context, isMobile, content),
-                const SizedBox(height: 80),
-                _buildBlogGrid(context, isMobile, blogPosts),
-                const SizedBox(height: 100),
-                const FooterWidget(),
-              ],
+              return SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 80), // Space for AppBar
+                    _buildBlogHero(context, isMobile, content),
+                    const SizedBox(height: 80),
+                    _buildBlogGrid(context, isMobile, blogPosts),
+                    const SizedBox(height: 100),
+                    const FooterWidget(),
+                  ],
+                ),
+              );
+            },
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: CustomAppBar(
+              backgroundColor: AppColors.navDark,
+              useLightText: true,
+              onMenuPressed: () => _scaffoldKey.currentState?.openDrawer(),
+              onContactPressed: () {},
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }

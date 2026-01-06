@@ -81,6 +81,7 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
   final _networkBulletTitleController = TextEditingController();
   final _networkItemsController = TextEditingController();
   final _networkConclusionController = TextEditingController();
+  final _networkImageController = TextEditingController();
   
   // End-to-End Section
   final _endToEndTitleController = TextEditingController();
@@ -133,6 +134,7 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
     _communityImageController.addListener(() => setState(() {}));
     _smarterImageController.addListener(() => setState(() {}));
     _scalableImageController.addListener(() => setState(() {}));
+    _networkImageController.addListener(() => setState(() {}));
     _model1ImageController.addListener(() => setState(() {}));
     _model2ImageController.addListener(() => setState(() {}));
     _model3ImageController.addListener(() => setState(() {}));
@@ -155,6 +157,7 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
     _smarterDescController.dispose();
     _smarterItemsController.dispose();
     _smarterImageController.dispose();
+    _networkImageController.dispose();
     _nextDispose();
     super.dispose();
   }
@@ -283,6 +286,7 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
         _networkBulletTitleController.text = getVal(content['networkBulletTitle'], 'Our dealer-first model ensures:');
         _networkItemsController.text = getVal(content['networkItems'], 'Exclusive territory rights\nFaster installation timelines\nAffordable infrastructure\nReliable supply and service support');
         _networkConclusionController.text = getVal(content['networkConclusion'], 'This PAN-India strategy gives dealers a powerful competitive edge.');
+        _networkImageController.text = getVal(content['networkImage'], 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/India_map_blank.svg/800px-India_map_blank.svg.png');
 
         // End to End
         _endToEndTitleController.text = getVal(content['endToEndTitle'], 'End-to-End EV Brand Launch Support');
@@ -397,6 +401,7 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
         'networkBulletTitle': _networkBulletTitleController.text,
         'networkItems': _networkItemsController.text,
         'networkConclusion': _networkConclusionController.text,
+        'networkImage': _networkImageController.text,
         
         // End-to-End
         'endToEndTitle': _endToEndTitleController.text,
@@ -440,42 +445,63 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 1100;
+    
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
+      drawer: isMobile ? const Drawer(child: AdminSidebar(currentRoute: '/pages')) : null,
+      appBar: isMobile ? AppBar(
+        backgroundColor: AppColors.sidebarDark,
+        leading: IconButton(
+          icon: const Icon(Icons.menu, color: Colors.white),
+          onPressed: () => Scaffold.of(context).openDrawer(),
+        ),
+        title: Text('Edit CKD Page', style: AppTextStyles.heading3),
+        actions: [
+          IconButton(
+            onPressed: _isSaving ? null : _saveContent,
+            icon: _isSaving 
+              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+              : const Icon(Icons.save),
+          ),
+        ],
+      ) : null,
       body: Row(
         children: [
-          const AdminSidebar(currentRoute: '/pages'),
+          if (!isMobile) const AdminSidebar(currentRoute: '/pages'),
           Expanded(
             child: _isLoading 
               ? const Center(child: CircularProgressIndicator())
               : Column(
                   children: [
-                    _buildHeader(),
+                    if (!isMobile) _buildHeader(),
                     Expanded(
                       child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(32),
+                        padding: EdgeInsets.all(isMobile ? 16 : 32),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildHeroSection(),
+                            _buildHeroSection(isMobile),
                             const SizedBox(height: 32),
-                            _buildCommunitySection(),
+                            _buildCommunitySection(isMobile),
                             const SizedBox(height: 32),
                             _buildEndToEndSection(),
                             const SizedBox(height: 32),
-                            _buildWhySection(),
+                            _buildWhySection(isMobile),
                             const SizedBox(height: 32),
-                            _buildSmarterSection(),
+                            _buildSmarterSection(isMobile),
                             const SizedBox(height: 32),
-                            _buildScalableSection(),
+                            _buildScalableSection(isMobile),
                             const SizedBox(height: 32),
-                            _buildModelsSection(),
+                            _buildModelsSection(isMobile),
                             const SizedBox(height: 32),
-                            _buildStatsSection(),
+                            _buildStatsSection(isMobile),
                             const SizedBox(height: 32),
-                            _buildProcessSection(),
+                            _buildProcessSection(isMobile),
                             const SizedBox(height: 32),
                             _buildNetworkSection(),
+                            const SizedBox(height: 100),
                           ],
                         ),
                       ),
@@ -527,12 +553,26 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
     );
   }
 
-  Widget _buildHeroSection() {
+  Widget _buildHeroSection(bool isMobile) {
     return _buildSectionCard(
       title: 'Hero Section',
       icon: Icons.title,
       children: [
-        Row(
+        isMobile ? Column(
+          children: [
+            Container(
+              height: 200, width: double.infinity,
+              decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white.withOpacity(0.1))),
+              child: _heroImageController.text.isNotEmpty
+                  ? ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(_heroImageController.text, fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.white24)))
+                  : const Icon(Icons.image_outlined, color: Colors.white24, size: 40),
+            ),
+            const SizedBox(height: 16),
+            _buildTextField('Hero Tagline', _heroTaglineController),
+            const SizedBox(height: 16),
+            _buildTextField('Background Image URL', _heroImageController, isImage: true),
+          ],
+        ) : Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
@@ -557,7 +597,19 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
         const SizedBox(height: 16),
         _buildTextField('Hero Title', _heroTitleController),
         const SizedBox(height: 16),
-        Row(
+        isMobile ? Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildTextField('Hero Subtitle', _heroSubtitleController, maxLines: 2),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Text('Red Theme', style: TextStyle(color: AppColors.textGrey, fontSize: 12)),
+                Switch(value: _heroIsRed, onChanged: (v) => setState(() => _heroIsRed = v), activeColor: Colors.redAccent),
+              ],
+            ),
+          ],
+        ) : Row(
           children: [
             Expanded(child: _buildTextField('Hero Subtitle', _heroSubtitleController, maxLines: 2)),
             const SizedBox(width: 24),
@@ -574,12 +626,26 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
     );
   }
 
-  Widget _buildCommunitySection() {
+  Widget _buildCommunitySection(bool isMobile) {
     return _buildSectionCard(
       title: 'CKD Import & Assembly Section',
       icon: Icons.people_outline,
       children: [
-        Row(
+        isMobile ? Column(
+          children: [
+            Container(
+              height: 180, width: double.infinity,
+              decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white.withOpacity(0.1))),
+              child: _communityImageController.text.isNotEmpty
+                  ? ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(_communityImageController.text, fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.white24)))
+                  : const Icon(Icons.image_outlined, color: Colors.white24, size: 30),
+            ),
+            const SizedBox(height: 16),
+            _buildTextField('Section Title', _communityTitleController, maxLines: 2),
+            const SizedBox(height: 12),
+            _buildTextField('Image URL', _communityImageController, isImage: true),
+          ],
+        ) : Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
@@ -606,7 +672,19 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
         const SizedBox(height: 16),
         _buildTextField('Bullet Items (One per line)', _communityItemsController, maxLines: 5),
         const SizedBox(height: 16),
-        Row(
+        isMobile ? Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildTextField('Conclusion Text', _communityConclusionController, maxLines: 2),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Text('Red Theme', style: TextStyle(color: AppColors.textGrey, fontSize: 12)),
+                Switch(value: _joinIsRed, onChanged: (v) => setState(() => _joinIsRed = v), activeColor: Colors.redAccent),
+              ],
+            ),
+          ],
+        ) : Row(
           children: [
             Expanded(child: _buildTextField('Conclusion Text', _communityConclusionController, maxLines: 2)),
             const SizedBox(width: 24),
@@ -623,7 +701,7 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
     );
   }
 
-  Widget _buildWhySection() {
+  Widget _buildWhySection(bool isMobile) {
     return _buildSectionCard(
       title: 'Why Choose Section',
       icon: Icons.help_outline,
@@ -634,23 +712,59 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
         const SizedBox(height: 24),
         const Text('Benefit Items', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
-        _buildTextField('Item 1', _whyItem1Controller),
-        const SizedBox(height: 12),
-        _buildTextField('Item 2', _whyItem2Controller),
-        const SizedBox(height: 12),
-        _buildTextField('Item 3', _whyItem3Controller),
-        const SizedBox(height: 12),
-        _buildTextField('Item 4', _whyItem4Controller),
+        isMobile ? Column(
+          children: [
+            _buildTextField('Item 1', _whyItem1Controller),
+            const SizedBox(height: 12),
+            _buildTextField('Item 2', _whyItem2Controller),
+            const SizedBox(height: 12),
+            _buildTextField('Item 3', _whyItem3Controller),
+            const SizedBox(height: 12),
+            _buildTextField('Item 4', _whyItem4Controller),
+          ],
+        ) : Column(
+          children: [
+            Row(
+              children: [
+                Expanded(child: _buildTextField('Item 1', _whyItem1Controller)),
+                const SizedBox(width: 16),
+                Expanded(child: _buildTextField('Item 2', _whyItem2Controller)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(child: _buildTextField('Item 3', _whyItem3Controller)),
+                const SizedBox(width: 16),
+                Expanded(child: _buildTextField('Item 4', _whyItem4Controller)),
+              ],
+            ),
+          ],
+        ),
       ],
     );
   }
 
-  Widget _buildSmarterSection() {
+  Widget _buildSmarterSection(bool isMobile) {
     return _buildSectionCard(
       title: 'Smarter Showrooms Section',
       icon: Icons.business,
       children: [
-        Row(
+        isMobile ? Column(
+          children: [
+            Container(
+              height: 180, width: double.infinity,
+              decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white.withOpacity(0.1))),
+              child: _smarterImageController.text.isNotEmpty
+                  ? ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(_smarterImageController.text, fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.white24)))
+                  : const Icon(Icons.image_outlined, color: Colors.white24, size: 30),
+            ),
+            const SizedBox(height: 16),
+            _buildTextField('Title', _smarterTitleController),
+            const SizedBox(height: 12),
+            _buildTextField('Image URL', _smarterImageController, isImage: true),
+          ],
+        ) : Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
@@ -677,7 +791,19 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
         const SizedBox(height: 16),
         _buildTextField('Description', _smarterDescController, maxLines: 3),
         const SizedBox(height: 16),
-        Row(
+        isMobile ? Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildTextField('Checklist Items (One per line)', _smarterItemsController, maxLines: 6),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Text('Red Theme', style: TextStyle(color: AppColors.textGrey, fontSize: 12)),
+                Switch(value: _smarterIsRed, onChanged: (v) => setState(() => _smarterIsRed = v), activeColor: Colors.redAccent),
+              ],
+            ),
+          ],
+        ) : Row(
           children: [
             Expanded(child: _buildTextField('Checklist Items (One per line)', _smarterItemsController, maxLines: 6)),
             const SizedBox(width: 24),
@@ -694,47 +820,55 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
     );
   }
 
-  Widget _buildStatsSection() {
+  Widget _buildStatsSection(bool isMobile) {
     return _buildSectionCard(
       title: 'Stats Bar',
       icon: Icons.bar_chart,
       children: [
-        Row(
+        isMobile ? Column(
           children: [
-            Expanded(child: _buildTextField('Stat 1 Value', _stat1ValController)),
-            const SizedBox(width: 16),
-            Expanded(child: _buildTextField('Stat 1 Label', _stat1LabController)),
+            _buildStatPair(_stat1ValController, _stat1LabController, true),
+            const SizedBox(height: 12),
+            _buildStatPair(_stat2ValController, _stat2LabController, true),
+            const SizedBox(height: 12),
+            _buildStatPair(_stat3ValController, _stat3LabController, true),
+            const SizedBox(height: 12),
+            _buildStatPair(_stat4ValController, _stat4LabController, true),
           ],
-        ),
-        const SizedBox(height: 16),
-        Row(
+        ) : Column(
           children: [
-            Expanded(child: _buildTextField('Stat 2 Value', _stat2ValController)),
-            const SizedBox(width: 16),
-            Expanded(child: _buildTextField('Stat 2 Label', _stat2LabController)),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(child: _buildTextField('Stat 3 Value', _stat3ValController)),
-            const SizedBox(width: 16),
-            Expanded(child: _buildTextField('Stat 3 Label', _stat3LabController)),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(child: _buildTextField('Stat 4 Value', _stat4ValController)),
-            const SizedBox(width: 16),
-            Expanded(child: _buildTextField('Stat 4 Label', _stat4LabController)),
+            Row(
+              children: [
+                Expanded(child: _buildStatPair(_stat1ValController, _stat1LabController, false)),
+                const SizedBox(width: 24),
+                Expanded(child: _buildStatPair(_stat2ValController, _stat2LabController, false)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(child: _buildStatPair(_stat3ValController, _stat3LabController, false)),
+                const SizedBox(width: 24),
+                Expanded(child: _buildStatPair(_stat4ValController, _stat4LabController, false)),
+              ],
+            ),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildProcessSection() {
+  Widget _buildStatPair(TextEditingController val, TextEditingController lab, bool isStacked) {
+    return Row(
+      children: [
+        Expanded(child: _buildTextField('Value', val)),
+        const SizedBox(width: 12),
+        Expanded(child: _buildTextField('Label', lab)),
+      ],
+    );
+  }
+
+  Widget _buildProcessSection(bool isMobile) {
     return _buildSectionCard(
       title: 'Process Section (Dark)',
       icon: Icons.timeline,
@@ -745,13 +879,13 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
         const SizedBox(height: 24),
         const Text('Steps (Cards)', style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
-        _buildStepFields('Step 1', _step1TitleController, _step1DescController),
+        _buildStepFields('Step 1', _step1TitleController, _step1DescController, isMobile),
         const SizedBox(height: 16),
-        _buildStepFields('Step 2', _step2TitleController, _step2DescController),
+        _buildStepFields('Step 2', _step2TitleController, _step2DescController, isMobile),
         const SizedBox(height: 16),
-        _buildStepFields('Step 3', _step3TitleController, _step3DescController),
+        _buildStepFields('Step 3', _step3TitleController, _step3DescController, isMobile),
         const SizedBox(height: 16),
-        _buildStepFields('Step 4', _step4TitleController, _step4DescController),
+        _buildStepFields('Step 4', _step4TitleController, _step4DescController, isMobile),
         const SizedBox(height: 24),
         const Text('Bottom Taglines', style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
@@ -759,7 +893,19 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
         const SizedBox(height: 16),
         _buildTextField('Slogan', _processSloganController),
         const SizedBox(height: 16),
-        Row(
+        isMobile ? Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildTextField('CTA Text', _processCtaController),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Text('Red Theme', style: TextStyle(color: AppColors.textGrey, fontSize: 12)),
+                Switch(value: _ctaIsRed, onChanged: (v) => setState(() => _ctaIsRed = v), activeColor: Colors.redAccent),
+              ],
+            ),
+          ],
+        ) : Row(
           children: [
             Expanded(child: _buildTextField('CTA Text', _processCtaController)),
              const SizedBox(width: 24),
@@ -792,6 +938,30 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
         _buildTextField('Bullet Items (One per line)', _networkItemsController, maxLines: 5),
         const SizedBox(height: 16),
         _buildTextField('Conclusion Text', _networkConclusionController, maxLines: 2),
+        const SizedBox(height: 16),
+        _buildTextField('Network Map Image URL', _networkImageController, isImage: true),
+        const SizedBox(height: 16),
+        Center(
+          child: Container(
+            height: 200,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
+            ),
+            child: _networkImageController.text.isNotEmpty
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      _networkImageController.text,
+                      fit: BoxFit.contain,
+                      errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.white24),
+                    ),
+                  )
+                : const Icon(Icons.map_outlined, color: Colors.white24, size: 40),
+          ),
+        ),
       ],
     );
   }
@@ -808,12 +978,26 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
     );
   }
 
-  Widget _buildScalableSection() {
+  Widget _buildScalableSection(bool isMobile) {
     return _buildSectionCard(
       title: 'Why Fixx EV Section',
       icon: Icons.trending_up,
       children: [
-        Row(
+        isMobile ? Column(
+          children: [
+            Container(
+              height: 180, width: double.infinity,
+              decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white.withOpacity(0.1))),
+              child: _scalableImageController.text.isNotEmpty
+                  ? ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(_scalableImageController.text, fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.white24)))
+                  : const Icon(Icons.image_outlined, color: Colors.white24, size: 30),
+            ),
+            const SizedBox(height: 16),
+            _buildTextField('Section Title', _whyFixxTitleController),
+            const SizedBox(height: 12),
+            _buildTextField('Section Image URL', _scalableImageController, isImage: true),
+          ],
+        ) : Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
              Container(
@@ -840,7 +1024,19 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
         const SizedBox(height: 16),
         _buildTextField('Expertise Chips (One per line)', _whyFixxChipsController, maxLines: 6),
         const SizedBox(height: 16),
-        Row(
+        isMobile ? Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildTextField('Conclusion / Expertise Statement', _whyFixxConclusionController, maxLines: 2),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Text('Red Theme', style: TextStyle(color: AppColors.textGrey, fontSize: 12)),
+                Switch(value: _scalableIsRed, onChanged: (v) => setState(() => _scalableIsRed = v), activeColor: Colors.redAccent),
+              ],
+            ),
+          ],
+        ) : Row(
           children: [
             Expanded(child: _buildTextField('Conclusion / Expertise Statement', _whyFixxConclusionController, maxLines: 2)),
             const SizedBox(width: 24),
@@ -863,20 +1059,20 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
     );
   }
 
-  Widget _buildModelsSection() {
+  Widget _buildModelsSection(bool isMobile) {
     return _buildSectionCard(
       title: 'Our CKD Container Models (Dynamic)',
       icon: Icons.electric_scooter,
       children: [
         Wrap(
-          spacing: 20,
-          runSpacing: 20,
+          spacing: isMobile ? 12 : 20,
+          runSpacing: isMobile ? 12 : 20,
           children: [
             ..._ckdModelControllers.asMap().entries.map((entry) {
               final index = entry.key;
               final map = entry.value;
               return Container(
-                width: 300,
+                width: isMobile ? double.infinity : 300,
                 child: Stack(
                   children: [
                     _buildSingleModelEdit(
@@ -897,8 +1093,8 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
               );
             }).toList(),
             Container(
-              width: 300,
-              height: 360,
+              width: isMobile ? double.infinity : 300,
+              height: isMobile ? 100 : 360,
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.white24, style: BorderStyle.solid),
                 borderRadius: BorderRadius.circular(16),
@@ -909,8 +1105,8 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.add_circle_outline, color: AppColors.accentBlue, size: 48),
-                      const SizedBox(height: 16),
+                      Icon(Icons.add_circle_outline, color: AppColors.accentBlue, size: isMobile ? 32 : 48),
+                      SizedBox(height: isMobile ? 8 : 16),
                       Text('Add New Model', style: AppTextStyles.bodyMedium),
                     ],
                   ),
@@ -956,13 +1152,19 @@ class _CKDContainerPageEditorState extends State<CKDContainerPageEditor> {
     );
   }
 
-  Widget _buildStepFields(String label, TextEditingController titleC, TextEditingController descC) {
+  Widget _buildStepFields(String label, TextEditingController titleC, TextEditingController descC, bool isMobile) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: const TextStyle(color: AppColors.accentBlue, fontSize: 12)),
         const SizedBox(height: 8),
-        Row(
+        isMobile ? Column(
+          children: [
+            _buildTextField('Title', titleC),
+            const SizedBox(height: 12),
+            _buildTextField('Description', descC),
+          ],
+        ) : Row(
           children: [
             Expanded(child: _buildTextField('Title', titleC)),
             const SizedBox(width: 16),
