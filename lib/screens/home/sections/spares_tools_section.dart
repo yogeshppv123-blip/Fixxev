@@ -248,22 +248,14 @@ class _BrandCardState extends State<_BrandCard> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  width: 120, // Increased from 100
-                  height: 120, // Increased from 100
-                  padding: const EdgeInsets.all(12), // Reduced padding for bigger content
-                  decoration: BoxDecoration(
-                    color: highlighted ? Colors.white : AppColors.accentBlue,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
-                        blurRadius: 15,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
+                  width: 120,
+                  height: 120,
+                  decoration: const BoxDecoration(
+                    color: Colors.transparent, // Ensure no white background
                   ),
-                  clipBehavior: Clip.antiAlias,
-                  child: isNetwork 
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: isNetwork 
                     ? Image.network(
                         imagePath, 
                         fit: BoxFit.contain, // Ensure full visibility
@@ -272,9 +264,9 @@ class _BrandCardState extends State<_BrandCard> {
                     : Image.asset(
                         imagePath, 
                         fit: BoxFit.contain,
-                        // REMOVED COLOR FILTER HERE
                         errorBuilder: (c,e,s) => Icon(widget.item['icon'], size: 60, color: highlighted ? AppColors.accentBlue : Colors.white)
                       ),
+                  ),
                 ),
                 Text(
                   widget.item['id'],
