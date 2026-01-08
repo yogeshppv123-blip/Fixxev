@@ -263,9 +263,14 @@ class _HomePageEditorState extends State<HomePageEditor> {
         if (brands != null && brands.isNotEmpty) {
           for (var b in brands) _addBrandItem(title: b['title'], desc: b['desc'], image: b['image']);
         } else {
-          _addBrandItem(title: 'Ola Electric', desc: 'Complete diagnostics, battery health check, and motor repairs for all Ola S1 and S1 Pro models.', image: 'assets/images/brand_ola_new.png');
-          _addBrandItem(title: 'Ather Energy', desc: 'Specialized service for Ather 450X and 450 Plus, including belt tensioning and software updates.', image: 'assets/images/brand_ola_new.png');
-          _addBrandItem(title: 'TVS & More', desc: 'Expert care for TVS iQube, Bajaj Chetak, and other leading electric two-wheelers.', image: 'assets/images/brand_tvs.png');
+          _addBrandItem(title: 'Ola Electric', desc: 'Complete diagnostics, battery health check, and motor repairs for all Ola S1 and S1 Pro models.', image: '');
+          _addBrandItem(title: 'TVS iQube', desc: 'Expert care for TVS iQube, Bajaj Chetak, and other leading electric two-wheelers.', image: '');
+          _addBrandItem(title: 'Bajaj Chetak', desc: 'Premium service for the iconic Chetak electric scooter.', image: '');
+          _addBrandItem(title: 'Ather Energy', desc: 'Specialized service for Ather 450X and 450 Plus, including belt tensioning and software updates.', image: '');
+          _addBrandItem(title: 'Hero Electric', desc: 'Comprehensive repairs for the entire Hero Electric range.', image: '');
+          _addBrandItem(title: 'Okinawa', desc: 'Genuine parts and service for all Okinawa scooters.', image: '');
+          _addBrandItem(title: 'Ampere', desc: 'Reliable maintenance for Ampere Magnus and Zeal.', image: '');
+          _addBrandItem(title: 'Revolt', desc: 'Expert bike care for Revolt RV400 and RV300.', image: '');
         }
 
         _isLoading = false;
@@ -1047,7 +1052,34 @@ class _HomePageEditorState extends State<HomePageEditor> {
             ),
           );
         }),
-        OutlinedButton.icon(onPressed: () => _addBrandItem(), icon: const Icon(Icons.add), label: const Text('Add Brand Card')),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            OutlinedButton.icon(
+              onPressed: () => _addBrandItem(),
+              icon: const Icon(Icons.add),
+              label: const Text('Add Brand Card'),
+            ),
+            TextButton.icon(
+              onPressed: () {
+                setState(() {
+                  _brandItems.clear();
+                  _addBrandItem(title: 'Ola Electric', desc: 'Complete diagnostics, battery health check, and motor repairs for all Ola S1 and S1 Pro models.', image: '');
+                  _addBrandItem(title: 'TVS iQube', desc: 'Expert care for TVS iQube, Bajaj Chetak, and other leading electric two-wheelers.', image: '');
+                  _addBrandItem(title: 'Bajaj Chetak', desc: 'Premium service for the iconic Chetak electric scooter.', image: '');
+                  _addBrandItem(title: 'Ather Energy', desc: 'Specialized service for Ather 450X and 450 Plus, including belt tensioning and software updates.', image: '');
+                  _addBrandItem(title: 'Hero Electric', desc: 'Comprehensive repairs for the entire Hero Electric range.', image: '');
+                  _addBrandItem(title: 'Okinawa', desc: 'Genuine parts and service for all Okinawa scooters.', image: '');
+                  _addBrandItem(title: 'Ampere', desc: 'Reliable maintenance for Ampere Magnus and Zeal.', image: '');
+                  _addBrandItem(title: 'Revolt', desc: 'Expert bike care for Revolt RV400 and RV300.', image: '');
+                });
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Reset brands to defaults. Click "Save" to apply.')));
+              },
+              icon: const Icon(Icons.restore, color: Colors.amber),
+              label: const Text('Reset to Defaults', style: TextStyle(color: Colors.amber)),
+            ),
+          ],
+        ),
       ],
     );
   }

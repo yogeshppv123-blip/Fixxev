@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:fixxev/core/theme/app_colors.dart';
 
 /// Partners carousel section with auto-play scrolling
@@ -10,41 +11,39 @@ class PartnersCarouselSection extends StatefulWidget {
   State<PartnersCarouselSection> createState() => _PartnersCarouselSectionState();
 }
 
-class _PartnersCarouselSectionState extends State<PartnersCarouselSection> {
+class _PartnersCarouselSectionState extends State<PartnersCarouselSection>
+    with SingleTickerProviderStateMixin {
   late ScrollController _scrollController;
-  late double _scrollPosition = 0.0;
+  late Ticker _ticker;
+  double _scrollPosition = 0.0;
+  final double _speed = 80.0; // pixels per second
 
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
     
-    // Auto-scroll logic
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _startAutoScroll();
-    });
-  }
-
-  void _startAutoScroll() {
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (!mounted) return;
-      _scrollPosition += 1.0;
-      if (_scrollPosition >= _scrollController.position.maxScrollExtent) {
+    _ticker = createTicker((Duration elapsed) {
+      if (!_scrollController.hasClients) return;
+      
+      _scrollPosition += _speed / 60; // 60fps
+      
+      final maxScroll = _scrollController.position.maxScrollExtent;
+      if (maxScroll > 0 && _scrollPosition >= maxScroll / 2) {
         _scrollPosition = 0.0;
-        _scrollController.jumpTo(0.0);
-      } else {
-        _scrollController.animateTo(
-          _scrollPosition,
-          duration: const Duration(milliseconds: 30),
-          curve: Curves.linear,
-        );
       }
-      _startAutoScroll();
+      
+      _scrollController.jumpTo(_scrollPosition);
+    });
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _ticker.start();
     });
   }
 
   @override
   void dispose() {
+    _ticker.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -92,7 +91,7 @@ class _PartnersCarouselSectionState extends State<PartnersCarouselSection> {
               controller: _scrollController,
               scrollDirection: Axis.horizontal,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: 20,
+              itemCount: 40, // Double for seamless infinite loop
               itemBuilder: (context, index) {
                 final partner = partners[index % partners.length];
                 return _PartnerLogo(

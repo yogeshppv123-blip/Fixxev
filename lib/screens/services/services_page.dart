@@ -106,11 +106,17 @@ class _ServicesPageState extends State<ServicesPage> {
                          String imgUrl;
                         if (adminImage != null && adminImage.toString().isNotEmpty) {
                           imgUrl = adminImage; // Admin image takes priority
-                        } else if (sTitle.contains('After-Sales') || sTitle.contains('Maintenance')) {
-                          imgUrl = 'assets/images/service_repair.png';
-                        } else if (sTitle.contains('Diagnostics')) {
+                        } else if (sTitle.toLowerCase().contains('battery')) {
+                          imgUrl = 'assets/images/service_battery.png';
+                        } else if (sTitle.toLowerCase().contains('roadside') || sTitle.toLowerCase().contains('assistance')) {
+                          imgUrl = 'assets/images/service_roadside.png';
+                        } else if (sTitle.toLowerCase().contains('maintenance') || sTitle.toLowerCase().contains('periodic')) {
+                          imgUrl = 'assets/images/service_maintenance_new.png';
+                        } else if (sTitle.toLowerCase().contains('motor') || sTitle.toLowerCase().contains('repair')) {
+                          imgUrl = 'assets/images/service_motor_repair.png';
+                        } else if (sTitle.toLowerCase().contains('diagnostics')) {
                           imgUrl = 'assets/images/service_diagnostics.png';
-                        } else if (sTitle.contains('Warranty')) {
+                        } else if (sTitle.toLowerCase().contains('warranty')) {
                           imgUrl = 'assets/images/service_warranty.png';
                         } else {
                           imgUrl = _getServiceImage(index);

@@ -1,304 +1,236 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:fixxev/core/theme/app_colors.dart';
 import 'package:fixxev/core/theme/app_text_styles.dart';
 
+/// Brands We Serve - Header on white, Marquee on dark blue
+/// Displays Admin-uploaded logos if available, else falls back to generic icons
 class BrandsCardSection extends StatefulWidget {
   final Map<String, dynamic> content;
-
   const BrandsCardSection({super.key, required this.content});
 
   @override
   State<BrandsCardSection> createState() => _BrandsCardSectionState();
 }
 
-class _BrandsCardSectionState extends State<BrandsCardSection> {
-  PageController? _pageController;
-  int _currentIndex = 5001; // Large number for infinite loop, multiple of 3
-  Timer? _autoPlayTimer;
-  final int _realCount = 10000;
-  bool? _lastIsMobile;
+class _BrandsCardSectionState extends State<BrandsCardSection>
+    with SingleTickerProviderStateMixin {
+  late ScrollController _scrollController;
+  late Ticker _ticker;
+  double _scrollPosition = 0.0;
+  final double _speed = 100.0;
+
+  final List<Map<String, dynamic>> _defaultItems = [
+    {'name': 'Ola Electric', 'icon': Icons.electric_scooter, 'image': ''},
+    {'name': 'TVS iQube', 'icon': Icons.two_wheeler, 'image': ''},
+    {'name': 'Bajaj Chetak', 'icon': Icons.electric_moped, 'image': ''},
+    {'name': 'Ather Energy', 'icon': Icons.bolt, 'image': ''},
+    {'name': 'Hero Electric', 'icon': Icons.electric_bike, 'image': ''},
+    {'name': 'Okinawa', 'icon': Icons.pedal_bike, 'image': ''},
+    {'name': 'Ampere', 'icon': Icons.speed, 'image': ''},
+    {'name': 'Revolt', 'icon': Icons.motorcycle, 'image': ''},
+  ];
 
   @override
   void initState() {
     super.initState();
-    _startAutoPlay();
-  }
+    _scrollController = ScrollController();
 
-  void _startAutoPlay() {
-    _autoPlayTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
-      if (mounted && _pageController != null && _pageController!.hasClients) {
-        _pageController!.nextPage(
-          duration: const Duration(milliseconds: 1000),
-          curve: Curves.easeInOutCubic,
-        );
+    _ticker = createTicker((Duration elapsed) {
+      if (!_scrollController.hasClients) return;
+
+      _scrollPosition += _speed / 60;
+
+      final maxScroll = _scrollController.position.maxScrollExtent;
+      if (maxScroll > 0 && _scrollPosition >= maxScroll / 2) {
+        _scrollPosition = 0.0;
       }
+
+      _scrollController.jumpTo(_scrollPosition);
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _ticker.start();
     });
   }
 
   @override
   void dispose() {
-    _autoPlayTimer?.cancel();
-    _pageController?.dispose();
+    _ticker.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 900;
-    
-    // Initialize or Update Controller if screen mode changed
-    if (_pageController == null || _lastIsMobile != isMobile) {
-      _lastIsMobile = isMobile;
-      final double viewportFraction = isMobile ? 1.0 : 0.333;
-      final oldController = _pageController;
-      
-      _pageController = PageController(
-        initialPage: _currentIndex, 
-        viewportFraction: viewportFraction
-      );
-      
-      // Dispose old controller after frame to avoid issues
-      Future.delayed(Duration.zero, () => oldController?.dispose());
-    }
+    final isMobile = screenWidth < 768;
 
-    // Dynamic Content
-    final String sectionTitle = widget.content['brandsTitle'] as String? ?? 'BRANDS WE SERVE';
-    final List<dynamic> rawCards = widget.content['brandsCards'] as List? ?? [];
-
-    final List<Map<String, dynamic>> defaultItems = [
-      {
-        'id': '01',
-        'title': 'Ola Electric',
-        'description': 'Complete diagnostics, battery health check, and motor repairs for all Ola S1 and S1 Pro models.',
-        'image': 'assets/images/brand_ola_new.png', 
-        'icon': Icons.flash_on,
-      },
-      {
-        'id': '02',
-        'title': 'Ather Energy',
-        'description': 'Specialized service for Ather 450X and 450 Plus, including belt tensioning and software updates.',
-        'image': 'assets/images/brand_ola_new.png',
-        'icon': Icons.electric_scooter,
-      },
-      {
-        'id': '03',
-        'title': 'TVS & More',
-        'description': 'Expert care for TVS iQube, Bajaj Chetak, and other leading electric two-wheelers.',
-        'image': 'assets/images/brand_tvs.png',
-        'icon': Icons.handyman,
-      },
-    ];
-
-    final List<Map<String, dynamic>> items = rawCards.isNotEmpty
-        ? rawCards.map((c) => {
-             'id': (c['id'] ?? '0${rawCards.indexOf(c) + 1}').toString(),
-             'title': (c['title'] ?? '').toString(),
-             'description': (c['desc'] ?? '').toString(),
-             'image': (c['image'] ?? '').toString(),
-             'icon': Icons.flash_on,
+    final dynamic dynamicItems = widget.content['brandsCards'];
+    final List<Map<String, dynamic>> items = (dynamicItems != null &&
+            dynamicItems is List &&
+            dynamicItems.isNotEmpty)
+        ? dynamicItems.asMap().entries.map((e) {
+            final card = e.value;
+            final icons = [
+              Icons.electric_scooter,
+              Icons.two_wheeler,
+              Icons.electric_moped,
+              Icons.bolt,
+              Icons.electric_bike,
+              Icons.pedal_bike,
+            ];
+            return {
+              'name': (card['title'] ?? '').toString(),
+              'image': (card['image'] ?? '').toString(),
+              'icon': icons[e.key % icons.length],
+            };
           }).toList()
-        : defaultItems;
+        : _defaultItems;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 40),
-      color: Colors.white,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              children: [
-                Text(
-                  'GENUINE PARTS',
-                  style: TextStyle(
-                    fontSize: 14,
-                    letterSpacing: 2.0,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF2EBD59),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  sectionTitle,
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.heading2.copyWith(
-                    color: AppColors.accentBlue,
-                    height: 1.2,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Container(
-                  width: 60,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: AppColors.accentBlue,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ],
-            ),
+    return Column(
+      children: [
+        // Header on WHITE background
+        Container(
+          width: double.infinity,
+          color: Colors.white,
+          padding: EdgeInsets.only(
+            top: isMobile ? 50 : 80,
+            bottom: 40,
+            left: 20,
+            right: 20,
           ),
-          SizedBox(height: isMobile ? 30 : 50),
-          SizedBox(
-            height: 340, // Reduced height to remove extra bottom space
-            child: PageView.builder(
-              controller: _pageController,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentIndex = index;
-                });
-              },
-              itemCount: items.isEmpty ? 0 : _realCount,
+          child: Column(
+            children: [
+              Text(
+                'GENUINE PARTS',
+                style: TextStyle(
+                  fontSize: 14,
+                  letterSpacing: 2.0,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.accentTeal, // Theme green
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                widget.content['brandsTitle'] ?? 'BRANDS WE SERVE',
+                textAlign: TextAlign.center,
+                style: AppTextStyles.heading2.copyWith(
+                  color: AppColors.accentBlue, // Theme blue
+                  fontSize: isMobile ? 28 : 40,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                width: 50,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.accentBlue,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Marquee on DARK BLUE background
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 24),
+          decoration: BoxDecoration(
+            color: AppColors.primaryNavy, // Theme dark blue
+          ),
+          child: SizedBox(
+            height: 90,
+            child: ListView.builder(
+              controller: _scrollController,
+              scrollDirection: Axis.horizontal,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: items.length * 6,
               itemBuilder: (context, index) {
                 final item = items[index % items.length];
-                return AnimatedPadding(
-                  duration: const Duration(milliseconds: 500),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isMobile ? 12 : 15,
-                    vertical: (_currentIndex == index) ? 0 : (isMobile ? 0 : 20),
-                  ),
-                  child: _BrandCard(item: item, isActive: _currentIndex == index),
+                return _BrandItem(
+                  name: item['name'] as String,
+                  icon: item['icon'] as IconData,
+                  imageUrl: item['image'] as String?,
                 );
               },
             ),
           ),
-
-          const SizedBox(height: 40),
-          if (items.isNotEmpty)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                items.length,
-                (index) => GestureDetector(
-                  onTap: () {
-                    final int currentMod = _currentIndex % items.length;
-                    final int diff = index - currentMod;
-                    _pageController?.animateToPage(
-                      _currentIndex + diff,
-                      duration: const Duration(milliseconds: 500),
-                      curve: Curves.easeInOut,
-                    );
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    width: (_currentIndex % items.length) == index ? 30 : 10,
-                    height: 10,
-                    margin: const EdgeInsets.symmetric(horizontal: 5),
-                    decoration: BoxDecoration(
-                      color: (_currentIndex % items.length) == index 
-                          ? AppColors.secondary 
-                          : AppColors.textMuted.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
 
-class _BrandCard extends StatefulWidget {
-  final Map<String, dynamic> item;
-  final bool isActive;
+class _BrandItem extends StatefulWidget {
+  final String name;
+  final IconData icon;
+  final String? imageUrl;
 
-  const _BrandCard({required this.item, required this.isActive});
+  const _BrandItem({
+    required this.name,
+    required this.icon,
+    this.imageUrl,
+  });
 
   @override
-  State<_BrandCard> createState() => _BrandCardState();
+  State<_BrandItem> createState() => _BrandItemState();
 }
 
-class _BrandCardState extends State<_BrandCard> {
+class _BrandItemState extends State<_BrandItem> {
   bool _isHovered = false;
 
   @override
   Widget build(BuildContext context) {
-    final String imagePath = widget.item['image'];
-    final bool isNetwork = imagePath.startsWith('http');
-    final bool highlighted = _isHovered || widget.isActive;
+    // Check if we have a valid image URL
+    final bool hasImage = widget.imageUrl != null && widget.imageUrl!.isNotEmpty;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-        decoration: BoxDecoration(
-          color: highlighted ? AppColors.accentBlue : const Color(0xFFF1F5F9),
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: highlighted
-              ? [
-                  BoxShadow(
-                    color: AppColors.accentBlue.withOpacity(0.25),
-                    blurRadius: 25,
-                    offset: const Offset(0, 12),
-                  )
-                ]
-              : [],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        duration: const Duration(milliseconds: 200),
+        margin: const EdgeInsets.symmetric(horizontal: 40),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  width: 120,
-                  height: 120,
-                  decoration: const BoxDecoration(
-                    color: Colors.transparent, // Ensure no white background
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: isNetwork 
-                    ? Image.network(
-                        imagePath, 
-                        fit: BoxFit.contain, // Ensure full visibility
-                        errorBuilder: (c,e,s) => Icon(widget.item['icon'], size: 60, color: highlighted ? AppColors.accentBlue : Colors.white)
-                      )
-                    : Image.asset(
-                        imagePath, 
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              transform: Matrix4.identity()..scale(_isHovered ? 1.15 : 1.0),
+              child: hasImage
+                  ? Container(
+                      width: 50,
+                      height: 50,
+                      padding: const EdgeInsets.all(0),
+                      child: Image.network(
+                        widget.imageUrl!,
                         fit: BoxFit.contain,
-                        errorBuilder: (c,e,s) => Icon(widget.item['icon'], size: 60, color: highlighted ? AppColors.accentBlue : Colors.white)
+                        errorBuilder: (context, error, stackTrace) {
+                          // Fallback to icon if image fails to load
+                          return Icon(
+                            widget.icon,
+                            color: AppColors.accentTeal,
+                            size: 42,
+                          );
+                        },
                       ),
-                  ),
-                ),
-                Text(
-                  widget.item['id'],
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w900,
-                    color: highlighted ? Colors.white.withOpacity(0.2) : Colors.black.withOpacity(0.05),
-                  ),
-                ),
-              ],
+                    )
+                  : Icon(
+                      widget.icon,
+                      color: AppColors.accentTeal, // Theme green
+                      size: 42,
+                    ),
             ),
-            const SizedBox(height: 16), // Reduced from 24
+            const SizedBox(width: 14),
             Text(
-              widget.item['title'],
+              widget.name,
               style: TextStyle(
-                fontSize: 24, // Increased size
-                fontWeight: FontWeight.w900,
-                color: highlighted ? Colors.white : AppColors.primaryNavy,
-              ),
-            ),
-            const SizedBox(height: 8), // Reduced from 12
-            Expanded(
-              child: Text(
-                widget.item['description'],
-                style: TextStyle(
-                  fontSize: 16,
-                  height: 1.4,
-                  fontWeight: FontWeight.w500,
-                  color: highlighted ? Colors.white.withOpacity(0.9) : Colors.black87,
-                ),
-                maxLines: 4,
-                overflow: TextOverflow.visible,
+                fontSize: 26,
+                fontWeight: FontWeight.w700,
+                color: _isHovered ? AppColors.accentTeal : Colors.white,
+                letterSpacing: 0.5,
               ),
             ),
           ],
