@@ -19,6 +19,8 @@ class _NavbarEditorState extends State<NavbarEditor> {
 
   // Controllers
   final _logoUrlController = TextEditingController();
+  final _logoWidthController = TextEditingController();
+  final _logoHeightController = TextEditingController();
   final _bgColorController = TextEditingController();
   final _ctaTextController = TextEditingController();
 
@@ -35,6 +37,8 @@ class _NavbarEditorState extends State<NavbarEditor> {
 
       setState(() {
         _logoUrlController.text = content['logoUrl'] ?? '';
+        _logoWidthController.text = content['logoWidth']?.toString() ?? '140';
+        _logoHeightController.text = content['logoHeight']?.toString() ?? '50';
         _bgColorController.text = content['bgColor'] ?? '0xFFFFFFFF'; // Default White
         _ctaTextController.text = content['ctaText'] ?? 'GET A QUOTE';
         _isLoading = false;
@@ -51,6 +55,8 @@ class _NavbarEditorState extends State<NavbarEditor> {
     try {
       final content = {
         'logoUrl': _logoUrlController.text,
+        'logoWidth': _logoWidthController.text,
+        'logoHeight': _logoHeightController.text,
         'bgColor': _bgColorController.text,
         'ctaText': _ctaTextController.text,
       };
@@ -186,6 +192,14 @@ class _NavbarEditorState extends State<NavbarEditor> {
                           icon: Icons.branding_watermark,
                           children: [
                             _buildTextField('Logo URL', _logoUrlController, isImage: true, hint: 'https://example.com/logo.png'),
+                            const SizedBox(height: 16),
+                            Row(
+                              children: [
+                                Expanded(child: _buildTextField('Logo Width (px)', _logoWidthController, hint: 'e.g. 140')),
+                                const SizedBox(width: 16),
+                                Expanded(child: _buildTextField('Logo Height (px)', _logoHeightController, hint: 'e.g. 50')),
+                              ],
+                            ),
                           ],
                         ),
                         const SizedBox(height: 24),

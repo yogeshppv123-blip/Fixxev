@@ -201,11 +201,13 @@ class _CustomAppBarState extends State<CustomAppBar> {
 
   Widget _buildLogo(bool isLight) {
     final logoUrl = _navbarData['logoUrl'] as String?;
+    final double? width = double.tryParse(_navbarData['logoWidth']?.toString() ?? '140');
+    final double? height = double.tryParse(_navbarData['logoHeight']?.toString() ?? '50');
 
     return Container(
-      height: 55,
+      height: height ?? 55,
       padding: const EdgeInsets.symmetric(vertical: 4),
-      constraints: const BoxConstraints(maxWidth: 180),
+      constraints: BoxConstraints(maxWidth: width ?? 180),
       child: Image.network(
         (logoUrl != null && logoUrl.isNotEmpty) ? logoUrl : 'logo.png',
         fit: BoxFit.contain,
@@ -410,8 +412,8 @@ class _MobileDrawerState extends State<MobileDrawer> {
                 child: Row(
                   children: [
                     Container(
-                      height: 50,
-                      constraints: const BoxConstraints(maxWidth: 160),
+                      height: double.tryParse(_navbarData['logoHeight']?.toString() ?? '50'),
+                      constraints: BoxConstraints(maxWidth: double.tryParse(_navbarData['logoWidth']?.toString() ?? '160') ?? 160),
                       child: Image.network(
                         (logoUrl != null && logoUrl.isNotEmpty) ? logoUrl : 'logo.png',
                         fit: BoxFit.contain,
