@@ -22,6 +22,9 @@ class _NavbarEditorState extends State<NavbarEditor> {
   final _logoWidthController = TextEditingController();
   final _logoHeightController = TextEditingController();
   final _bgColorController = TextEditingController();
+  final _textColorController = TextEditingController();
+  final _hoverColorController = TextEditingController();
+  final _activeColorController = TextEditingController();
   final _ctaTextController = TextEditingController();
 
   @override
@@ -39,7 +42,10 @@ class _NavbarEditorState extends State<NavbarEditor> {
         _logoUrlController.text = content['logoUrl'] ?? '';
         _logoWidthController.text = content['logoWidth']?.toString() ?? '140';
         _logoHeightController.text = content['logoHeight']?.toString() ?? '50';
-        _bgColorController.text = content['bgColor'] ?? '0xFFFFFFFF'; // Default White
+        _bgColorController.text = content['bgColor'] ?? '0xFFFFFFFF';
+        _textColorController.text = content['textColor'] ?? '0xFF437BDC';
+        _hoverColorController.text = content['hoverColor'] ?? '0xFF2BC155';
+        _activeColorController.text = content['activeColor'] ?? '0xFF2BC155';
         _ctaTextController.text = content['ctaText'] ?? 'GET A QUOTE';
         _isLoading = false;
       });
@@ -58,6 +64,9 @@ class _NavbarEditorState extends State<NavbarEditor> {
         'logoWidth': _logoWidthController.text,
         'logoHeight': _logoHeightController.text,
         'bgColor': _bgColorController.text,
+        'textColor': _textColorController.text,
+        'hoverColor': _hoverColorController.text,
+        'activeColor': _activeColorController.text,
         'ctaText': _ctaTextController.text,
       };
 
@@ -230,6 +239,16 @@ class _NavbarEditorState extends State<NavbarEditor> {
                             const Text(
                               'Note: Use HEX format starting with 0xFF. Default is 0xFFFFFFFF (White).',
                               style: TextStyle(color: AppColors.textGrey, fontSize: 12),
+                            ),
+                            const SizedBox(height: 24),
+                            _buildTextField('Text Color (HEX)', _textColorController, hint: 'e.g. 0xFF1A1A1A'),
+                            const SizedBox(height: 16),
+                            Row(
+                              children: [
+                                Expanded(child: _buildTextField('Hover Color (HEX)', _hoverColorController, hint: 'e.g. 0xFF2BC155')),
+                                const SizedBox(width: 16),
+                                Expanded(child: _buildTextField('Active Link Color (HEX)', _activeColorController, hint: 'e.g. 0xFF2BC155')),
+                              ],
                             ),
                           ],
                         ),

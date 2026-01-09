@@ -155,7 +155,7 @@ class AppTextStyles {
   static TextStyle navLink = GoogleFonts.poppins(
     fontSize: 14,
     fontWeight: FontWeight.w500,
-    color: AppColors.textDark,
+    color: AppColors.primaryNavy,
   );
 
   static TextStyle navLinkLight = GoogleFonts.poppins(

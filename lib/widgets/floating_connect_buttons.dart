@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fixxev/core/theme/app_colors.dart';
 import 'package:fixxev/core/constants/app_constants.dart';
-import 'dart:html' as html;
+import 'package:url_launcher/url_launcher.dart';
 
 class FloatingConnectButtons extends StatefulWidget {
   final ScrollController scrollController;
@@ -46,10 +46,12 @@ class _FloatingConnectButtonsState extends State<FloatingConnectButtons> {
     );
   }
 
-  void _openWhatsApp() {
+  void _openWhatsApp() async {
     final phoneNumber = AppConstants.phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
-    final whatsappUrl = 'https://wa.me/$phoneNumber';
-    html.window.open(whatsappUrl, '_blank');
+    final whatsappUrl = Uri.parse('https://wa.me/$phoneNumber');
+    if (await canLaunchUrl(whatsappUrl)) {
+      await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication);
+    }
   }
 
   @override

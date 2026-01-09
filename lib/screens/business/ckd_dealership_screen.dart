@@ -61,8 +61,14 @@ class _CKDealershipScreenState extends State<CKDealershipScreen> {
     return Scaffold(
       key: _scaffoldKey,
       drawer: const MobileDrawer(),
-      extendBodyBehindAppBar: true,
+      extendBodyBehindAppBar: false,
       backgroundColor: Colors.white,
+      appBar: CustomAppBar(
+        isTransparent: false,
+        useLightText: false,
+        onMenuPressed: () => _scaffoldKey.currentState?.openDrawer(),
+        onContactPressed: () {},
+      ),
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -86,19 +92,6 @@ class _CKDealershipScreenState extends State<CKDealershipScreen> {
 
                 const FooterWidget(),
               ],
-            ),
-          ),
-
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: CustomAppBar(
-              isTransparent: !_isScrolled,
-              backgroundColor: _isScrolled ? AppColors.navDark : null,
-              useLightText: true,
-              onMenuPressed: () => _scaffoldKey.currentState?.openDrawer(),
-              onContactPressed: () {},
             ),
           ),
 

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 
-/// Stats bar section with animated counters
+/// Stats bar section with animated counters.
+/// Disabled animations for mobile view for robust rendering.
 class StatsBarSection extends StatefulWidget {
   final Map<String, dynamic> content;
   const StatsBarSection({super.key, required this.content});
@@ -13,7 +13,19 @@ class StatsBarSection extends StatefulWidget {
 }
 
 class _StatsBarSectionState extends State<StatsBarSection> {
-  bool _isVisible = false;
+  bool _shouldAnimate = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {
+          _shouldAnimate = true;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,55 +51,70 @@ class _StatsBarSectionState extends State<StatsBarSection> {
       },
     ];
 
-    return VisibilityDetector(
-      key: const Key('stats_bar_visibility'),
-      onVisibilityChanged: (info) {
-        if (!mounted) return;
-        if (info.visibleFraction > 0.2 && !_isVisible) {
-          setState(() {
-            _isVisible = true;
-          });
-        } else if (info.visibleFraction < 0.1 && _isVisible) {
-          setState(() {
-            _isVisible = false;
-          });
-        }
-      },
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(
-          horizontal: isMobile ? 20 : 60,
-          vertical: isMobile ? 20 : 25, // Minimal spacing
-        ),
-        decoration: const BoxDecoration(
-          color: Colors.white, // Clean white background
-        ),
-        child: isMobile
-            ? Column(
-                children: stats.asMap().entries.map((entry) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: _StatItem(
-                      value: entry.value['value']!,
-                      label: entry.value['label']!,
-                      animate: _isVisible,
-                      delay: entry.key * 200,
-                    ),
-                  );
-                }).toList(),
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: stats.asMap().entries.map((entry) {
-                  return _StatItem(
-                    value: entry.value['value']!,
-                    label: entry.value['label']!,
-                    animate: _isVisible,
-                    delay: entry.key * 200,
-                  );
-                }).toList(),
-              ),
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 20 : 60,
+        vertical: isMobile ? 40 : 25,
       ),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+      ),
+      child: isMobile
+          ? Column(
+              children: stats.map((stat) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: _StaticStatItem(
+                    value: stat['value']!,
+                    label: stat['label']!,
+                  ),
+                );
+              }).toList(),
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: stats.asMap().entries.map((entry) {
+                return _StatItem(
+                  value: entry.value['value']!,
+                  label: entry.value['label']!,
+                  animate: _shouldAnimate,
+                  delay: entry.key * 100,
+                );
+              }).toList(),
+            ),
+    );
+  }
+}
+
+class _StaticStatItem extends StatelessWidget {
+  final String value;
+  final String label;
+
+  const _StaticStatItem({required this.value, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: AppTextStyles.heroTitle.copyWith(
+            color: AppColors.primaryNavy,
+            fontSize: 40,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label.toUpperCase(),
+          style: AppTextStyles.bodySmall.copyWith(
+            color: AppColors.textGrey,
+            letterSpacing: 1.5,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -137,7 +164,6 @@ class _StatItemState extends State<_StatItem> with SingleTickerProviderStateMixi
   }
 
   void _parseValue() {
-    // Extract numbers and suffixes like +, %
     final numericString = widget.value.replaceAll(RegExp(r'[^0-9]'), '');
     _targetValue = int.tryParse(numericString) ?? 0;
     
@@ -146,16 +172,10 @@ class _StatItemState extends State<_StatItem> with SingleTickerProviderStateMixi
     } else if (widget.value.contains('%')) {
       _suffix = '%';
     }
-    
-    // Check for comma in original string to maintain formatting
-    if (widget.value.contains(',')) {
-      _prefix = ''; // For comma we use number formatting
-    }
   }
 
   String _formatNumber(int val) {
     if (widget.value.contains(',')) {
-      // Very basic comma formatting for thousands
       String s = val.toString();
       if (s.length > 3) {
         return '${s.substring(0, s.length - 3)},${s.substring(s.length - 3)}';
@@ -168,22 +188,9 @@ class _StatItemState extends State<_StatItem> with SingleTickerProviderStateMixi
   @override
   void didUpdateWidget(_StatItem oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.value != oldWidget.value) {
-      _parseValue();
-      _animation = Tween<double>(begin: _currentValue.toDouble(), end: _targetValue.toDouble()).animate(
-        CurvedAnimation(parent: _controller, curve: Curves.easeOutExpo),
-      );
-      if (widget.animate) _controller.forward(from: 0);
-    }
-    
     if (widget.animate && !oldWidget.animate) {
       Future.delayed(Duration(milliseconds: widget.delay), () {
         if (mounted) _controller.forward();
-      });
-    } else if (!widget.animate && oldWidget.animate) {
-      _controller.reset();
-      setState(() {
-        _currentValue = 0;
       });
     }
   }
@@ -201,7 +208,7 @@ class _StatItemState extends State<_StatItem> with SingleTickerProviderStateMixi
         Text(
           '$_prefix${_formatNumber(_currentValue)}$_suffix',
           style: AppTextStyles.heroTitle.copyWith(
-            color: AppColors.primaryNavy, // Blue stats
+            color: AppColors.primaryNavy,
             fontSize: 40,
             fontWeight: FontWeight.bold,
           ),

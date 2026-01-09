@@ -4,7 +4,7 @@ import 'package:fixxev/core/theme/app_colors.dart';
 import 'package:fixxev/core/theme/app_text_styles.dart';
 
 /// Brands We Serve - Header on white, Marquee on dark blue
-/// Displays Admin-uploaded logos if available, else falls back to generic icons
+/// Restored auto-scroll for all views as requested.
 class BrandsCardSection extends StatefulWidget {
   final Map<String, dynamic> content;
   const BrandsCardSection({super.key, required this.content});
@@ -108,7 +108,7 @@ class _BrandsCardSectionState extends State<BrandsCardSection>
                   fontSize: 14,
                   letterSpacing: 2.0,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.accentTeal, // Theme green
+                  color: AppColors.accentTeal,
                 ),
               ),
               const SizedBox(height: 16),
@@ -116,7 +116,7 @@ class _BrandsCardSectionState extends State<BrandsCardSection>
                 widget.content['brandsTitle'] ?? 'BRANDS WE SERVE',
                 textAlign: TextAlign.center,
                 style: AppTextStyles.heading2.copyWith(
-                  color: AppColors.accentBlue, // Theme blue
+                  color: AppColors.accentBlue,
                   fontSize: isMobile ? 28 : 40,
                   fontWeight: FontWeight.w900,
                 ),
@@ -139,7 +139,7 @@ class _BrandsCardSectionState extends State<BrandsCardSection>
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 24),
           decoration: BoxDecoration(
-            color: AppColors.primaryNavy, // Theme dark blue
+            color: AppColors.primaryNavy,
           ),
           child: SizedBox(
             height: 90,
@@ -164,7 +164,7 @@ class _BrandsCardSectionState extends State<BrandsCardSection>
   }
 }
 
-class _BrandItem extends StatefulWidget {
+class _BrandItem extends StatelessWidget {
   final String name;
   final IconData icon;
   final String? imageUrl;
@@ -176,65 +176,40 @@ class _BrandItem extends StatefulWidget {
   });
 
   @override
-  State<_BrandItem> createState() => _BrandItemState();
-}
-
-class _BrandItemState extends State<_BrandItem> {
-  bool _isHovered = false;
-
-  @override
   Widget build(BuildContext context) {
-    // Check if we have a valid image URL
-    final bool hasImage = widget.imageUrl != null && widget.imageUrl!.isNotEmpty;
+    final bool hasImage = imageUrl != null && imageUrl!.isNotEmpty;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 768;
 
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        margin: const EdgeInsets.symmetric(horizontal: 40),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              transform: Matrix4.identity()..scale(_isHovered ? 1.15 : 1.0),
-              child: hasImage
-                  ? Container(
-                      width: 50,
-                      height: 50,
-                      padding: const EdgeInsets.all(0),
-                      child: Image.network(
-                        widget.imageUrl!,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) {
-                          // Fallback to icon if image fails to load
-                          return Icon(
-                            widget.icon,
-                            color: AppColors.accentTeal,
-                            size: 42,
-                          );
-                        },
-                      ),
-                    )
-                  : Icon(
-                      widget.icon,
-                      color: AppColors.accentTeal, // Theme green
-                      size: 42,
-                    ),
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 40),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          hasImage
+              ? Container(
+                  width: 50,
+                  height: 50,
+                  child: Image.network(
+                    imageUrl!,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Icon(icon, color: AppColors.accentTeal, size: 42);
+                    },
+                  ),
+                )
+              : Icon(icon, color: AppColors.accentTeal, size: 42),
+          const SizedBox(width: 14),
+          Text(
+            name,
+            style: const TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+              letterSpacing: 0.5,
             ),
-            const SizedBox(width: 14),
-            Text(
-              widget.name,
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.w700,
-                color: _isHovered ? AppColors.accentTeal : Colors.white,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

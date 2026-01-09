@@ -64,5 +64,23 @@ class AppColors {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
+
+  static Color fromHex(String? hexString, Color fallback) {
+    if (hexString == null || hexString.isEmpty) return fallback;
+    
+    String hex = hexString.replaceAll('#', '');
+    if (hex.startsWith('0x')) hex = hex.substring(2);
+
+    try {
+      if (hex.length == 6) {
+        return Color(int.parse('FF$hex', radix: 16));
+      } else if (hex.length == 8) {
+        return Color(int.parse(hex, radix: 16));
+      }
+    } catch (e) {
+      debugPrint('Error parsing color $hexString: $e');
+    }
+    return fallback;
+  }
 }
 

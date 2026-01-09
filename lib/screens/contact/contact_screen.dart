@@ -230,9 +230,8 @@ class _ContactScreenState extends State<ContactScreen> {
                 left: 0,
                 right: 0,
                 child: CustomAppBar(
-                  isTransparent: !_isScrolled,
-                  backgroundColor: _isScrolled ? AppColors.navDark : null,
-                  useLightText: true,
+                  isTransparent: false,
+                  useLightText: false,
                   onMenuPressed: () => _scaffoldKey.currentState?.openDrawer(),
                   onContactPressed: () {},
                 ),

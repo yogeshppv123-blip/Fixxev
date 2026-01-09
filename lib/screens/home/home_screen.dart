@@ -58,11 +58,28 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      extendBodyBehindAppBar: true,
+      extendBodyBehindAppBar: false,
       drawer: const MobileDrawer(),
+      appBar: CustomAppBar(
+        isTransparent: false,
+        useLightText: false,
+        onMenuPressed: () {
+          _scaffoldKey.currentState?.openDrawer();
+        },
+        onContactPressed: () {
+          // Navigate to contact
+          Navigator.pushNamed(context, '/contact');
+        },
+      ),
       body: FutureBuilder<Map<String, dynamic>>(
         future: _homeContentFuture,
         builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
           final content = snapshot.data ?? {};
           return Stack(
             children: [
@@ -86,15 +103,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     // 3. About Us (Stats with Counter Animation)
                     AboutUsSection(content: content),
                     
-                    // 4. Services Grid (Grid with Hover Color Shifts) - HIDE ON MOBILE
-                    LayoutBuilder(
-                      builder: (context, constraints) {
-                        if (MediaQuery.of(context).size.width < 768) {
-                          return const SizedBox.shrink();
-                        }
-                        return ServicesSection(content: content);
-                      },
-                    ),
+                    // 4. Services Grid (Grid with Hover Color Shifts)
+                    ServicesSection(content: content),
                     
                     // 5. Partners (Auto-scrolling logos)
                     PartnersCarouselSection(content: content),
@@ -116,28 +126,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               
-              // App Bar (Overlaid with nav link animations)
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  child: CustomAppBar(
-                    isTransparent: !_isScrolled,
-                    backgroundColor: _isScrolled ? AppColors.navDark : null,
-                    useLightText: true,
-                    onMenuPressed: () {
-                      _scaffoldKey.currentState?.openDrawer();
-                    },
-                    onContactPressed: () {
-                      // Navigate to contact
-                      Navigator.pushNamed(context, '/contact');
-                    },
-                  ),
-                ),
-              ),
-    
               // Floating Connect Buttons (Sticky and animated)
               FloatingConnectButtons(scrollController: _scrollController),
             ],

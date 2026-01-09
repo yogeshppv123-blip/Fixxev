@@ -35,6 +35,7 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
   void _handleNext() {
     final dynamic dynamicTestimonials = widget.content['testimonials'];
     final len = (dynamicTestimonials as List?)?.length ?? 2;
+    if (len == 0) return;
     setState(() {
       _activeIndex = (_activeIndex + 1) % len;
     });
@@ -43,6 +44,7 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
   void _handlePrev() {
     final dynamic dynamicTestimonials = widget.content['testimonials'];
     final len = (dynamicTestimonials as List?)?.length ?? 2;
+    if (len == 0) return;
     setState(() {
       _activeIndex = (_activeIndex - 1 + len) % len;
     });
@@ -104,7 +106,7 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
     return Container(
       width: double.infinity,
       color: const Color(0xFFF7F7FA),
-      padding: EdgeInsets.symmetric(vertical: isMobile ? 20 : 30, horizontal: isMobile ? 20 : 40),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 40 : 30, horizontal: isMobile ? 20 : 40),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 1200),
@@ -116,7 +118,7 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
                 style: GoogleFonts.poppins(
                   fontSize: isMobile ? 16 : 18,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF2EBD59), // Changed to Green
+                  color: const Color(0xFF2EBD59),
                   letterSpacing: 3,
                 ),
               ),
@@ -127,30 +129,31 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
                 style: GoogleFonts.poppins(
                   fontSize: isMobile ? 32 : 52,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.accentBlue, // Changed to Blue
+                  color: AppColors.accentBlue,
                   height: 1.1,
                 ),
               ),
-              SizedBox(height: isMobile ? 20 : 40),
+              SizedBox(height: isMobile ? 40 : 40),
               LayoutBuilder(
                 builder: (context, constraints) {
                   _containerWidth = constraints.maxWidth;
-                  return isMobile 
-                    ? Column(
-                        children: [
-                          _buildImageStack(testimonials, isMobile),
-                          const SizedBox(height: 40),
-                          _buildContent(activeTestimonial, isMobile),
-                        ],
-                      )
-                    : Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(flex: 1, child: _buildImageStack(testimonials, isMobile)),
-                          const SizedBox(width: 80),
-                          Expanded(flex: 1, child: _buildContent(activeTestimonial, isMobile)),
-                        ],
-                      );
+                  if (isMobile) {
+                    return Column(
+                      children: [
+                         _buildMobileImage(activeTestimonial['image']),
+                         const SizedBox(height: 30),
+                         _buildMobileContent(activeTestimonial),
+                      ],
+                    );
+                  }
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(flex: 1, child: _buildImageStack(testimonials, isMobile)),
+                      const SizedBox(width: 80),
+                      Expanded(flex: 1, child: _buildContent(activeTestimonial, isMobile)),
+                    ],
+                  );
                 },
               ),
             ],
@@ -160,32 +163,88 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
     );
   }
 
+  Widget _buildMobileImage(String imageUrl) {
+    return Container(
+      width: double.infinity,
+      height: 250,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          )
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Image.network(
+        imageUrl,
+        fit: BoxFit.cover,
+        errorBuilder: (c, e, s) => Container(
+          color: Colors.grey.shade200,
+          child: const Icon(Icons.person, size: 50),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMobileContent(Map<String, dynamic> testimonial) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(Icons.format_quote_rounded, size: 50, color: AppColors.accentBlue.withOpacity(0.5)),
+        Text(
+          testimonial['name'],
+          style: AppTextStyles.heading2.copyWith(
+            color: AppColors.accentBlue,
+            fontSize: 28,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          testimonial['role'],
+          style: GoogleFonts.poppins(
+            fontSize: 18,
+            color: Colors.grey.shade600,
+          ),
+        ),
+        const SizedBox(height: 20),
+        Text(
+          testimonial['content'],
+          style: GoogleFonts.poppins(
+            fontSize: 16,
+            color: Colors.grey.shade800,
+            height: 1.5,
+          ),
+        ),
+        const SizedBox(height: 30),
+        Row(
+          children: [
+            _buildArrowButton(Icons.arrow_back, _handlePrev),
+            const SizedBox(width: 16),
+            _buildArrowButton(Icons.arrow_forward, _handleNext),
+          ],
+        ),
+      ],
+    );
+  }
+
   Widget _buildImageStack(List<Map<String, dynamic>> testimonials, bool isMobile) {
     final gap = _calculateGap(_containerWidth);
     final stickUp = gap * 0.8;
     final len = testimonials.length;
 
-    // Generate indices sorted by Z-index (background to foreground)
     final List<int> sortedIndices = List.generate(len, (i) => i);
     sortedIndices.sort((a, b) {
-      final int offsetA = (a - _activeIndex + len) % len;
-      final int offsetB = (b - _activeIndex + len) % len;
-      
-      int zA = 0;
-      if (a == _activeIndex) zA = 3;
-      else if (a == (_activeIndex - 1 + len) % len || a == (_activeIndex + 1) % len) zA = 2;
-      else zA = 1;
-
-      int zB = 0;
-      if (b == _activeIndex) zB = 3;
-      else if (b == (_activeIndex - 1 + len) % len || b == (_activeIndex + 1) % len) zB = 2;
-      else zB = 1;
-
+      int zA = (a == _activeIndex) ? 3 : (a == (_activeIndex - 1 + len) % len || a == (_activeIndex + 1) % len) ? 2 : 1;
+      int zB = (b == _activeIndex) ? 3 : (b == (_activeIndex - 1 + len) % len || b == (_activeIndex + 1) % len) ? 2 : 1;
       return zA.compareTo(zB);
     });
 
     return Container(
-      height: isMobile ? 350 : 550, // Increased height for rectangular images
+      height: 550,
       width: double.infinity,
       child: Stack(
         alignment: Alignment.center,
@@ -201,19 +260,16 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
           double rotateY = 0;
 
           if (isActive) {
-            translateX = 0;
-            translateY = 0;
             scale = 1.0;
             opacity = 1.0;
-            rotateY = 0;
           } else if (isLeft) {
-            translateX = -gap * 0.75; // More spread
+            translateX = -gap * 0.75;
             translateY = -stickUp * 1.2;
             scale = 0.9;
             opacity = 0.95;
             rotateY = 0.4; 
           } else if (isRight) {
-            translateX = gap * 0.75; // More spread
+            translateX = gap * 0.75;
             translateY = -stickUp * 1.2;
             scale = 0.9;
             opacity = 0.95;
@@ -225,7 +281,7 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
             duration: const Duration(milliseconds: 800),
             curve: Curves.fastOutSlowIn,
             transform: Matrix4.identity()
-              ..setEntry(3, 2, 0.001) // perspective
+              ..setEntry(3, 2, 0.001)
               ..translate(translateX, translateY)
               ..scale(scale)
               ..rotateY(rotateY),
@@ -234,8 +290,8 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
               duration: const Duration(milliseconds: 600),
               opacity: opacity,
               child: Container(
-                width: isMobile ? 280 : 480, // Horizontal Rectangle
-                height: isMobile ? 200 : 320, // Horizontal Rectangle
+                width: 480,
+                height: 320,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(40),
                   boxShadow: [
@@ -248,10 +304,7 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: ImageFiltered(
-                  imageFilter: ImageFilter.blur(
-                    sigmaX: isActive ? 0 : 4,
-                    sigmaY: isActive ? 0 : 4,
-                  ),
+                  imageFilter: ImageFilter.blur(sigmaX: isActive ? 0 : 4, sigmaY: isActive ? 0 : 4),
                   child: Image.network(
                     testimonials[index]['image'],
                     fit: BoxFit.cover,
@@ -273,7 +326,7 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
 
   Widget _buildContent(Map<String, dynamic> testimonial, bool isMobile) {
     return Container(
-      height: isMobile ? null : 450, // Match the height of the image stack
+      height: 450,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -294,7 +347,7 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
                 Text(
                   testimonial['name'],
                   style: AppTextStyles.heading2.copyWith(
-                    color: AppColors.accentBlue, // Changed to Blue
+                    color: AppColors.accentBlue,
                     height: 1.2,
                     fontWeight: FontWeight.w900,
                   ),
@@ -303,18 +356,18 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
                 Text(
                   testimonial['role'],
                   style: GoogleFonts.poppins(
-                    fontSize: 22, // Larger role
+                    fontSize: 22,
                     color: Colors.grey.shade600,
                   ),
                 ),
-                const SizedBox(height: 24), // Increased spacing for quote
+                const SizedBox(height: 24),
                 _AnimatedQuote(text: testimonial['content']),
               ],
             ),
           ),
-          const Spacer(), // Pushes navigation towards the bottom
+          const Spacer(),
           Padding(
-            padding: const EdgeInsets.only(bottom: 10), // Reduced bottom spacing
+            padding: const EdgeInsets.only(bottom: 10),
             child: Row(
               children: [
                 _buildArrowButton(Icons.arrow_back, _handlePrev),
@@ -334,7 +387,7 @@ class _TestimonialsSectionState extends State<TestimonialsSection>
       child: GestureDetector(
         onTap: () {
           onTap();
-          _startAutoplay(); // Reset autoplay on manual click
+          _startAutoplay();
         },
         child: Container(
           width: 50,
@@ -373,7 +426,7 @@ class _AnimatedQuote extends StatelessWidget {
                   style: GoogleFonts.poppins(
                     fontSize: 20,
                     color: Colors.grey.shade800,
-                    height: 1.4, // Reduced line height
+                    height: 1.4,
                   ),
                 ),
               ),
@@ -384,4 +437,3 @@ class _AnimatedQuote extends StatelessWidget {
     );
   }
 }
-

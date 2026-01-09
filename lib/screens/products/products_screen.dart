@@ -71,8 +71,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
             left: 0,
             right: 0,
             child: CustomAppBar(
-              backgroundColor: AppColors.navDark,
-              useLightText: true,
               onMenuPressed: () => _scaffoldKey.currentState?.openDrawer(),
               onContactPressed: () {},
             ),

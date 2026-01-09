@@ -55,11 +55,16 @@ class _CustomAppBarState extends State<CustomAppBar> {
         setState(() {
           _navbarData = results[0];
           _settingsData = results[1];
-          _isLoading = false;
         });
       }
     } catch (e) {
-      if (mounted) setState(() => _isLoading = false);
+      debugPrint('Error loading navbar data: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -75,17 +80,10 @@ class _CustomAppBarState extends State<CustomAppBar> {
     if (widget.isTransparent) return Colors.transparent;
     
     final hexStr = _navbarData['bgColor'] as String?;
-    if (hexStr != null && hexStr.startsWith('0x')) {
-      try {
-        return Color(int.parse(hexStr));
-      } catch (e) {
-        // Use theme primary color as fallback
-        final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-        return themeProvider.primaryColor;
-      }
-    }
-    return AppColors.white;
+    // Default to PURE WHITE if data is missing or invalid
+    return AppColors.fromHex(hexStr, AppColors.white);
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +91,9 @@ class _CustomAppBarState extends State<CustomAppBar> {
     final isMobile = screenWidth < 768;
     final bgColor = _getBackgroundColor();
     final isDarkBg = bgColor.computeLuminance() < 0.5;
-    final bool lightText = widget.isTransparent || widget.useLightText || isDarkBg;
+    // Only use light text if explicitly requested OR if the background is actually dark
+    // NOT automatically when transparent, as hero sections can be light.
+    final bool lightText = widget.useLightText || (isDarkBg && !widget.isTransparent);
 
     return Column(
       children: [
@@ -136,7 +136,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
                   ),
                 )
               else
-                _buildNavigationLinks(context, lightText),
+                _isLoading ? const SizedBox(width: 200) : _buildNavigationLinks(context, lightText),
               // CTA Button
               if (!isMobile)
                 PrimaryButton(
@@ -246,7 +246,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 1,
-                  color: isLight ? AppColors.textLight : AppColors.primaryNavy,
+                  color: isLight ? AppColors.textLight : AppColors.fromHex(_navbarData['textColor'], AppColors.primaryNavy),
                 ),
               ),
               TextSpan(
@@ -279,6 +279,19 @@ class _CustomAppBarState extends State<CustomAppBar> {
       {'label': 'BLOG', 'path': '/blog'},
       {'label': 'CONTACT', 'path': '/contact'},
     ];
+
+    // Force Blue if the data is missing or accidentally set to black in Admin
+    Color textColor = AppColors.fromHex(_navbarData['textColor'], AppColors.primaryNavy);
+    
+    // Intelligently override if the color is too dark (near black)
+    // 0xFF001F3F is dark navy, 0xFF000000 is black.
+    if (!isLight && textColor.computeLuminance() < 0.15) {
+      textColor = AppColors.primaryNavy; 
+    }
+
+    final hoverColor = AppColors.fromHex(_navbarData['hoverColor'], AppColors.accentTeal);
+    final activeColor = AppColors.fromHex(_navbarData['activeColor'], AppColors.accentTeal);
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: navItems.map((item) {
@@ -287,6 +300,9 @@ class _CustomAppBarState extends State<CustomAppBar> {
           label: item['label']!,
           isLight: isLight,
           isActive: isActive,
+          textColor: textColor,
+          hoverColor: hoverColor,
+          activeColor: activeColor,
           onTap: () => context.go(item['path']!),
         );
       }).toList(),
@@ -298,9 +314,20 @@ class _NavItem extends StatefulWidget {
   final String label;
   final bool isLight;
   final bool isActive;
+  final Color textColor;
+  final Color hoverColor;
+  final Color activeColor;
   final VoidCallback onTap;
 
-  const _NavItem({required this.label, required this.isLight, required this.isActive, required this.onTap});
+  const _NavItem({
+    required this.label,
+    required this.isLight,
+    required this.isActive,
+    required this.textColor,
+    required this.hoverColor,
+    required this.activeColor,
+    required this.onTap,
+  });
 
   @override
   State<_NavItem> createState() => _NavItemState();
@@ -327,9 +354,9 @@ class _NavItemState extends State<_NavItem> {
                 style: (widget.isLight ? AppTextStyles.navLinkLight : AppTextStyles.navLink).copyWith(
                   fontSize: 13,
                   fontWeight: (_isHovered || widget.isActive) ? FontWeight.w700 : FontWeight.w500,
-                  color: (_isHovered || widget.isActive)
-                      ? AppColors.accentTeal
-                      : (widget.isLight ? AppColors.textLight : AppColors.textDark),
+                  color: widget.isActive 
+                      ? widget.activeColor 
+                      : (_isHovered ? widget.hoverColor : (widget.isLight ? AppColors.textLight : widget.textColor)),
                   letterSpacing: 0.5,
                 ),
                 child: Text(widget.label),
@@ -340,7 +367,7 @@ class _NavItemState extends State<_NavItem> {
                 height: 2,
                 width: (_isHovered || widget.isActive) ? 20 : 0,
                 decoration: BoxDecoration(
-                  color: AppColors.accentTeal,
+                  color: widget.isActive ? widget.activeColor : widget.hoverColor,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -400,32 +427,33 @@ class _MobileDrawerState extends State<MobileDrawer> {
     final email = _settingsData['contactEmail'] ?? AppConstants.email;
     final phone = _settingsData['contactPhone'] ?? AppConstants.phoneNumber;
 
+    final bgColor = AppColors.fromHex(_navbarData['bgColor'], AppColors.white);
+    Color textColor = AppColors.fromHex(_navbarData['textColor'], AppColors.primaryNavy);
+    if (textColor.computeLuminance() < 0.15) {
+      textColor = AppColors.primaryNavy;
+    }
+
     return Drawer(
       child: Container(
-        color: AppColors.primaryNavy,
+        color: bgColor,
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.all(24),
-                child: Row(
-                  children: [
-                    Container(
-                      height: double.tryParse(_navbarData['logoHeight']?.toString() ?? '50'),
-                      constraints: BoxConstraints(maxWidth: double.tryParse(_navbarData['logoWidth']?.toString() ?? '160') ?? 160),
-                      child: Image.network(
-                        (logoUrl != null && logoUrl.isNotEmpty) ? logoUrl : 'logo.png',
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) => const Center(
-                          child: Text(
-                            'FIXXEV',
-                            style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 200),
+                  child: Image.network(
+                    (logoUrl != null && logoUrl.isNotEmpty) ? logoUrl : 'logo.png',
+                    height: double.tryParse(_navbarData['logoHeight']?.toString() ?? '50'),
+                    fit: BoxFit.contain,
+                    alignment: Alignment.centerLeft,
+                    errorBuilder: (context, error, stackTrace) => Text(
+                      'FIXXEV',
+                      style: TextStyle(color: textColor, fontSize: 24, fontWeight: FontWeight.bold),
                     ),
-                  ],
+                  ),
                 ),
               ),
               Container(
@@ -441,14 +469,15 @@ class _MobileDrawerState extends State<MobileDrawer> {
                       contentPadding: const EdgeInsets.symmetric(horizontal: 24),
                       title: Text(
                         item['label']!.toUpperCase(),
-                        style: AppTextStyles.navLinkLight.copyWith(
+                        style: AppTextStyles.navLink.copyWith(
                           fontSize: 16,
                           letterSpacing: 1,
+                          color: textColor,
                         ),
                       ),
-                      trailing: const Icon(
+                      trailing: Icon(
                         Icons.arrow_forward_ios,
-                        color: AppColors.textGrey,
+                        color: textColor,
                         size: 14,
                       ),
                       onTap: () {

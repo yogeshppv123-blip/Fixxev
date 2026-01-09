@@ -21,6 +21,7 @@ class _TeamScreenState extends State<TeamScreen> {
   final ApiService _apiService = ApiService();
   late Future<List<dynamic>> _teamFuture;
   bool _isScrolled = false;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -49,6 +50,8 @@ class _TeamScreenState extends State<TeamScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: const MobileDrawer(),
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
@@ -130,10 +133,9 @@ class _TeamScreenState extends State<TeamScreen> {
             left: 0,
             right: 0,
             child: CustomAppBar(
-              isTransparent: !_isScrolled,
-              backgroundColor: _isScrolled ? AppColors.navDark : null,
-              useLightText: true,
-              onMenuPressed: () {},
+              isTransparent: false,
+              useLightText: false,
+              onMenuPressed: () => _scaffoldKey.currentState?.openDrawer(),
               onContactPressed: () {},
             ),
           ),

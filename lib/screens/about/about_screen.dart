@@ -68,6 +68,10 @@ class _AboutScreenState extends State<AboutScreen> {
       key: _scaffoldKey,
       drawer: const MobileDrawer(),
       backgroundColor: Colors.white,
+      appBar: CustomAppBar(
+        onMenuPressed: () => _scaffoldKey.currentState?.openDrawer(),
+        onContactPressed: () {},
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Stack(
@@ -133,16 +137,6 @@ class _AboutScreenState extends State<AboutScreen> {
                       ),
                       const FooterWidget(),
                     ],
-                  ),
-                ),
-                Positioned(
-                  top: 0, left: 0, right: 0,
-                  child: CustomAppBar(
-                    isTransparent: false,
-                    backgroundColor: AppColors.navDark,
-                    useLightText: true,
-                    onMenuPressed: () => _scaffoldKey.currentState?.openDrawer(),
-                    onContactPressed: () {},
                   ),
                 ),
                 FloatingConnectButtons(scrollController: _scrollController),

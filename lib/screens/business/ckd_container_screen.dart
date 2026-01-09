@@ -137,9 +137,6 @@ class _CKDContainerScreenState extends State<CKDContainerScreen> {
             left: 0,
             right: 0,
             child: CustomAppBar(
-              isTransparent: false,
-              backgroundColor: AppColors.navDark,
-              useLightText: true,
               onMenuPressed: () => _scaffoldKey.currentState?.openDrawer(),
               onContactPressed: () {},
             ),

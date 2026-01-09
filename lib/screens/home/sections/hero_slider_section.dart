@@ -6,6 +6,7 @@ import 'package:fixxev/core/theme/app_text_styles.dart';
 import 'package:fixxev/widgets/buttons/primary_button.dart';
 import 'package:fixxev/core/providers/theme_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
 /// Hero Carousel section with high-quality 4K background images - Ken Burns Zoom Effect
 class HeroSliderSection extends StatefulWidget {
@@ -24,7 +25,6 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
   
-  // Animation for Ken Burns Effect
   late AnimationController _zoomController;
   late Animation<double> _zoomAnimation;
 
@@ -41,7 +41,6 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
         'buttonText': (s['buttonText'] ?? '').toString(),
       }).toList();
     } else {
-      // Fallback to defaults
       _slides = [
         {
           'image': 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
@@ -67,24 +66,17 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
     _parseSlides();
     
     _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
+        duration: const Duration(milliseconds: 600), vsync: this);
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _fadeController, curve: Curves.easeOut),
-    );
+        CurvedAnimation(parent: _fadeController, curve: Curves.easeOut));
 
-    // Ken Burns Effect Controller - very slow zoom
     _zoomController = AnimationController(
-      duration: const Duration(seconds: 8),
-      vsync: this,
-    )..repeat(reverse: true);
-    
+        duration: const Duration(seconds: 8), vsync: this);
     _zoomAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
-      CurvedAnimation(parent: _zoomController, curve: Curves.linear),
-    );
+        CurvedAnimation(parent: _zoomController, curve: Curves.linear));
 
     _fadeController.forward();
+    _zoomController.repeat(reverse: true);
     _startAutoPlay();
   }
 
@@ -99,16 +91,6 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
         );
       }
     });
-  }
-
-  @override
-  void didUpdateWidget(HeroSliderSection oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.content != oldWidget.content) {
-      setState(() {
-        _parseSlides();
-      });
-    }
   }
 
   @override
@@ -127,29 +109,30 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
     final isMobile = screenWidth < 768;
 
     return SizedBox(
-      height: isMobile ? screenHeight * 0.85 : screenHeight * 0.95,
+      height: isMobile ? screenHeight * 0.90 : screenHeight * 0.95,
       width: double.infinity,
       child: Stack(
         children: [
-          // Background Image Carousel with Ken Burns Effect
           PageView.builder(
             controller: _pageController,
             onPageChanged: (index) {
               setState(() {
                 _currentIndex = index;
               });
-              _fadeController.reset();
-              _fadeController.forward();
+              if (!isMobile) {
+                _fadeController.reset();
+                _fadeController.forward();
+              }
             },
             itemCount: _slides.length,
             itemBuilder: (context, index) {
+              if (isMobile) return _buildSlideBackground(index);
               return ScaleTransition(
                 scale: _zoomAnimation,
                 child: _buildSlideBackground(index),
               );
             },
           ),
-          // Gradient Overlay - Lighter with blur
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
@@ -166,7 +149,6 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
               ),
             ),
           ),
-          // Diagonal accent using theme color
           Positioned(
             bottom: 0,
             left: 0,
@@ -185,38 +167,35 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
               },
             ),
           ),
-          // Floating service icons (desktop only)
           if (!isMobile)
             Positioned(
               right: 80,
-              top: screenHeight * 0.12, // Moved up from 0.2
+              top: screenHeight * 0.12,
               child: _buildFloatingIcons(),
             ),
-          // Main content
           Positioned.fill(
-            child: FadeTransition(
-              opacity: _fadeAnimation,
-              child: _buildContent(isMobile),
-            ),
+            child: isMobile 
+              ? _buildContent(isMobile)
+              : FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: _buildContent(isMobile),
+                ),
           ),
-          // Social links (desktop only)
           if (!isMobile)
             Positioned(
               left: 30,
               top: screenHeight * 0.35,
               child: _buildSocialLinks(),
             ),
-          // Carousel indicators
           Positioned(
             bottom: 150,
             left: isMobile ? 24 : 80,
             child: _buildCarouselIndicators(),
           ),
-          // Navigation arrows (desktop only)
           if (!isMobile)
             Positioned(
               right: 80,
-              bottom: 110, // Moved down from 150
+              bottom: 110,
               child: Row(
                 children: [
                   _buildNavButton(Icons.arrow_back_ios_new, _previousSlide),
@@ -243,7 +222,6 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
             return Container(color: AppColors.primaryNavy);
           },
         ),
-        // Slight blur effect
         BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
           child: Container(color: Colors.transparent),
@@ -266,7 +244,7 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
                 width: 4,
                 height: 24,
                 decoration: BoxDecoration(
-                  color: AppColors.accentBlue, // Changed to Sky Blue to match image
+                  color: AppColors.accentBlue,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -281,31 +259,38 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
             ],
           ),
           const SizedBox(height: 28),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 500),
-            transitionBuilder: (child, animation) {
-              return FadeTransition(
-                opacity: animation,
-                child: SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(0, 0.2),
-                    end: Offset.zero,
-                  ).animate(animation),
-                  child: child,
-                ),
-              );
-            },
-            child: SizedBox(
-              key: ValueKey(_currentIndex),
-              width: isMobile ? double.infinity : 700,
+          if (isMobile)
+            SizedBox(
+              width: double.infinity,
               child: Text(
                 slide['title']!,
-                style: isMobile
-                    ? AppTextStyles.heroTitle.copyWith(fontSize: 36)
-                    : AppTextStyles.heroTitle.copyWith(fontSize: 56),
+                style: AppTextStyles.heroTitle.copyWith(fontSize: 36),
+              ),
+            )
+          else
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 500),
+              transitionBuilder: (child, animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 0.2),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  ),
+                );
+              },
+              child: SizedBox(
+                key: ValueKey(_currentIndex),
+                width: 700,
+                child: Text(
+                  slide['title']!,
+                  style: AppTextStyles.heroTitle.copyWith(fontSize: 56),
+                ),
               ),
             ),
-          ),
           const SizedBox(height: 24),
           SizedBox(
             width: isMobile ? double.infinity : 520,
@@ -320,7 +305,7 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
           PrimaryButton(
             text: slide['buttonText']!,
             icon: Icons.arrow_forward,
-            onPressed: () {},
+            onPressed: () => context.go('/contact'),
           ),
         ],
       ),
@@ -343,7 +328,7 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
 
   Widget _floatingIconItem(IconData icon, String label) {
     return Container(
-      width: 130, // Increased width to prevent clipping
+      width: 130,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: AppColors.white,
@@ -425,7 +410,7 @@ class _HeroSliderSectionState extends State<HeroSliderSection>
             margin: const EdgeInsets.only(right: 10),
             decoration: BoxDecoration(
               color: _currentIndex == index
-                  ? AppColors.secondary // Mint Green for active indicator
+                  ? AppColors.secondary
                   : AppColors.textLight.withAlpha(60),
               borderRadius: BorderRadius.circular(3),
             ),

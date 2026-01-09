@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fixxev/core/services/api_service.dart';
+import 'package:fixxev/core/theme/app_colors.dart';
 
 class ThemeProvider extends ChangeNotifier {
   final ApiService _apiService = ApiService();
@@ -42,11 +43,11 @@ class ThemeProvider extends ChangeNotifier {
       final settings = await _apiService.getSettings();
       if (settings['theme'] != null) {
         final theme = settings['theme'];
-        _primaryColor = _parseColor(theme['primaryColor'], _primaryColor);
-        _secondaryColor = _parseColor(theme['secondaryColor'], _secondaryColor);
-        _accentColor = _parseColor(theme['accentColor'], _accentColor);
-        _backgroundColor = _parseColor(theme['backgroundColor'], _backgroundColor);
-        _cardColor = _parseColor(theme['cardColor'], _cardColor);
+        _primaryColor = AppColors.fromHex(theme['primaryColor']?.toString(), _primaryColor);
+        _secondaryColor = AppColors.fromHex(theme['secondaryColor']?.toString(), _secondaryColor);
+        _accentColor = AppColors.fromHex(theme['accentColor']?.toString(), _accentColor);
+        _backgroundColor = AppColors.fromHex(theme['backgroundColor']?.toString(), _backgroundColor);
+        _cardColor = AppColors.fromHex(theme['cardColor']?.toString(), _cardColor);
       }
     } catch (e) {
       debugPrint('Error loading theme: $e');
@@ -60,17 +61,6 @@ class ThemeProvider extends ChangeNotifier {
     await loadTheme();
   }
 
-  Color _parseColor(dynamic hex, Color fallback) {
-    if (hex == null || hex is! String || hex.isEmpty) return fallback;
-    try {
-      final buffer = StringBuffer();
-      if (hex.length == 6 || hex.length == 7) buffer.write('ff');
-      buffer.write(hex.replaceFirst('#', ''));
-      return Color(int.parse(buffer.toString(), radix: 16));
-    } catch (e) {
-      return fallback;
-    }
-  }
 
   ThemeData get themeData {
     return ThemeData(

@@ -6,6 +6,7 @@ import 'package:fixxev/widgets/buttons/primary_button.dart';
 import 'package:go_router/go_router.dart';
 
 /// About Us section with interactive statistics and Mission 500 info.
+/// Disabled animations for mobile to ensure robust rendering.
 class AboutUsSection extends StatefulWidget {
   final Map<String, dynamic> content;
   const AboutUsSection({super.key, required this.content});
@@ -58,7 +59,7 @@ class _AboutUsSectionState extends State<AboutUsSection> with TickerProviderStat
       width: double.infinity,
       padding: EdgeInsets.symmetric(
         horizontal: isMobile ? 24 : 80,
-        vertical: 100,
+        vertical: isMobile ? 60 : 100,
       ),
       color: Colors.white,
       child: isMobile ? _buildMobileLayout() : _buildDesktopLayout(),
@@ -101,13 +102,13 @@ class _AboutUsSectionState extends State<AboutUsSection> with TickerProviderStat
   }
 
   Widget _buildMobileLayout() {
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: Column(
-        children: [
-          _buildContentSection(),
-        ],
-      ),
+    return Column(
+      children: [
+        // Image at top for mobile
+        _AnimatedImageSection(imageUrl: widget.content['aboutImage']),
+        const SizedBox(height: 40),
+        _buildContentSection(),
+      ],
     );
   }
 
@@ -171,8 +172,12 @@ class _AnimatedImageSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 900;
+
     return Container(
-      height: 420,
+      height: isMobile ? 300 : 420,
+      width: double.infinity,
       decoration: BoxDecoration(
         color: AppColors.backgroundLight,
         borderRadius: BorderRadius.circular(24),
@@ -186,12 +191,10 @@ class _AnimatedImageSection extends StatelessWidget {
         image: DecorationImage(
           image: (imageUrl != null && imageUrl!.isNotEmpty)
               ? NetworkImage(imageUrl!)
-              : const AssetImage('assets/images/fixx_about_main.png') as ImageProvider,
+              : const AssetImage('assets/images/about_hero.png') as ImageProvider,
           fit: BoxFit.cover,
         ),
       ),
     );
   }
 }
-
-
